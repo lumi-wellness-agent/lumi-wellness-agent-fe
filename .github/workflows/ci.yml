@@ -23,3 +23,10 @@ jobs:
       - run: npm run build
         env:
           NEXT_TELEMETRY_DISABLED: '1'
+
+  # automation/bin 게이트 스크립트 회귀 검증 — fail-closed 성질 + pr-gate.jq 판정 fixture + 민감 파일 훅
+  scripts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: automation/bin/smoke-test.sh

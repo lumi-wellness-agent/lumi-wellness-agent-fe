@@ -10,13 +10,19 @@
 >
 > 각 어댑터는 **폴링 모드**, **Co-Author 트레일러**, **안전 규칙 적용 방식**(훅 유무)을 지정한다. 배포(Phase 4)의 CI·Vercel 체크 폴링은 `automation/pipeline.md`의 「폴링 실행 규칙」에 정의된 **하네스별 모드**를 따른다.
 
+## 실행 환경
+
+macOS·Linux·WSL과 Windows(PowerShell)에서 같은 절차를 쓴다. 게이트·폴링 스크립트(`automation/bin/*.mjs`)는 Node 표준 라이브러리만 쓰므로 bash·jq 없이 돌고, 명령도 OS와 상관없이 같다(`node automation/bin/pr-gate.mjs …`).
+
+- **셸 문법**: 명세의 명령은 bash 표기다. 셸이 PowerShell이면 `VAR=$(…)`·`&&`·`VAR=값 명령`·`rm -rf` 같은 문법을 PowerShell로 옮긴다 — 예: `NEXT_TELEMETRY_DISABLED=1 npm run build` → `$env:NEXT_TELEMETRY_DISABLED = "1"; npm run build` (Windows PowerShell 5.1에는 `&&`가 없다). 브랜치명을 감싸는 따옴표는 PowerShell에서도 필수다 — 따옴표 없는 `#`는 주석 시작이라 `feat/#12`가 `feat/`로 잘린다.
+
 ## 워크플로우 전제 (lumi-wellness-agent-fe)
 
 README 「브랜치·PR 규칙」이 원천이다 (BE 레포와 같은 규칙). 요약:
 
 - **`dev` 없이 feature → `main`.** `main`이 곧 통합 브랜치이고, Vercel을 연결하면 `main` push가 프로덕션 배포다.
 - **이슈 퍼스트.** 이슈 템플릿(`.github/ISSUE_TEMPLATE/*.yml`, BE와 동일)으로 이슈를 만들고 `<타입>/#<이슈번호>` 브랜치를 딴다. 타입 라벨(`✨ FEAT` 등 6개)이 레포에 없으면 Phase 3에서 만든다.
-- **PR 제목 `[<타입>/#<이슈번호>] 설명`, 본문에 `close #<이슈번호>`.** CI(`check`: lint·typecheck·build)를 통과해야 머지한다. 머지는 **squash**다 (`automation/pipeline.md` 「제목 규범」).
+- **PR 제목 `[<타입>/#<이슈번호>] 설명`, 본문에 `close #<이슈번호>`.** CI(`check`: lint·typecheck·test·build)를 통과해야 머지한다. 머지는 **squash**다 (`automation/pipeline.md` 「제목 규범」).
 - **`main` 브랜치 보호는 아직 없다.** 서버가 머지를 막지 않으므로 "게이트 PASS 없이 머지하지 않는다"는 이 명세가 지키는 규범이다. README 「Vercel」 절대로 브랜치 규칙(required check `check`)을 설정하는 것을 권한다 — 설정되면 `automation/pipeline.md` Step 1-5의 문장을 갱신한다.
 - **Vercel은 아직 연결되지 않았다** (README 「Vercel」). 연결 전 ship의 종착점은 **`main` 머지 + main push CI 성공**이고, 연결 후에는 Step 3(Vercel 프로덕션 배포 확인)이 자동으로 켜진다 — 연결 여부는 파이프라인이 GitHub Deployments로 판정한다.
 - **Supabase 접속 정보·LLM 키는 BE에서만 관리한다.** FE 환경변수는 `BACKEND_API_URL` 류의 비밀 아닌 값만 둔다 — 비밀이 FE에 들어오려 하면 그 자체가 보고 대상이다.
@@ -68,14 +74,15 @@ README 「브랜치·PR 규칙」이 원천이다 (BE 레포와 같은 규칙). 
 
 ## Phase 2: 검증
 
-CI(`.github/workflows/ci.yml`)의 **`check` 잡과 같은 명령을 같은 순서**로 로컬 선검증한다. `scripts` 잡(`automation/bin/smoke-test.sh`)은 `automation/bin/`을 고친 변경에서만 로컬로 돌린다.
+CI(`.github/workflows/ci.yml`)의 **`check` 잡과 같은 명령을 같은 순서**로 로컬 선검증한다.
 
 1. **의존성**: `node_modules`가 없거나 `package-lock.json`이 변경에 포함됐으면 `npm ci` (Node 24 — `.nvmrc`).
 2. **린트**: `npm run lint` (ESLint)
 3. **타입 검사**: `npm run typecheck` (`next typegen && tsc --noEmit`) — 라우트가 바뀐 변경에서 stale 타입이 의심되면 `rm -rf .next` 후 다시 돈다 (CI는 fresh 체크아웃이라 이 문제가 없다).
-4. **빌드**: `NEXT_TELEMETRY_DISABLED=1 npm run build`
-5. **환경변수 체크**: 새 환경변수가 도입됐으면 `automation/pipeline.md`의 「환경변수 추가 체크리스트」를 확인한다. **비밀 값**(API 키·DB 접속 정보)이 FE 환경변수로 들어오면 보고하고 중단한다 — 비밀은 BE에서만 관리한다.
-6. 실패 시 → 사용자에게 실패 내용을 보고하고 **중단**한다 (자동 수정하지 않는다). 원인 확인은 파일 읽기 도구로 최소한만 하고, 심층 진단하지 않는다.
+4. **테스트**: `npm test` (`node --test` — 게이트·폴링 스크립트 테스트 `automation/test/`)
+5. **빌드**: `NEXT_TELEMETRY_DISABLED=1 npm run build`
+6. **환경변수 체크**: 새 환경변수가 도입됐으면 `automation/pipeline.md`의 「환경변수 추가 체크리스트」를 확인한다. **비밀 값**(API 키·DB 접속 정보)이 FE 환경변수로 들어오면 보고하고 중단한다 — 비밀은 BE에서만 관리한다.
+7. 실패 시 → 사용자에게 실패 내용을 보고하고 **중단**한다 (자동 수정하지 않는다). 원인 확인은 파일 읽기 도구로 최소한만 하고, 심층 진단하지 않는다.
 
 ## Phase 3: 이슈 & 브랜치
 

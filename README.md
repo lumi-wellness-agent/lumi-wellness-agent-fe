@@ -37,6 +37,7 @@ npm run dev
 | `npm run dev` | 개발 서버 |
 | `npm run lint` | ESLint |
 | `npm run typecheck` | Next.js 타입 생성 및 TypeScript 검사 |
+| `npm test` | ship 게이트·폴링 스크립트 테스트 (`node --test`) |
 | `npm run build` | 프로덕션 빌드 |
 | `npm start` | 빌드한 서버 실행 |
 
@@ -51,9 +52,9 @@ next.config.ts      Next.js 설정
 tsconfig.json       TypeScript 설정
 eslint.config.mjs   ESLint 설정
 .env.example        환경 변수 예시
-.github/workflows/ci.yml   PR·main 푸시 검증 (lint · typecheck · build)
+.github/workflows/ci.yml   PR·main 푸시 검증 (lint · typecheck · test · build)
 .github/ISSUE_TEMPLATE/    이슈 템플릿 (BE와 동일 — ship 하네스가 이슈 본문을 만들 때 쓴다)
-automation/                ship 하네스 (하네스 중립 명세 + 게이트·폴링 스크립트)
+automation/                ship 하네스 (준비 문서 README.md + 하네스 중립 명세 + 게이트·폴링 스크립트)
 ```
 
 ## 백엔드 연동
@@ -75,14 +76,16 @@ BE 레포와 같은 규칙입니다. feature → `main`으로 올립니다 (`dev
 1. 이슈를 템플릿(기능 구현 · 기능 수정 · 오류 수정 · 리팩토링 · 문서 작업 · 기타 수정)으로 만듭니다.
 2. `main`에서 `<타입>/#<이슈 번호>` 브랜치를 만듭니다. 예: `feat/#12`, `chore/#13`
 3. `main`으로 PR을 올립니다. 제목은 `[타입/#이슈 번호] 설명`이고 본문에 `close #이슈 번호`를 적습니다.
-   CI(`check`: lint · typecheck · build)를 통과해야 머지하고, squash merge합니다.
+   CI(`check`: lint · typecheck · test · build)를 통과해야 머지하고, squash merge합니다.
 
 위 1~3을 자동화한 것이 **ship 하네스**입니다. 코드 수정을 끝낸 뒤 Claude Code에서는 `/ship`, Codex에서는
-`$ship`(또는 "ship"·"배포해줘")으로 부르면 검증(`npm run lint`·`npm run typecheck`·`npm run build`) → 이슈·브랜치
-생성 → PR → CI 게이트 → squash 머지 → main CI 확인 → (Vercel 연결 시) 프로덕션 배포 확인까지 진행합니다.
-절차 원본은 하네스 중립 명세 `automation/ship.md`·`automation/pipeline.md`이고, `.claude/commands/ship.md`와
-`.agents/skills/ship/SKILL.md`는 각 하네스의 진입 어댑터입니다. 폴링·게이트 스크립트는 `automation/bin/`에 있고,
-`automation/bin/smoke-test.sh`가 CI(`scripts` 잡)에서 회귀 검증합니다.
+`$ship`(또는 "ship"·"배포해줘")으로 부르면 검증(`npm run lint`·`npm run typecheck`·`npm test`·`npm run build`) →
+이슈·브랜치 생성 → PR → CI 게이트 → squash 머지 → main CI 확인 → (Vercel 연결 시) 프로덕션 배포 확인까지
+진행합니다. 절차 원본은 하네스 중립 명세 `automation/ship.md`·`automation/pipeline.md`이고,
+`.claude/commands/ship.md`와 `.agents/skills/ship/SKILL.md`는 각 하네스의 진입 어댑터입니다. 폴링·게이트
+스크립트(`automation/bin/*.mjs`)는 Node 표준 라이브러리만 써서 bash·jq가 필요 없고, `automation/test/`를
+`npm test`로 회귀 검증합니다. 처음 쓰는 PC에서 할 준비(도구 설치·로그인, Codex 설정, Windows)는
+[`automation/README.md`](automation/README.md)에 있습니다.
 
 ## Vercel
 

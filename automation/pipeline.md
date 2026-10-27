@@ -107,10 +107,10 @@ CI 폴링: **`node automation/bin/run-wait.mjs ci.yml main "<MERGE_SHA>" 600`** 
 
 ## 환경변수 추가 체크리스트
 
-**새 환경변수** 도입 시 머지 전 아래를 모두 확인한다. FE는 **비밀 아닌 값만** 둔다(API 키·DB 접속 정보는 BE 몫) — 비밀이 들어오면 그 자체를 보고하고 중단한다.
+**새 환경변수** 도입 시 머지 전 아래를 모두 확인한다. FE는 **비밀 아닌 값만** 둔다(LLM·콘텐츠 API 키, Supabase DB 접속 정보·secret key는 BE 몫. 공개용인 Supabase URL·publishable key는 FE에 둔다) — 비밀이 들어오면 그 자체를 보고하고 중단한다.
 
 1. `.env.example` — 키·주석 추가 (실값 금지. `.env.example`만 커밋 허용이다)
-2. `.env.local` — 로컬 값 추가 (커밋 금지 — `.gitignore`의 `.env*`)
+2. `.env` — 로컬 값 추가 (커밋 금지 — `.gitignore`의 `.env*`. BE와 같은 파일 이름을 쓴다)
 3. 브라우저 노출 여부 — 클라이언트 번들에 실리는 값은 `NEXT_PUBLIC_` 접두사가 필요하고, 그 값은 공개된다고 간주한다
 4. `README.md` — 「백엔드 연동」 등 관련 절에 설명
 5. Vercel 프로젝트 환경변수 — 연결된 경우 대시보드(Settings → Environment Variables)에 등록. 미연결이면 PR 본문 「참고 사항」에 키 이름만 적어 둔다

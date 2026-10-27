@@ -25,7 +25,7 @@ README 「브랜치·PR 규칙」이 원천이다 (BE 레포와 같은 규칙). 
 - **PR 제목 `[<타입>/#<이슈번호>] 설명`, 본문에 `close #<이슈번호>`.** CI(`check`: lint·typecheck·test·build)를 통과해야 머지한다. 머지는 **squash**다 (`automation/pipeline.md` 「제목 규범」).
 - **`main` 브랜치 보호는 아직 없다.** 서버가 머지를 막지 않으므로 "게이트 PASS 없이 머지하지 않는다"는 이 명세가 지키는 규범이다. README 「Vercel」 절대로 브랜치 규칙(required check `check`)을 설정하는 것을 권한다 — 설정되면 `automation/pipeline.md` Step 1-5의 문장을 갱신한다.
 - **Vercel은 Git 연동돼 있다** (README 「Vercel」). ship의 종착점은 **`main` 머지 + main push CI 성공 + 프로덕션 배포 확인**이다. 배포 결과와 연결 여부는 `automation/pipeline.md` Step 3이 머지 커밋의 `Vercel` 커밋 상태로 판정한다(이 레포의 Vercel은 GitHub Deployment를 만들지 않는다) — 연동이 끊기면 `NOT_CONNECTED`로 알리고 `main` 머지까지로 끝난다.
-- **Supabase DB 접속 정보·secret key와 LLM 키는 BE에서만 관리한다.** FE 환경변수는 `BACKEND_API_URL`, Supabase 프로젝트 URL·publishable key(`NEXT_PUBLIC_SUPABASE_*`)처럼 공개돼도 되는 값만 둔다 — 비밀이 FE에 들어오려 하면 그 자체가 보고 대상이다.
+- **Supabase DB 접속 정보·secret key와 LLM 키는 BE에서만 관리한다.** FE 환경변수는 BE 주소(`NEXT_PUBLIC_BACKEND_URL`), Supabase 프로젝트 URL·publishable key(`NEXT_PUBLIC_SUPABASE_*`)처럼 공개돼도 되는 값만 둔다 — 비밀이 FE에 들어오려 하면 그 자체가 보고 대상이다.
 
 ## Preflight
 

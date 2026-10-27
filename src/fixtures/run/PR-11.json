@@ -1,0 +1,636 @@
+{
+  "plan": {
+    "activity": {
+      "protocol_id": "PR-11",
+      "minutes": 50,
+      "evidence_record_ids": [
+        161,
+        162,
+        171,
+        172
+      ]
+    },
+    "rationale": "(견본) 추천 이유는 plan이 LLM으로 쓴다 — 사용자 상태, 고른 이유, 근거와 한계 2~3문장.",
+    "relaxed": [],
+    "environment_gaps": [],
+    "reference_card": {
+      "protocol_id": "PR-11",
+      "name": "야외 자연 보행",
+      "minutes": 50,
+      "composition": "SINGLE",
+      "badges": [
+        "ADAPTED_STIMULUS",
+        "PROVISIONAL_MEASURE"
+      ],
+      "goal": {
+        "goal": "S3",
+        "label": "주의·피로 회복",
+        "secondary_goal": null,
+        "source": "INFERRED",
+        "reason": "(견본) intake가 상황 단서로 고른 목표의 판단 이유 한 줄",
+        "definitions": [
+          {
+            "goal": "S3",
+            "concept": "directed attention fatigue",
+            "page": "2",
+            "sentence": "More formally, any prolonged mental effort leads to directed attention fatigue.",
+            "paper": {
+              "paper_id": "P06",
+              "title": "The restorative benefits of nature: Toward an integrative framework",
+              "authors": "Kaplan",
+              "year": 1995,
+              "doi": "10.1016/0272-4944(95)90001-2",
+              "url": "https://doi.org/10.1016/0272-4944(95)90001-2"
+            }
+          },
+          {
+            "goal": "S3",
+            "concept": "directed attention fatigue",
+            "page": "2",
+            "sentence": "Any time one has worked intensely on a project and subsequently finds oneself mentally exhausted, one has experienced this unwelcome state.",
+            "paper": {
+              "paper_id": "P06",
+              "title": "The restorative benefits of nature: Toward an integrative framework",
+              "authors": "Kaplan",
+              "year": 1995,
+              "doi": "10.1016/0272-4944(95)90001-2",
+              "url": "https://doi.org/10.1016/0272-4944(95)90001-2"
+            }
+          },
+          {
+            "goal": "S3",
+            "concept": "mental fatigue",
+            "page": "1",
+            "sentence": "Mental fatigue represents a psychobiological state with subjective (e.g., an increase in feelings of tiredness), behavioral (e.g., motivation decrease or reaction time increase), and physiological (e.g., alterations in the electroencephalogram signal) derivations in humans [6].",
+            "paper": {
+              "paper_id": "N27",
+              "title": "Mental Load and Fatigue Assessment Instruments: A Systematic Review",
+              "authors": "Díaz-García et al.",
+              "year": 2022,
+              "doi": "10.3390/ijerph19010419",
+              "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8744873/"
+            }
+          },
+          {
+            "goal": "S3",
+            "concept": "mental fatigue",
+            "page": "1",
+            "sentence": "This psychobiological state is caused by brain-demanding tasks (i.e., mental load), with a relevant role of emotional (e.g., anxiety or stress) and cognitive (e.g., working memory or cognitive flexibility) aspects [6].",
+            "paper": {
+              "paper_id": "N27",
+              "title": "Mental Load and Fatigue Assessment Instruments: A Systematic Review",
+              "authors": "Díaz-García et al.",
+              "year": 2022,
+              "doi": "10.3390/ijerph19010419",
+              "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8744873/"
+            }
+          }
+        ],
+        "evidence_outcomes": [
+          "ATTENTION"
+        ],
+        "measured_by": {
+          "instrument_id": "INS-MFVAS",
+          "name": "정신 피로 VAS (Mental Fatigue VAS)",
+          "concept": "순간 정신 피로(주관) — 피로감 · 집중 어려움 · 기운",
+          "provisional": true
+        },
+        "notes": [
+          "근거 연구는 주의 과제 성적을 봤지만, LUMI는 주의 용량을 재지 않고 지금 느끼는 정신 피로로 변화를 봅니다.",
+          "정신 피로 VAS (Mental Fatigue VAS)는 팀이 만든 임시 도구로, 아직 타당화되지 않았습니다."
+        ]
+      },
+      "grades": {
+        "ATTENTION": "A"
+      },
+      "evidence": [
+        {
+          "paper": {
+            "paper_id": "P01",
+            "title": "Attention Restoration Theory: A Systematic Review of the Attention Restoration Potential of Exposure to Natural Environments",
+            "authors": "Ohly et al.",
+            "year": 2016,
+            "doi": "10.1080/10937404.2016.1196155",
+            "url": "https://pubmed.ncbi.nlm.nih.gov/27668460/"
+          },
+          "experiment_id": null,
+          "arm_label": "SR: 주의 회복 이론",
+          "theories": [],
+          "study_design": "SYSTEMATIC_REVIEW_META",
+          "population": null,
+          "n": null,
+          "n_detail": "31편",
+          "exposure_minutes": null,
+          "regimen": null,
+          "studied_orders": [],
+          "results": [
+            {
+              "outcome": "ATTENTION",
+              "effect": "POSITIVE",
+              "measure": null,
+              "comparison": "자연 vs 비자연 환경(통합)",
+              "timepoint": null,
+              "stat": null,
+              "note": null
+            }
+          ],
+          "supports_goal": true,
+          "supported_outcomes": [
+            "ATTENTION"
+          ],
+          "flags": [
+            "ADAPTED_STIMULUS"
+          ],
+          "limits": [
+            "LUMI 콘텐츠는 이 연구의 자극과 다릅니다."
+          ],
+          "excerpts": [
+            {
+              "evidence_record_id": 161,
+              "section": "METHODS",
+              "text": "[fixture] P01 · METHODS — 원문 적재 전 자리표시자. 시트 요약: 주의 회복 이론 체계적 고찰, 31편."
+            },
+            {
+              "evidence_record_id": 162,
+              "section": "RESULTS",
+              "text": "[fixture] P01 · RESULTS — 원문 적재 전 자리표시자. 시트 요약: 자연 노출 후 주의 수행 향상이 다수 연구에서 지지."
+            }
+          ],
+          "checks": [
+            {
+              "check": "SOURCE_EXISTS",
+              "passed": true,
+              "reason": "P01 10.1080/10937404.2016.1196155 · FULL_TEXT",
+              "related_record_ids": []
+            },
+            {
+              "check": "INTERVENTION_MATCH",
+              "passed": true,
+              "reason": "제공 ['OUTDOOR_WALK'] vs 연구 ['STATIC_IMAGE', 'VIDEO', 'OUTDOOR_WALK'] → PARTIAL; 연구 조건 미상",
+              "related_record_ids": []
+            },
+            {
+              "check": "POPULATION_FIT",
+              "passed": true,
+              "reason": "임상 여부 미상",
+              "related_record_ids": []
+            },
+            {
+              "check": "OUTCOME_MEASURED",
+              "passed": true,
+              "reason": "S3 1차 지표 측정: ['ATTENTION']",
+              "related_record_ids": []
+            },
+            {
+              "check": "CONFLICT_SCAN",
+              "passed": true,
+              "reason": "상충 후보 없음",
+              "related_record_ids": []
+            },
+            {
+              "check": "STIMULUS_FIDELITY",
+              "passed": false,
+              "reason": "제공 구성 ['OUTDOOR_WALK']이 연구 자극 ['STATIC_IMAGE', 'VIDEO', 'OUTDOOR_WALK']과 다르다",
+              "related_record_ids": []
+            }
+          ],
+          "evidence_record_ids": [
+            161,
+            162
+          ]
+        },
+        {
+          "paper": {
+            "paper_id": "P04",
+            "title": "The relationship between nature exposures and attention restoration, as moderated by exposure duration: A systematic review and meta-analysis",
+            "authors": "Bell et al.",
+            "year": 2025,
+            "doi": "10.1016/j.jenvp.2025.102632",
+            "url": "https://doi.org/10.1016/j.jenvp.2025.102632"
+          },
+          "experiment_id": null,
+          "arm_label": "메타: 자연 노출 시간과 주의",
+          "theories": [],
+          "study_design": "SYSTEMATIC_REVIEW_META",
+          "population": null,
+          "n": null,
+          "n_detail": "273 결과",
+          "exposure_minutes": null,
+          "regimen": null,
+          "studied_orders": [],
+          "results": [
+            {
+              "outcome": "ATTENTION",
+              "effect": "POSITIVE",
+              "measure": null,
+              "comparison": "자연 vs 비자연 노출(통합)",
+              "timepoint": null,
+              "stat": null,
+              "note": "노출 시간이 효과를 비선형으로 조절"
+            }
+          ],
+          "supports_goal": true,
+          "supported_outcomes": [
+            "ATTENTION"
+          ],
+          "flags": [
+            "ADAPTED_STIMULUS"
+          ],
+          "limits": [
+            "LUMI 콘텐츠는 이 연구의 자극과 다릅니다."
+          ],
+          "excerpts": [
+            {
+              "evidence_record_id": 171,
+              "section": "METHODS",
+              "text": "[fixture] P04 · METHODS — 원문 적재 전 자리표시자. 시트 요약: 자연 노출 시간과 주의 회복 메타분석, 273개 결과."
+            },
+            {
+              "evidence_record_id": 172,
+              "section": "RESULTS",
+              "text": "[fixture] P04 · RESULTS — 원문 적재 전 자리표시자. 시트 요약: 자연 노출의 주의 효과 유의; 노출 시간이 비선형 조절."
+            }
+          ],
+          "checks": [
+            {
+              "check": "SOURCE_EXISTS",
+              "passed": true,
+              "reason": "P04 10.1016/j.jenvp.2025.102632 · FULL_TEXT",
+              "related_record_ids": []
+            },
+            {
+              "check": "INTERVENTION_MATCH",
+              "passed": true,
+              "reason": "제공 ['OUTDOOR_WALK'] vs 연구 ['STATIC_IMAGE', 'VIDEO', 'OUTDOOR_WALK'] → PARTIAL; 연구 조건 미상",
+              "related_record_ids": []
+            },
+            {
+              "check": "POPULATION_FIT",
+              "passed": true,
+              "reason": "임상 여부 미상",
+              "related_record_ids": []
+            },
+            {
+              "check": "OUTCOME_MEASURED",
+              "passed": true,
+              "reason": "S3 1차 지표 측정: ['ATTENTION']",
+              "related_record_ids": []
+            },
+            {
+              "check": "CONFLICT_SCAN",
+              "passed": true,
+              "reason": "상충 후보 없음",
+              "related_record_ids": []
+            },
+            {
+              "check": "STIMULUS_FIDELITY",
+              "passed": false,
+              "reason": "제공 구성 ['OUTDOOR_WALK']이 연구 자극 ['STATIC_IMAGE', 'VIDEO', 'OUTDOOR_WALK']과 다르다",
+              "related_record_ids": []
+            }
+          ],
+          "evidence_record_ids": [
+            171,
+            172
+          ]
+        }
+      ],
+      "limits": [
+        "연구 참여자에게서 관찰된 결과이며, 진단이나 치료 효과를 뜻하지 않습니다.",
+        "연구에서 쓴 자극을 LUMI에 맞게 바꾼 콘텐츠라, 같은 효과가 나는지는 확인되지 않았습니다.",
+        "한국 성인 대상 검증 없음"
+      ]
+    }
+  },
+  "content": {
+    "protocol_id": "PR-11",
+    "name": "야외 자연 보행",
+    "steps": [
+      {
+        "order": 1,
+        "type": "ACTIVITY",
+        "label": "자연 보행",
+        "minutes": 50.0,
+        "optional": false
+      }
+    ],
+    "assets": [],
+    "asset_warnings": [],
+    "image_urls": [],
+    "guide_text": "지금부터 야외 자연 보행을 약 50분 동안 합니다. 편한 자세로 시작하고, 불편하면 언제든 멈출 수 있습니다.",
+    "notice_prompt": null,
+    "content_spec": {
+      "slots": [
+        {
+          "slot": "OUTDOOR_TASK",
+          "required": true,
+          "evidence_stimulus": "P07-E1: 절반은 주의 과제로 피로 유도 → 나무 조망 착석 → 약 50분 보행; P05-E1: 약 50분 보행; N20-E1: 90분 보행; E19-E1: 20분 야외; 마음챙김/지시/마음 방황/비안내",
+          "source_policy": {
+            "fixed_text": "ALLOWED",
+            "tts": "ALLOWED",
+            "llm_rewrite": "FORBIDDEN"
+          },
+          "note": "scripts는 화면 단계(phase)별 고정 문구다 — C 제안의 phase 슬롯(INTRO_GUIDE …)이 SlotType이 아니라 문구라서 이 슬롯의 scripts로 옮겼다. FE는 phase로 찾고 text가 비면 fallback_text를 쓴다",
+          "scripts": [
+            {
+              "id": "INTRO_GUIDE",
+              "phase": "PRE_ACTIVITY_CHECK",
+              "required": true,
+              "text": "권장 시간 동안 편안한 속도로 걸으며 주변의 자연물을 바라보고, 불편하거나 위험하다고 느끼면 무리하지 말고 중단하세요.",
+              "fallback_text": "권장 시간 동안 편안한 속도로 걸으며 주변의 자연물을 바라보고, 불편하거나 위험하다고 느끼면 무리하지 말고 중단하세요.",
+              "source_policy": {
+                "fixed_text": "ALLOWED",
+                "tts": "ALLOWED",
+                "llm_rewrite": "FORBIDDEN"
+              }
+            },
+            {
+              "id": "DURING_ACTIVITY_GUIDE",
+              "phase": "RUNNING",
+              "required": false,
+              "text": "화면을 계속 바라보기보다 타이머를 가끔 확인하며 주변의 자연물을 보세요.",
+              "fallback_text": "주변의 자연물을 바라보며 활동을 이어가세요.",
+              "source_policy": {
+                "fixed_text": "ALLOWED",
+                "tts": "FORBIDDEN",
+                "llm_rewrite": "FORBIDDEN"
+              }
+            },
+            {
+              "id": "TARGET_REACHED_GUIDE",
+              "phase": "TARGET_REACHED",
+              "required": true,
+              "text": "권장 시간에 도달했습니다. 활동을 마쳤다면 완료를 눌러주세요.",
+              "fallback_text": "권장 시간에 도달했습니다. 활동을 마쳤다면 완료를 눌러주세요.",
+              "source_policy": {
+                "fixed_text": "ALLOWED",
+                "tts": "ALLOWED",
+                "llm_rewrite": "FORBIDDEN"
+              }
+            },
+            {
+              "id": "STOP_CONFIRMATION",
+              "phase": "STOP_CONFIRMATION",
+              "required": true,
+              "text": "활동을 중단하시겠습니까?",
+              "fallback_text": "활동을 중단하시겠습니까?",
+              "source_policy": {
+                "fixed_text": "ALLOWED",
+                "tts": "FORBIDDEN",
+                "llm_rewrite": "FORBIDDEN"
+              }
+            },
+            {
+              "id": "LIMITATION_NOTICE",
+              "phase": "RESULT",
+              "required": true,
+              "text": "이 활동은 실제 보행 여부나 개인별 효과를 자동으로 확인하거나 검증하지 않습니다.",
+              "fallback_text": "실제 보행 여부나 개인별 효과는 자동으로 확인되지 않습니다.",
+              "source_policy": {
+                "fixed_text": "ALLOWED",
+                "tts": "FORBIDDEN",
+                "llm_rewrite": "FORBIDDEN"
+              }
+            }
+          ]
+        }
+      ],
+      "session_ui": {
+        "status": "PROPOSED",
+        "source": "scratch/pr11/pr11-runtime.json — C 파트 실행 계약(#51)을 옮겼다",
+        "ui": {
+          "title": "야외 자연 보행",
+          "show_safety_check": true,
+          "show_self_report": false
+        },
+        "timer": {
+          "recommended_duration_seconds": 3000,
+          "user_duration_options_minutes": [
+            20,
+            50,
+            90
+          ],
+          "default_user_duration_minutes": 50,
+          "display_mode": "PROGRESS_ELAPSED",
+          "progress_max_percent": 100,
+          "show_elapsed_time": true,
+          "show_remaining_time": true,
+          "auto_stop_on_target": false,
+          "continue_elapsed_after_target": true,
+          "clock": "wall_clock_ms",
+          "allow_pause": true,
+          "allow_early_stop": false,
+          "resume_from_local_storage": true,
+          "test_presets_seconds": [
+            30,
+            60
+          ],
+          "selection_mode": "FIXED_RECOMMENDED_PENDING_INTAKE",
+          "user_duration_selection_enabled": false
+        },
+        "duration_options": {
+          "PR11-20": {
+            "minutes": 20,
+            "planned_seconds": 1200
+          },
+          "PR11-50": {
+            "minutes": 50,
+            "planned_seconds": 3000
+          },
+          "PR11-90": {
+            "minutes": 90,
+            "planned_seconds": 5400
+          }
+        },
+        "duration_input": {
+          "field": "selected_duration_option",
+          "allowed_values": [
+            "PR11-20",
+            "PR11-50",
+            "PR11-90"
+          ],
+          "default": "PR11-50",
+          "user_override": false
+        },
+        "safety_check": {
+          "required": true,
+          "mode": "USER_SELF_CONFIRMATION",
+          "all_required": true,
+          "items": [
+            "walking_environment",
+            "body_condition"
+          ],
+          "labels": {
+            "walking_environment": "현재 보행할 장소와 경로가 충분히 안전합니다.",
+            "body_condition": "현재 몸 상태로 이 활동을 진행할 수 있습니다."
+          },
+          "initial_value": false,
+          "start_enabled_when": "all_items_true",
+          "does_not_certify_safety": true,
+          "request_location_permission": false,
+          "request_sensor_permission": false
+        },
+        "self_report": {
+          "enabled": false,
+          "deferred_to_team_review": true,
+          "fields": {
+            "walked_outdoors": {
+              "type": "boolean",
+              "required": true
+            },
+            "walked_minutes": {
+              "type": "integer",
+              "minimum": 0,
+              "required": true
+            },
+            "completed_activity": {
+              "type": "boolean",
+              "required": true
+            },
+            "discomfort": {
+              "type": "string",
+              "required": false
+            },
+            "reflection": {
+              "type": "string",
+              "required": false
+            }
+          }
+        },
+        "verification": {
+          "automatic_walking": "disabled",
+          "gps": "disabled",
+          "sensor_steps": "disabled",
+          "self_report_is_not_objective_verification": true
+        },
+        "step_tracking_extension": {
+          "enabled": false,
+          "provider": "DeviceMotionEvent",
+          "permission_requested": false,
+          "estimated_steps": null,
+          "confidence": null,
+          "status": "not_measured"
+        },
+        "storage": {
+          "mode": "browser_local_storage",
+          "key": "lumi.pr11.outdoor.v1",
+          "official_server_record": false
+        },
+        "state_model": {
+          "screen_states": [
+            "INTRO",
+            "ACTIVITY",
+            "REPORT",
+            "RESULT"
+          ],
+          "timer_states": [
+            "READY",
+            "RUNNING",
+            "PAUSED",
+            "STOPPED"
+          ],
+          "transitions": [
+            "READY>RUNNING",
+            "RUNNING>PAUSED",
+            "PAUSED>RUNNING",
+            "RUNNING>STOPPED",
+            "PAUSED>STOPPED"
+          ]
+        },
+        "duration_selection": {
+          "default_minutes": 50,
+          "options": [
+            {
+              "minutes": 20,
+              "when": "limited_time_or_lower_capacity",
+              "evidence_level": "within_protocol_range_not_direct_PR11_duration",
+              "exposed_in_ui": false
+            },
+            {
+              "minutes": 50,
+              "when": "default",
+              "evidence_level": "direct_PR11_evidence",
+              "exposed_in_ui": true
+            },
+            {
+              "minutes": 90,
+              "when": "sufficient_time_and_condition",
+              "evidence_level": "direct_evidence_in_N20",
+              "exposed_in_ui": false
+            }
+          ]
+        },
+        "clock_policy": {
+          "clock_source": "wall_clock_ms",
+          "timestamp_format": "ISO-8601 UTC",
+          "exclude_paused_time": true,
+          "background_callback_guaranteed": false
+        },
+        "recovery": {
+          "on_refresh_running": "PAUSED",
+          "on_refresh_paused": "PAUSED",
+          "resume_requires_user_action": true,
+          "no_action_keeps_paused": true,
+          "safety_stop_available_in": [
+            "RUNNING",
+            "PAUSED"
+          ],
+          "safety_stop_terminal": true,
+          "store_refresh_count": true,
+          "show_refresh_count_to_user": false
+        },
+        "execution_context": {
+          "production_mode": "PROTOCOL_ACTIVITY",
+          "development_presets_seconds": [
+            30,
+            60
+          ],
+          "development_counts_as_protocol_completion": false
+        },
+        "content_validation": {
+          "required_slots": [
+            "INTRO_GUIDE",
+            "TARGET_REACHED_GUIDE",
+            "STOP_CONFIRMATION",
+            "LIMITATION_NOTICE"
+          ],
+          "missing_required_slot": "SHOW_ERROR_AND_BLOCK_START",
+          "missing_text_with_fallback": "USE_FALLBACK_TEXT",
+          "missing_optional_slot": "HIDE_AND_LOG_SLOT",
+          "error_text": "안내 문구를 불러오지 못했습니다. 활동을 시작하지 말고 잠시 후 다시 시도해 주세요."
+        },
+        "phase_history_policy": {
+          "record_events": [
+            "PRE_ACTIVITY_CHECK_CONFIRMED",
+            "ACTIVITY_STARTED",
+            "PAUSED",
+            "RESUMED",
+            "TARGET_REACHED",
+            "COMPLETED",
+            "STOPPED"
+          ],
+          "pause_recording": "FIRST_PAUSE_ONLY_UNTIL_RESUME",
+          "refresh_pause_same_as_manual_pause": true,
+          "cancelled_popup_recorded": false,
+          "paused_seconds": "NOT_IMPLEMENTED"
+        },
+        "post_activity_report": {
+          "enabled": false,
+          "planned_when": "NORMAL_COMPLETION_ONLY"
+        },
+        "stop_policy": {
+          "general_early_stop_ui": false,
+          "safety_stop_always_allowed": true,
+          "safety_stop_reason": "SAFETY_OR_DISCOMFORT",
+          "record_for_follow_up": true,
+          "allowed_stop_reasons": [
+            "SAFETY",
+            "DISCOMFORT"
+          ],
+          "user_choice_before_target": "FORBIDDEN"
+        }
+      }
+    },
+    "notice_module": null
+  }
+}

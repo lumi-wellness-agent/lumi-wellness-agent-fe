@@ -1,0 +1,585 @@
+{
+  "plan": {
+    "activity": {
+      "protocol_id": "PR-21",
+      "minutes": 16,
+      "evidence_record_ids": [
+        101,
+        102,
+        111,
+        112
+      ]
+    },
+    "rationale": "(견본) 추천 이유는 plan이 LLM으로 쓴다 — 사용자 상태, 고른 이유, 근거와 한계 2~3문장.",
+    "relaxed": [],
+    "environment_gaps": [],
+    "reference_card": {
+      "protocol_id": "PR-21",
+      "name": "실내 자연 이미지 + 약 16분 명상(S1 핵심 조합)",
+      "minutes": 16,
+      "composition": "EXPERIMENTAL",
+      "badges": [
+        "EXPERIMENTAL",
+        "CONFLICTING_EVIDENCE",
+        "ADAPTED_STIMULUS"
+      ],
+      "goal": {
+        "goal": "S1",
+        "label": "반추 완화",
+        "secondary_goal": null,
+        "source": "INFERRED",
+        "reason": "(견본) intake가 상황 단서로 고른 목표의 판단 이유 한 줄",
+        "definitions": [
+          {
+            "goal": "S1",
+            "concept": "repetitive negative thinking",
+            "page": "1–2",
+            "sentence": "Repetitive negative thinking (RNT) poses such a transdiagnostic process being defined as a thinking process that is repetitive, passive, and/or relatively uncontrollable, and focused on negative content (Ehring & Watkins, 2008).",
+            "paper": {
+              "paper_id": "P12",
+              "title": "Efficacy of cognitive behavioral therapy in treating repetitive negative thinking, rumination, and worry – a transdiagnostic meta-analysis",
+              "authors": "Stenzel et al.",
+              "year": 2025,
+              "doi": "10.1017/S0033291725000017",
+              "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12017360/"
+            }
+          },
+          {
+            "goal": "S1",
+            "concept": "rumination",
+            "page": "1",
+            "sentence": "Rumination is a common form of repetitive negative thinking involving persistent distressing thoughts (Martin & Tesser, 2006; Nolen-Hoeksema et al., 2008).",
+            "paper": {
+              "paper_id": "N26",
+              "title": "Impact of a Momentary Mindfulness Intervention on Rumination, Negative Affect, and their Dynamics in Daily Life",
+              "authors": "Bolzenkötter, Neubauer & Koval",
+              "year": 2025,
+              "doi": "10.1007/s42761-024-00291-9",
+              "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12209136/"
+            }
+          },
+          {
+            "goal": "S1",
+            "concept": "state rumination",
+            "page": "2",
+            "sentence": "Rumination has recently been conceptualized as a state-dependent cognitive response, triggered by situational factors such as perceived discrepancies between goals and current circumstances (Michel-Kröhler et al., 2023; Smith & Alloy, 2009; Tamm et al., 2024).",
+            "paper": {
+              "paper_id": "N25",
+              "title": "Measurement Invariance of the Brief State Rumination Inventory Across Administration Methods, National Samples, and Sex",
+              "authors": "Chiorri et al.",
+              "year": 2026,
+              "doi": "10.1080/00223891.2026.2726459",
+              "url": "https://www.tandfonline.com/doi/full/10.1080/00223891.2026.2726459"
+            }
+          }
+        ],
+        "evidence_outcomes": [
+          "RUMINATION"
+        ],
+        "measured_by": {
+          "instrument_id": "INS-BSRI",
+          "name": "Brief State Rumination Inventory (BSRI)",
+          "concept": "상태 반추",
+          "provisional": false
+        },
+        "notes": []
+      },
+      "grades": {
+        "RUMINATION": "—"
+      },
+      "evidence": [
+        {
+          "paper": {
+            "paper_id": "P24",
+            "title": "Default mode network connectivity contributes the augment effect stress recovery by natural viewing",
+            "authors": "Chen et al.",
+            "year": 2025,
+            "doi": "10.1016/j.ynstr.2025.100759",
+            "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12481074/"
+          },
+          "experiment_id": "P24-E1",
+          "arm_label": "P24-E1 자연 vs 도시 이미지",
+          "theories": [],
+          "study_design": "RANDOMIZED_EXPERIMENT",
+          "population": "건강 대학생(중국)",
+          "n": 131,
+          "n_detail": "131 (68/63)",
+          "exposure_minutes": null,
+          "regimen": null,
+          "studied_orders": [
+            "POST_STRESS"
+          ],
+          "results": [
+            {
+              "outcome": "AFFECT",
+              "effect": "POSITIVE",
+              "measure": "PA",
+              "comparison": "자연 vs 도시 이미지",
+              "timepoint": "직후",
+              "stat": "p=.010",
+              "note": null
+            },
+            {
+              "outcome": "AFFECT",
+              "effect": "POSITIVE",
+              "measure": "NA",
+              "comparison": "자연 vs 도시 이미지",
+              "timepoint": "직후",
+              "stat": "p=.003",
+              "note": null
+            },
+            {
+              "outcome": "RUMINATION",
+              "effect": "POSITIVE",
+              "measure": "state rumination",
+              "comparison": "자연 vs 도시 이미지",
+              "timepoint": "직후",
+              "stat": "p=.037",
+              "note": null
+            }
+          ],
+          "supports_goal": true,
+          "supported_outcomes": [
+            "RUMINATION"
+          ],
+          "flags": [
+            "CONFLICTING_EVIDENCE",
+            "ADAPTED_STIMULUS"
+          ],
+          "limits": [
+            "같은 활동 · 지표에서 효과가 없거나 반대로 나온 연구가 있습니다.",
+            "LUMI 콘텐츠는 이 연구의 자극과 다릅니다."
+          ],
+          "excerpts": [
+            {
+              "evidence_record_id": 101,
+              "section": "METHODS",
+              "text": "[fixture] P24-E1 · METHODS — 원문 적재 전 자리표시자. 시트 요약: 스트레스 유발 후 자연/도시 이미지 감상(시간 원문 확인). 건강 대학생 131명(68/63)."
+            },
+            {
+              "evidence_record_id": 102,
+              "section": "RESULTS",
+              "text": "[fixture] P24-E1 · RESULTS — 원문 적재 전 자리표시자. 시트 요약: 자연: PA↑(p=.010) NA↓(p=.003) 상태 반추↓(p=.037); 코르티솔 집단 차이 비유의."
+            }
+          ],
+          "checks": [
+            {
+              "check": "SOURCE_EXISTS",
+              "passed": true,
+              "reason": "P24 10.1016/j.ynstr.2025.100759 · FULL_TEXT",
+              "related_record_ids": []
+            },
+            {
+              "check": "INTERVENTION_MATCH",
+              "passed": true,
+              "reason": "제공 ['STATIC_IMAGE', 'MINDFULNESS'] vs 연구 ['STATIC_IMAGE'] → PARTIAL; 순서 미지정(매체만 검사)",
+              "related_record_ids": []
+            },
+            {
+              "check": "POPULATION_FIT",
+              "passed": true,
+              "reason": "NON_CLINICAL (건강 대학생(중국))",
+              "related_record_ids": []
+            },
+            {
+              "check": "OUTCOME_MEASURED",
+              "passed": true,
+              "reason": "S1 1차 지표 측정: ['RUMINATION']",
+              "related_record_ids": []
+            },
+            {
+              "check": "CONFLICT_SCAN",
+              "passed": false,
+              "reason": "같은 매체·1차 지표에서 비유의·반대 결과: P33-E1",
+              "related_record_ids": [
+                111
+              ]
+            },
+            {
+              "check": "STIMULUS_FIDELITY",
+              "passed": false,
+              "reason": "제공 구성 ['STATIC_IMAGE', 'MINDFULNESS']이 연구 자극 ['STATIC_IMAGE']과 다르다",
+              "related_record_ids": []
+            }
+          ],
+          "evidence_record_ids": [
+            101,
+            102
+          ]
+        },
+        {
+          "paper": {
+            "paper_id": "P33",
+            "title": "An Experimental Exploration of the Effects of Exposure to Images of Nature on Rumination",
+            "authors": "Golding, Gatersleben & Cropley",
+            "year": 2018,
+            "doi": "10.3390/ijerph15020300",
+            "url": "https://doi.org/10.3390/ijerph15020300"
+          },
+          "experiment_id": "P33-E1",
+          "arm_label": "P33-E1 자연 vs 도시 슬라이드쇼 vs 대기",
+          "theories": [],
+          "study_design": "RANDOMIZED_EXPERIMENT",
+          "population": "대학생(영국)",
+          "n": 58,
+          "n_detail": "58 (18/20/20)",
+          "exposure_minutes": null,
+          "regimen": null,
+          "studied_orders": [
+            "POST_STRESS"
+          ],
+          "results": [
+            {
+              "outcome": "RUMINATION",
+              "effect": "NOT_SIGNIFICANT",
+              "measure": "state rumination",
+              "comparison": "자연 vs 도시 vs 대기",
+              "timepoint": null,
+              "stat": null,
+              "note": null
+            },
+            {
+              "outcome": "AFFECT",
+              "effect": "NOT_SIGNIFICANT",
+              "measure": "negative mood",
+              "comparison": "자연 vs 도시 vs 대기",
+              "timepoint": null,
+              "stat": null,
+              "note": null
+            }
+          ],
+          "supports_goal": false,
+          "supported_outcomes": [],
+          "flags": [
+            "ADAPTED_STIMULUS",
+            "NOT_SUPPORTING"
+          ],
+          "limits": [
+            "LUMI 콘텐츠는 이 연구의 자극과 다릅니다.",
+            "목표 지표의 개선은 보이지 않아 참고로만 인용합니다."
+          ],
+          "excerpts": [
+            {
+              "evidence_record_id": 111,
+              "section": "METHODS",
+              "text": "[fixture] P33-E1 · METHODS — 원문 적재 전 자리표시자. 시트 요약: 발표 과제로 반추 유도 → 자연/도시 슬라이드쇼/대기. 대학생 58명(18/20/20)."
+            },
+            {
+              "evidence_record_id": 112,
+              "section": "RESULTS",
+              "text": "[fixture] P33-E1 · RESULTS — 원문 적재 전 자리표시자. 시트 요약: 반추·부정 기분 조건 차이 비유의; 자연 조건 벗어남·매혹감↑."
+            }
+          ],
+          "checks": [
+            {
+              "check": "SOURCE_EXISTS",
+              "passed": true,
+              "reason": "P33 10.3390/ijerph15020300 · FULL_TEXT",
+              "related_record_ids": []
+            },
+            {
+              "check": "INTERVENTION_MATCH",
+              "passed": true,
+              "reason": "제공 ['STATIC_IMAGE', 'MINDFULNESS'] vs 연구 ['STATIC_IMAGE'] → PARTIAL; 순서 미지정(매체만 검사)",
+              "related_record_ids": []
+            },
+            {
+              "check": "POPULATION_FIT",
+              "passed": true,
+              "reason": "NON_CLINICAL (대학생(영국))",
+              "related_record_ids": []
+            },
+            {
+              "check": "OUTCOME_MEASURED",
+              "passed": true,
+              "reason": "S1 1차 지표 측정: ['RUMINATION']",
+              "related_record_ids": []
+            },
+            {
+              "check": "CONFLICT_SCAN",
+              "passed": true,
+              "reason": "상충 후보 없음",
+              "related_record_ids": []
+            },
+            {
+              "check": "STIMULUS_FIDELITY",
+              "passed": false,
+              "reason": "제공 구성 ['STATIC_IMAGE', 'MINDFULNESS']이 연구 자극 ['STATIC_IMAGE']과 다르다",
+              "related_record_ids": []
+            }
+          ],
+          "evidence_record_ids": [
+            111,
+            112
+          ]
+        }
+      ],
+      "limits": [
+        "연구 참여자에게서 관찰된 결과이며, 진단이나 치료 효과를 뜻하지 않습니다.",
+        "여러 활동을 묶은 실험적 구성이라, 함께 했을 때의 효과는 검증되지 않았습니다.",
+        "같은 활동 · 지표에서 효과가 없거나 반대로 나온 연구도 있습니다.",
+        "연구에서 쓴 자극을 LUMI에 맞게 바꾼 콘텐츠라, 같은 효과가 나는지는 확인되지 않았습니다.",
+        "한국 성인 대상 검증 없음"
+      ]
+    }
+  },
+  "content": {
+    "protocol_id": "PR-21",
+    "name": "실내 자연 이미지 + 약 16분 명상(S1 핵심 조합)",
+    "steps": [
+      {
+        "order": 1,
+        "type": "ACTIVITY",
+        "label": "자연 이미지를 보며 고정 안내 명상",
+        "minutes": 16.0,
+        "optional": false
+      },
+      {
+        "order": 2,
+        "type": "NOTICE",
+        "label": "지금 느낌 알아차리기",
+        "minutes": 0.5,
+        "optional": true
+      }
+    ],
+    "assets": [
+      {
+        "slot": "GUIDE_AUDIO",
+        "url": "/assets/audio/pr21/korean-complete.mp3",
+        "provider": "CURATED_ASSET_LIBRARY",
+        "title": "PR-21 한국어 고정 안내 명상",
+        "creator": null,
+        "source_url": null,
+        "license": "USER_PROVIDED_NONCOMMERCIAL",
+        "generated": false,
+        "verification": "PENDING_CONTENT_REVIEW",
+        "metadata": {
+          "duration_seconds": 952,
+          "bitrate_kbps": 192,
+          "sha256": "A80143695BD4D849152E3B51D2D8A3210152EC2A419772B7EC6549585169DBD2",
+          "asset_ref": "audio/pr21_meditation_ko_v1",
+          "selection_mode": "FIXED",
+          "is_default": true
+        }
+      }
+    ],
+    "asset_warnings": [
+      "VISUAL_STILL: PIXABAY_API_KEY가 설정되지 않음",
+      "GUIDE_AUDIO: 고정 자산의 내용 검수가 필요함 (audio/pr21_meditation_ko_v1)"
+    ],
+    "image_urls": [],
+    "guide_text": "지금부터 자연 이미지를 바라보며 약 16분간 안내 명상을 합니다. 이 조합의 효과는 아직 충분히 검증되지 않았습니다. 편한 자세로 시작하고 불편하면 언제든 멈춰 주세요.",
+    "notice_prompt": "지금 느낌 알아차리기",
+    "content_spec": {
+      "slots": [
+        {
+          "slot": "VISUAL_STILL",
+          "required": true,
+          "evidence_stimulus": "P38 서론에서 인용한 Lymeus 2017의 실내 자연 이미지 기반 명상(원문 미수집·미검증)",
+          "source_policy": {
+            "curated": "ALLOWED",
+            "generated": "ALLOWED_WITH_FLAG",
+            "user_upload": "FORBIDDEN"
+          },
+          "note": null,
+          "selection": {
+            "provider": "PIXABAY",
+            "endpoint": "IMAGE_SEARCH",
+            "pool": "indoor_nature_meditation",
+            "query_tags": [
+              "quiet forest garden water",
+              "calm nature meditation"
+            ],
+            "include_tags": [
+              "숲",
+              "정원",
+              "잔잔한 물",
+              "부드러운 자연광"
+            ],
+            "exclude_tags": [
+              "사람",
+              "문자·로고",
+              "위협 장면",
+              "강한 대비",
+              "복잡한 인공 구조물"
+            ],
+            "quality_gate": "15분 고정 화면으로 사용해도 시각 피로·불편 요소가 없는 검수 이미지"
+          },
+          "render": {
+            "mode": "SINGLE_IMAGE",
+            "duration_seconds": 900,
+            "transition": "NONE",
+            "pan_zoom": false,
+            "brightness": "사용자 조절"
+          },
+          "personalization": {
+            "scenery": "CareRequest.preferred_scenery",
+            "palette": "CareRequest.preferred_colors − avoided_colors",
+            "accessibility": "low_vision·reduce_motion 설정을 반영"
+          },
+          "generation": {
+            "provider": "AI_HORDE",
+            "when": "큐레이션 풀에 선호·제약 조건을 충족하는 이미지가 없을 때",
+            "prompt_template_ref": "prompts/indoor_nature_meditation_v1",
+            "style": "사실적 자연 사진",
+            "negative": [
+              "사람",
+              "문자",
+              "위협 동물",
+              "초현실 색",
+              "복잡한 건축물"
+            ],
+            "timing": "세션 시작 전 비동기 생성·검수 완료. 세션 중 생성 금지",
+            "fallback": "생성 실패·대기 초과·검수 실패 시 검수된 기본 이미지 사용",
+            "verification": "UNVERIFIED"
+          }
+        },
+        {
+          "slot": "GUIDE_AUDIO",
+          "required": true,
+          "evidence_stimulus": "P38 서론에서 인용한 Lymeus 2017의 15분 명상 안내(원문 미수집·대본 미확인)",
+          "source_policy": {
+            "fixed_text": "ALLOWED",
+            "tts": "ALLOWED",
+            "llm_rewrite": "FORBIDDEN"
+          },
+          "note": null,
+          "selection": {
+            "provider": "CURATED_ASSET_LIBRARY",
+            "audio_asset_ref": "audio/pr21_meditation_ko_v1",
+            "script_ref": "scripts/pr21_meditation_ko_v1",
+            "quality_gate": "대본·발음·음량·침묵 구간을 사람이 검수한 고정 자산만",
+            "selected_asset": {
+              "ref": "audio/pr21_meditation_ko_v1",
+              "filename": "korean-complete.mp3",
+              "duration_seconds": 952,
+              "sha256": "A80143695BD4D849152E3B51D2D8A3210152EC2A419772B7EC6549585169DBD2",
+              "license": "USER_PROVIDED_NONCOMMERCIAL",
+              "review_status": "PENDING_CONTENT_REVIEW"
+            }
+          },
+          "render": {
+            "duration_seconds": 952,
+            "autoplay": false,
+            "playback_rate": 1.0,
+            "volume": "사용자 조절, 안전 상한 적용",
+            "captions": "script_ref와 동일한 고정 자막 제공"
+          },
+          "personalization": {
+            "allowed": [
+              "음량",
+              "자막 표시"
+            ],
+            "forbidden": [
+              "대본 재작성",
+              "문장 추가·삭제",
+              "속도 변경"
+            ]
+          },
+          "generation": {
+            "tts": "ALLOWED_FROM_FIXED_SCRIPT",
+            "llm_rewrite": "FORBIDDEN",
+            "cache": "검수 완료된 음성 파일을 재사용하고 세션 중 생성 금지"
+          }
+        },
+        {
+          "slot": "NOTICE_PROMPT",
+          "required": false,
+          "evidence_stimulus": "E10의 정서 명명 원리를 참고한 선택 단계이며 PR-21 중재 효과 근거로 사용하지 않음",
+          "source_policy": {
+            "fixed_text": "ALLOWED",
+            "tts": "ALLOWED",
+            "llm_rewrite": "FORBIDDEN"
+          },
+          "note": "선택 응답이며 점수화하지 않고 LLM이 문안을 바꾸지 않는다",
+          "text": "지금 느껴지는 감정이나 몸의 감각을 한 단어로 표현해 보세요.",
+          "text_ref": "notice/one_word_feeling_ko",
+          "render": {
+            "response": "OPTIONAL_ONE_WORD",
+            "scored": false
+          }
+        }
+      ]
+    },
+    "notice_module": {
+      "status": "PROPOSED",
+      "source": "scratch/pr16/pr16-runtime.json — C 파트 실행 계약(#51)을 옮겼다",
+      "state_flow": [
+        "HOST_ACTIVITY_RUNNING",
+        "PR16_POPUP_READY",
+        "PR16_INPUTTING",
+        "PR16_COMPLETED",
+        "SKIPPED",
+        "STOPPED"
+      ],
+      "popup": {
+        "enabled": true,
+        "start_text": "감정이나 분위기를 1~3개의 짧은 단어로 입력해 주세요. 이 활동에는 정답이 있지 않습니다.",
+        "actions": [
+          "SKIP",
+          "CONTINUE"
+        ],
+        "close_button": false,
+        "outside_click_closes": false
+      },
+      "input": {
+        "mode": "three_slots",
+        "slot_count": 3,
+        "minimum_valid_slots": 1,
+        "allow_free_text": true,
+        "per_slot_min_words": 1,
+        "per_slot_max_words": 3,
+        "per_slot_max_characters": 20,
+        "allow_blank_slots": true,
+        "blank_policy": "block_confirmation",
+        "sentence_input": false,
+        "normalize_whitespace": true,
+        "reject_line_breaks": true
+      },
+      "completion": {
+        "normal": "at_least_one_valid_phrase_and_user_confirm",
+        "allowed_statuses": [
+          "COMPLETED",
+          "SKIPPED",
+          "STOPPED"
+        ],
+        "skip_returns_to_host": true,
+        "stop_returns_to_host": false,
+        "self_report_only": true
+      },
+      "timer": {
+        "enabled": false,
+        "host_activity_owns_timing": true
+      },
+      "host_integration": {
+        "host_protocol_ids": [
+          "PR-01",
+          "PR-09",
+          "PR-15",
+          "PR-21"
+        ],
+        "trigger": "HOST_NOTICE_STEP",
+        "return_target": "HOST_ACTIVITY",
+        "selection_status": "INTEGRATED",
+        "note": "steps에 NOTICE 단계가 있는 활동이 호스트다. prepare가 호스트의 ActivityContent.notice_module로 이 session_ui를 싣고, FE는 그 NOTICE 단계를 이 팝업으로 그린다. 호스트 NOTICE 슬롯에 text가 있으면 그 문구를, 없으면 popup.start_text를 보여 준다"
+      },
+      "persistence": {
+        "storage": "localStorage",
+        "key": "lumi.pr16.notice.v1",
+        "refresh_policy": "mark_host_and_pr16_stopped",
+        "duplicate_completion_block": true
+      },
+      "privacy": {
+        "server_text_storage": true,
+        "separate_record": true,
+        "allow_export": true,
+        "allow_delete": true
+      },
+      "constraints": {
+        "no_diagnosis": true,
+        "no_score": true,
+        "no_therapy_claim": true
+      }
+    }
+  }
+}

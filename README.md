@@ -4,20 +4,21 @@ LUMI(Light + Mind)의 프론트엔드입니다. LUMI는 심리학 이론·임상
 React·Next.js App Router·TypeScript·Tailwind CSS v4를 사용하고 Vercel에 배포합니다.
 백엔드는 [lumi-wellness-agent-be](https://github.com/lumi-wellness-agent/lumi-wellness-agent-be)에서 개발합니다.
 
-현재는 시작 화면, 디자인 토큰(하루의 빛), 개발·빌드·검증 환경을 구성한 단계입니다. 세션 화면과 API 호출은 아직 구현하지 않았습니다.
+세션 흐름 화면 전부(로그인 · 질문 · 측정 · 활동 · 평가·선택 · 종료)와 SSE 진행 표시를 BE 세션 API에 연결한 뼈대가
+있고, 활동 플레이어는 BE 활동 노드 담당(A · B · C)이 채우는 중입니다. 누가 무엇을 채우는지는 [TEAM.md](TEAM.md)에 있습니다.
 
-## 사용자 흐름 (기획)
+## 사용자 흐름
 
 ```text
-상태 체크인 → 사전 측정 → 활동 추천 → "왜 추천했나요?" Reference 카드 → 활동 → 사후 측정
-→ 전후 비교 · 다음 단계 제안(종료 · 활동 변경 · 추가 세션) → 사용자 선택
+"오늘 상황이 어떠세요?" → (필요하면) 질문 최대 3회 → 사전 측정 → 활동 추천 · "왜 추천했나요?" Reference 카드
+→ 활동 → 사후 측정 → 전후 비교 · 다음 단계 제안(종료 · 활동 변경 · 추가 세션) → 사용자 선택
 → 활동 변경·추가 세션이면 다시 활동 추천으로, 종료면 종료 측정(S1·S2만) 뒤 끝
 ```
 
-- 상태 체크인: 자유 텍스트(예: "발표 앞두고 긴장돼요")만 필수입니다. 원하는 변화(S1 반복적 생각 완화 ·
-  S2 스트레스·긴장 완화 · S3 주의력·인지 피로 회복)·가용 시간·장소(실내·실외)는 선택 칩이고, 칩 값이 BE의
-  텍스트 분류보다 우선합니다. 선호 색상·풍경 등은 세션마다 다시 묻지 않는 프로필로 보냅니다. 스트레스
-  수치(0~10)는 받지 않고, 상태 점수는 사전 측정이 잽니다.
+- 시작: 자유 텍스트(예: "발표 앞두고 긴장돼요")만 필수입니다. 지금 있는 곳 · 이어폰 · 쓸 수 있는 시간은 선택
+  칩이고, 칩 값이 BE가 문장에서 읽은 값보다 우선합니다. 원하는 변화(S1 반복적 생각 완화 · S2 스트레스·긴장 완화 ·
+  S3 주의력·인지 피로 회복)는 묻지 않고 BE intake가 문장과 대화로 추론합니다. 부족하면 세션 안에서 보기 칩으로
+  다시 묻습니다(질문 합계 3회). 스트레스 수치(0~10)는 받지 않고, 상태 점수는 사전 측정이 잽니다.
 - 측정: 사전에 SAM(쾌·각성)과 목표 척도(S1 BSRI · S2 STAI-6 · S3 MFVAS 임시 도구), 활동이 끝날 때마다
   SAM(S3는 + MFVAS), 종료에 S1·S2 목표 척도를 한 번 더 잽니다. 문항과 응답 척도는 BE가 보내고 FE는 그대로
   그립니다.
@@ -44,7 +45,7 @@ npm run dev
 | `npm run dev` | 개발 서버 |
 | `npm run lint` | ESLint |
 | `npm run typecheck` | Next.js 타입 생성 및 TypeScript 검사 |
-| `npm test` | ship 게이트·폴링 스크립트 테스트 (`node --test`) |
+| `npm test` | ship 게이트·폴링 스크립트, 안내 음성, SSE 파서 테스트 (`node --test`) |
 | `npm run build` | 프로덕션 빌드 |
 | `npm start` | 빌드한 서버 실행 |
 
@@ -53,18 +54,34 @@ npm run dev
 ```text
 src/app/
 ├─ layout.tsx        공통 레이아웃·메타데이터·글꼴, 첫 화면 전에 빛을 정하는 스크립트
-├─ page.tsx          시작 화면
+├─ page.tsx          시작 화면 (입력은 start-form.tsx)
+├─ session/          세션 화면 — step(ASK · MEASURE · RUN · CONFIRM · END)에 따라 화면을 바꾼다
+├─ consent/          회원 기록 동의
+├─ auth/callback/    소셜 로그인에서 돌아오는 곳
+├─ settings/         화면 색 · 로그아웃 · 탈퇴
+├─ dev/              개발용 — 목업 세션 · 화면 · 플레이어 미리보기 (운영 배포에서는 404)
 ├─ light-sync.tsx    앱으로 돌아오면 빛을 다시 정하고 브라우저 상단 색을 맞춤
 └─ globals.css       Tailwind v4와 디자인 토큰 (하루의 빛)
+src/session/         세션 상태 기계(use-session.ts)와 화면들 · Reference 카드 · 진행 표시 · 문구(labels.ts)
+├─ intake/           시작 입력 · 질문(ASK) · SAFETY 도움 안내 — 담당 A
+└─ measure/          측정 화면(사전 · 사후 · 종료) — 담당 B
+src/players/         활동 플레이어 — 계약(types.ts) · 활동→플레이어 표(catalog.ts) · 호스트 · 플레이어 폴더 10개 (TEAM.md)
+src/ui/controls.tsx  공통 버튼 · 칩 · 화면 틀 (터치 48px · 토큰 색)
+src/fixtures/        BE 응답 견본 — scripts/fixtures.py가 BE 코드로 만든다
 src/lib/
+├─ api/              BE 세션 API — 계약 타입 · JSON/SSE 클라이언트 · SSE 파서(테스트 sse.test.mjs) · 목업 BE
+├─ auth.ts           Supabase 로그인 — 게스트(익명) · Google · 카카오
 ├─ light.ts          시간대·세션·설정에 따라 빛을 정하는 규칙
-└─ speech.ts         안내 음성 — 대본을 speechSynthesis로 읽고 음성을 고르는 규칙 (테스트 speech.test.mjs)
+├─ speech.ts         안내 음성 — 대본을 speechSynthesis로 읽고 음성을 고르는 규칙 (테스트 speech.test.mjs)
+└─ tone.ts           종료 알림음 — Web Audio
+scripts/fixtures.py  견본 만들기 (BE .venv로 실행, TEAM.md 「개발 방법」)
 next.config.ts      Next.js 설정
 postcss.config.mjs  Tailwind v4 PostCSS 플러그인
 tsconfig.json       TypeScript 설정
 eslint.config.mjs   ESLint 설정
 .env.example        환경 변수 예시
 AGENTS.md           AI 에이전트(Codex·Claude Code) 작업 규칙
+TEAM.md             역할별 개발 가이드 — 담당 · 파일 · 계약 · 작업 순서
 .github/workflows/ci.yml   PR·main 푸시 검증 (lint · typecheck · test · build)
 .github/ISSUE_TEMPLATE/    이슈 템플릿 (BE와 동일 — ship 하네스가 이슈 본문을 만들 때 쓴다)
 automation/                ship 하네스 (준비 문서 README.md + 하네스 중립 명세 + 게이트·폴링 스크립트)
@@ -118,40 +135,46 @@ automation/                ship 하네스 (준비 문서 README.md + 하네스 �
 
 - 로컬 서버: `http://127.0.0.1:8000`
 - 상태 확인: `GET /health`, DB 확인: `GET /health/db`
-- 정적 자산: `GET /assets/…`(BE 저장소에 둔 활동 음원). 콘텐츠 자산 URL이 `/assets/…`처럼 BE 기준 상대
-  경로로 올 수 있어 BE 주소를 붙여 씁니다.
-- 세션 API: 아직 없습니다. 설계안은 아래 「세션 요청 (설계안)」에 요약했습니다.
+- 정적 자산: `GET /assets/…`(BE 저장소에 둔 검수 음원 · 컬러링 도안). 콘텐츠 자산 URL이 `/assets/…`처럼 BE 기준
+  상대 경로로 올 수 있어 `assetUrl()`(`src/lib/api/client.ts`)로 BE 주소를 붙여 씁니다.
+- 세션 API: 아래 「세션 요청」. 계약의 원천은 BE README 「세션 API」이고, FE 타입은 `src/lib/api/types.ts`에 있습니다.
 
-`BACKEND_API_URL`은 서버 측 API 연동을 위한 예시 환경 변수입니다. 현재 코드에서는 사용하지 않습니다.
-연동 구현 시 Next.js 서버 경유 또는 브라우저 직접 호출 중 방식을 정합니다.
-브라우저에서 직접 호출하면 BE에 FE 도메인에 대한 CORS 설정이 필요합니다.
+FE는 브라우저에서 BE를 바로 부릅니다. BE가 FE 오리진을 CORS로 허용합니다 — 로컬은 `http://localhost:3000`만
+허용하므로 `127.0.0.1:3000`이 아니라 `localhost:3000`으로 엽니다. BE 주소는 `NEXT_PUBLIC_BACKEND_URL`이고,
+비어 있으면 로컬 BE(`http://127.0.0.1:8000`)를 씁니다. Vercel에는 운영 BE 주소를 넣습니다.
 
-`NEXT_PUBLIC_SUPABASE_URL`과 `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`는 브라우저에서 Supabase 로그인(익명 체험 · Google · Kakao)에 씁니다.
-로그인으로 받은 access token을 BE 요청의 `Authorization: Bearer`에 붙이면 BE가 Supabase 공개 키(JWKS)로 검증합니다.
-둘 다 브라우저에 공개되는 것을 전제로 한 값이라 FE에 둡니다. 현재 코드에서는 아직 사용하지 않습니다.
+`NEXT_PUBLIC_SUPABASE_URL`과 `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`는 브라우저에서 Supabase 로그인(익명 체험 · Google · Kakao)에 씁니다
+(`src/lib/auth.ts`). 로그인으로 받은 access token을 BE 요청의 `Authorization: Bearer`에 붙이면 BE가 Supabase 공개 키(JWKS)로 검증합니다.
+둘 다 브라우저에 공개되는 것을 전제로 한 값이라 FE에 둡니다.
 Supabase DB 접속 정보와 secret key, LLM 키, 콘텐츠 공급자 키(Pixabay · Freesound · AI Horde)는 BE에서만 관리합니다.
 
-### 세션 요청 (설계안)
+- 로그인하지 않은 사용자는 게스트(Supabase 익명 로그인)로 시작하고 기록을 남기지 않습니다. 게스트 로그인 세션은
+  sessionStorage에 둬서 탭을 닫으면 체험이 끝납니다. Supabase 대시보드에서 Anonymous Sign-Ins를 켭니다.
+- 회원은 Google · 카카오로 로그인하고 처음 한 번 기록 동의(`/consent`, `PUT /me/consent`)를 거칩니다.
+- 소셜 로그인은 `/auth/callback`으로 돌아옵니다. Supabase 대시보드 Authentication → URL Configuration의 Redirect
+  URLs에 로컬(`http://localhost:3000/auth/callback`) · 운영 · 프리뷰 배포 주소를 등록합니다.
 
-BE README 「세션 API」 설계안의 요약입니다. 원본이 바뀌면 그쪽을 따르고, interrupt payload · resume 모양은
-BE 노드 docstring에 있습니다. 세션 하나가 BE 그래프 실행(LangGraph thread) 하나입니다. 그래프는 사용자
-입력이 필요한 곳(측정 · 활동 · 다음 단계 선택)에서 멈춰 응답을 돌려주고, FE가 다음 요청을 보내면 그 자리부터
-이어 갑니다. 요청은 `sessions` · `measure` · `report` · `decision` 네 종류이고, `measure`는 측정할 때마다
-(사전 · 사후 · 종료) 보냅니다.
+### 세션 요청
 
-| 순서 | 요청 | 보내는 값 | 받는 값 |
-| --- | --- | --- | --- |
-| 1 | `POST /sessions` | `CareRequest` — 자유 텍스트 + 칩(목표 · 가용 시간 · 장소) + 프로필 | 사전 측정 문항(SAM + 목표 척도). 세션을 열지 않으면 종료(`SAFETY` · `NO_GOAL`) |
-| 2 | `POST /sessions/{id}/measure` | 사전 측정 응답 | 계획(추천 활동 · 추천 이유) · 콘텐츠 |
-| 3 | `POST /sessions/{id}/report` | `SessionReport` — 완료 여부 · 중단 사유 · NOTICE 감정 단어 1~3개(`notice_words`, 점수는 보내지 않음) | 사후 측정 문항(SAM, S3는 + MFVAS) |
-| 4 | `POST /sessions/{id}/measure` | 사후 측정 응답 | 평가(전후 비교) · 다음 단계 제안 |
-| 5 | `POST /sessions/{id}/decision` | `ReplanDecision` — 종료 · 활동 변경 · 추가 세션 | 활동 변경·추가 세션이면 새 계획·콘텐츠(3부터 반복). 종료면 S1·S2는 종료 측정 문항(BSRI · STAI-6), S3는 세션 종료 |
-| 6 | `POST /sessions/{id}/measure` | 종료 측정 응답(S1·S2만) | 세션 종료 |
+세션 하나가 BE 그래프 실행(LangGraph thread) 하나입니다. 그래프는 사용자 입력이 필요한 곳에서 멈춰
+`{session_id, step, node, payload}`를 돌려주고, FE는 `step`으로 화면을 고릅니다(`src/session/session-flow.tsx`).
+응답 전에 LLM이 도는 요청은 SSE로 받아 진행 문구를 띄웁니다.
+
+| 요청 | 보내는 값 | 받는 `step` |
+| --- | --- | --- |
+| `POST /sessions` (SSE) | `CareRequest` — 자유 텍스트 + 환경 칩 + 프로필 | `ASK` · `MEASURE`(사전) · `END`(`SAFETY`) |
+| `POST /sessions/{id}/answer` (SSE) | `IntakeAnswer` — 고른 보기의 `set`을 합친 `answer`, 직접 쓴 `text`, 되묻기의 `skip` 중 하나 | `ASK` · `MEASURE`(사전) · `END` |
+| `POST /sessions/{id}/measure` | `{instrument_id: {item_id: value}}` — 사전(SSE) · 사후 · 종료 | `RUN` · `CONFIRM` · `END` |
+| `POST /sessions/{id}/report` | `SessionReport` — 완료 여부 · 중단 사유 · NOTICE 감정 단어 1~3개(점수는 보내지 않음) | `MEASURE`(사후 — SAM, S3는 + MFVAS) |
+| `POST /sessions/{id}/decision` (SSE) | `ReplanDecision` — 종료 · 활동 변경 · 추가 세션 | `RUN` · `MEASURE`(종료, S1·S2) · `END` |
+| `POST /sessions/{id}/retry` (SSE) | — | `STALLED`에서 멈춘 노드부터 다시 |
+| `GET /sessions/{id}` | — | 지금 멈춘 자리(새로고침 · 끊긴 스트림 복구) |
 
 - 측정 문항은 도구마다 응답 척도(`scale.kind` — PICTORIAL · LIKERT · SLIDER)와 문항·양끝 라벨이 함께 옵니다.
-  응답은 받은 도구 전부를 `{instrument_id: {item_id: value}}`로 묶어 보냅니다.
-- 안전 신호가 있으면(`SAFETY`) 세션 대신 안전 안내로 끝납니다. 목표를 정하지 못하면(`NO_GOAL`) 목표 칩을
-  보여 주고 `goal`을 채워 1부터 다시 보냅니다.
+  받은 도구 전부에 답해야 하고, 슬라이더는 사용자가 건드린 문항만 답으로 셉니다.
+- 안전 신호가 있으면(`SAFETY`) 세션 대신 도움 안내로 끝납니다.
+- 오류는 `{"detail": {code, message, …}}`이고 BE README 「오류」 표대로 다룹니다 — 동의가 없으면 동의 화면,
+  `retryable`이면 `retry`, 스트림이 끊기거나 단계가 어긋나면 `GET`으로 멈춘 자리를 다시 봅니다.
 
 ## 안내 음성
 

@@ -1,0 +1,656 @@
+{
+  "plan": {
+    "activity": {
+      "protocol_id": "PR-10",
+      "minutes": 20,
+      "evidence_record_ids": [
+        161,
+        162,
+        171,
+        172
+      ]
+    },
+    "rationale": "(견본) 추천 이유는 plan이 LLM으로 쓴다 — 사용자 상태, 고른 이유, 근거와 한계 2~3문장.",
+    "relaxed": [],
+    "environment_gaps": [],
+    "reference_card": {
+      "protocol_id": "PR-10",
+      "name": "자연환경 알아차리기 20분 (ReST 참고)",
+      "minutes": 20,
+      "composition": "EXPERIMENTAL",
+      "badges": [
+        "EXPERIMENTAL",
+        "ADAPTED_STIMULUS",
+        "PROVISIONAL_MEASURE"
+      ],
+      "goal": {
+        "goal": "S3",
+        "label": "주의·피로 회복",
+        "secondary_goal": null,
+        "source": "INFERRED",
+        "reason": "(견본) intake가 상황 단서로 고른 목표의 판단 이유 한 줄",
+        "definitions": [
+          {
+            "goal": "S3",
+            "concept": "directed attention fatigue",
+            "page": "2",
+            "sentence": "More formally, any prolonged mental effort leads to directed attention fatigue.",
+            "paper": {
+              "paper_id": "P06",
+              "title": "The restorative benefits of nature: Toward an integrative framework",
+              "authors": "Kaplan",
+              "year": 1995,
+              "doi": "10.1016/0272-4944(95)90001-2",
+              "url": "https://doi.org/10.1016/0272-4944(95)90001-2"
+            }
+          },
+          {
+            "goal": "S3",
+            "concept": "directed attention fatigue",
+            "page": "2",
+            "sentence": "Any time one has worked intensely on a project and subsequently finds oneself mentally exhausted, one has experienced this unwelcome state.",
+            "paper": {
+              "paper_id": "P06",
+              "title": "The restorative benefits of nature: Toward an integrative framework",
+              "authors": "Kaplan",
+              "year": 1995,
+              "doi": "10.1016/0272-4944(95)90001-2",
+              "url": "https://doi.org/10.1016/0272-4944(95)90001-2"
+            }
+          },
+          {
+            "goal": "S3",
+            "concept": "mental fatigue",
+            "page": "1",
+            "sentence": "Mental fatigue represents a psychobiological state with subjective (e.g., an increase in feelings of tiredness), behavioral (e.g., motivation decrease or reaction time increase), and physiological (e.g., alterations in the electroencephalogram signal) derivations in humans [6].",
+            "paper": {
+              "paper_id": "N27",
+              "title": "Mental Load and Fatigue Assessment Instruments: A Systematic Review",
+              "authors": "Díaz-García et al.",
+              "year": 2022,
+              "doi": "10.3390/ijerph19010419",
+              "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8744873/"
+            }
+          },
+          {
+            "goal": "S3",
+            "concept": "mental fatigue",
+            "page": "1",
+            "sentence": "This psychobiological state is caused by brain-demanding tasks (i.e., mental load), with a relevant role of emotional (e.g., anxiety or stress) and cognitive (e.g., working memory or cognitive flexibility) aspects [6].",
+            "paper": {
+              "paper_id": "N27",
+              "title": "Mental Load and Fatigue Assessment Instruments: A Systematic Review",
+              "authors": "Díaz-García et al.",
+              "year": 2022,
+              "doi": "10.3390/ijerph19010419",
+              "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8744873/"
+            }
+          }
+        ],
+        "evidence_outcomes": [
+          "ATTENTION"
+        ],
+        "measured_by": {
+          "instrument_id": "INS-MFVAS",
+          "name": "정신 피로 VAS (Mental Fatigue VAS)",
+          "concept": "순간 정신 피로(주관) — 피로감 · 집중 어려움 · 기운",
+          "provisional": true
+        },
+        "notes": [
+          "근거 연구는 주의 과제 성적을 봤지만, LUMI는 주의 용량을 재지 않고 지금 느끼는 정신 피로로 변화를 봅니다.",
+          "정신 피로 VAS (Mental Fatigue VAS)는 팀이 만든 임시 도구로, 아직 타당화되지 않았습니다."
+        ]
+      },
+      "grades": {
+        "ATTENTION": "B"
+      },
+      "evidence": [
+        {
+          "paper": {
+            "paper_id": "P01",
+            "title": "Attention Restoration Theory: A Systematic Review of the Attention Restoration Potential of Exposure to Natural Environments",
+            "authors": "Ohly et al.",
+            "year": 2016,
+            "doi": "10.1080/10937404.2016.1196155",
+            "url": "https://pubmed.ncbi.nlm.nih.gov/27668460/"
+          },
+          "experiment_id": null,
+          "arm_label": "SR: 주의 회복 이론",
+          "theories": [],
+          "study_design": "SYSTEMATIC_REVIEW_META",
+          "population": null,
+          "n": null,
+          "n_detail": "31편",
+          "exposure_minutes": null,
+          "regimen": null,
+          "studied_orders": [],
+          "results": [
+            {
+              "outcome": "ATTENTION",
+              "effect": "POSITIVE",
+              "measure": null,
+              "comparison": "자연 vs 비자연 환경(통합)",
+              "timepoint": null,
+              "stat": null,
+              "note": null
+            }
+          ],
+          "supports_goal": true,
+          "supported_outcomes": [
+            "ATTENTION"
+          ],
+          "flags": [
+            "ADAPTED_STIMULUS"
+          ],
+          "limits": [
+            "LUMI 콘텐츠는 이 연구의 자극과 다릅니다."
+          ],
+          "excerpts": [
+            {
+              "evidence_record_id": 161,
+              "section": "METHODS",
+              "text": "[fixture] P01 · METHODS — 원문 적재 전 자리표시자. 시트 요약: 주의 회복 이론 체계적 고찰, 31편."
+            },
+            {
+              "evidence_record_id": 162,
+              "section": "RESULTS",
+              "text": "[fixture] P01 · RESULTS — 원문 적재 전 자리표시자. 시트 요약: 자연 노출 후 주의 수행 향상이 다수 연구에서 지지."
+            }
+          ],
+          "checks": [
+            {
+              "check": "SOURCE_EXISTS",
+              "passed": true,
+              "reason": "P01 10.1080/10937404.2016.1196155 · FULL_TEXT",
+              "related_record_ids": []
+            },
+            {
+              "check": "INTERVENTION_MATCH",
+              "passed": true,
+              "reason": "제공 ['MINDFULNESS', 'VIDEO'] vs 연구 ['STATIC_IMAGE', 'VIDEO', 'OUTDOOR_WALK'] → PARTIAL; 연구 조건 미상",
+              "related_record_ids": []
+            },
+            {
+              "check": "POPULATION_FIT",
+              "passed": true,
+              "reason": "임상 여부 미상",
+              "related_record_ids": []
+            },
+            {
+              "check": "OUTCOME_MEASURED",
+              "passed": true,
+              "reason": "S3 1차 지표 측정: ['ATTENTION']",
+              "related_record_ids": []
+            },
+            {
+              "check": "CONFLICT_SCAN",
+              "passed": true,
+              "reason": "상충 후보 없음",
+              "related_record_ids": []
+            },
+            {
+              "check": "STIMULUS_FIDELITY",
+              "passed": false,
+              "reason": "제공 구성 ['MINDFULNESS', 'VIDEO']이 연구 자극 ['STATIC_IMAGE', 'VIDEO', 'OUTDOOR_WALK']과 다르다",
+              "related_record_ids": []
+            }
+          ],
+          "evidence_record_ids": [
+            161,
+            162
+          ]
+        },
+        {
+          "paper": {
+            "paper_id": "P04",
+            "title": "The relationship between nature exposures and attention restoration, as moderated by exposure duration: A systematic review and meta-analysis",
+            "authors": "Bell et al.",
+            "year": 2025,
+            "doi": "10.1016/j.jenvp.2025.102632",
+            "url": "https://doi.org/10.1016/j.jenvp.2025.102632"
+          },
+          "experiment_id": null,
+          "arm_label": "메타: 자연 노출 시간과 주의",
+          "theories": [],
+          "study_design": "SYSTEMATIC_REVIEW_META",
+          "population": null,
+          "n": null,
+          "n_detail": "273 결과",
+          "exposure_minutes": null,
+          "regimen": null,
+          "studied_orders": [],
+          "results": [
+            {
+              "outcome": "ATTENTION",
+              "effect": "POSITIVE",
+              "measure": null,
+              "comparison": "자연 vs 비자연 노출(통합)",
+              "timepoint": null,
+              "stat": null,
+              "note": "노출 시간이 효과를 비선형으로 조절"
+            }
+          ],
+          "supports_goal": true,
+          "supported_outcomes": [
+            "ATTENTION"
+          ],
+          "flags": [
+            "ADAPTED_STIMULUS"
+          ],
+          "limits": [
+            "LUMI 콘텐츠는 이 연구의 자극과 다릅니다."
+          ],
+          "excerpts": [
+            {
+              "evidence_record_id": 171,
+              "section": "METHODS",
+              "text": "[fixture] P04 · METHODS — 원문 적재 전 자리표시자. 시트 요약: 자연 노출 시간과 주의 회복 메타분석, 273개 결과."
+            },
+            {
+              "evidence_record_id": 172,
+              "section": "RESULTS",
+              "text": "[fixture] P04 · RESULTS — 원문 적재 전 자리표시자. 시트 요약: 자연 노출의 주의 효과 유의; 노출 시간이 비선형 조절."
+            }
+          ],
+          "checks": [
+            {
+              "check": "SOURCE_EXISTS",
+              "passed": true,
+              "reason": "P04 10.1016/j.jenvp.2025.102632 · FULL_TEXT",
+              "related_record_ids": []
+            },
+            {
+              "check": "INTERVENTION_MATCH",
+              "passed": true,
+              "reason": "제공 ['MINDFULNESS', 'VIDEO'] vs 연구 ['STATIC_IMAGE', 'VIDEO', 'OUTDOOR_WALK'] → PARTIAL; 연구 조건 미상",
+              "related_record_ids": []
+            },
+            {
+              "check": "POPULATION_FIT",
+              "passed": true,
+              "reason": "임상 여부 미상",
+              "related_record_ids": []
+            },
+            {
+              "check": "OUTCOME_MEASURED",
+              "passed": true,
+              "reason": "S3 1차 지표 측정: ['ATTENTION']",
+              "related_record_ids": []
+            },
+            {
+              "check": "CONFLICT_SCAN",
+              "passed": true,
+              "reason": "상충 후보 없음",
+              "related_record_ids": []
+            },
+            {
+              "check": "STIMULUS_FIDELITY",
+              "passed": false,
+              "reason": "제공 구성 ['MINDFULNESS', 'VIDEO']이 연구 자극 ['STATIC_IMAGE', 'VIDEO', 'OUTDOOR_WALK']과 다르다",
+              "related_record_ids": []
+            }
+          ],
+          "evidence_record_ids": [
+            171,
+            172
+          ]
+        }
+      ],
+      "limits": [
+        "연구 참여자에게서 관찰된 결과이며, 진단이나 치료 효과를 뜻하지 않습니다.",
+        "여러 활동을 묶은 실험적 구성이라, 함께 했을 때의 효과는 검증되지 않았습니다.",
+        "연구에서 쓴 자극을 LUMI에 맞게 바꾼 콘텐츠라, 같은 효과가 나는지는 확인되지 않았습니다.",
+        "한국 성인 대상 검증 없음"
+      ]
+    }
+  },
+  "content": {
+    "protocol_id": "PR-10",
+    "name": "자연환경 알아차리기 20분 (ReST 참고)",
+    "steps": [
+      {
+        "order": 1,
+        "type": "ACTIVITY",
+        "label": "앉아서 자연 알아차리기 20분",
+        "minutes": 20.0,
+        "optional": false
+      }
+    ],
+    "assets": [],
+    "asset_warnings": [],
+    "image_urls": [],
+    "guide_text": "편안하고 안전한 곳에 앉아 주세요. 지금부터 20분 동안 몸과 주변의 자연을 천천히 알아차려 보겠습니다.",
+    "notice_prompt": null,
+    "content_spec": {
+      "slots": [
+        {
+          "slot": "GUIDE_AUDIO",
+          "required": true,
+          "evidence_stimulus": "P38 3.1.3: 1·3·5주 수업 시작 20분, 착석, 지도자 동일 대본, 기본 운동 녹음은 숙제용 제공. P22 실제 식물원·온실. LUMI 대본/영상은 별도 설계.",
+          "source_policy": {
+            "fixed_text": "ALLOWED",
+            "tts": "ALLOWED",
+            "llm_rewrite": "FORBIDDEN"
+          },
+          "note": null,
+          "text": "편안하고 안전한 곳에 앉아 주세요.\n\n지금부터 20분 동안 몸과 주변의 자연을 천천히 알아차려 보겠습니다.\n\n실제 자연환경에 있다면 주변을 살펴보고, 실내에 있다면 화면의 자연 영상을 편하게 바라봐 주세요.\n\n안내가 잠시 멈추면 자신의 속도로 주변을 느껴보세요. 불편하면 언제든 활동을 멈춰도 괜찮습니다.",
+          "scripts": [
+            {
+              "id": "START",
+              "elapsed_seconds": 0,
+              "text": "편안하고 안전한 곳에 앉아 주세요.\n\n지금부터 20분 동안 몸과 주변의 자연을 천천히 알아차려 보겠습니다.\n\n실제 자연환경에 있다면 주변을 살펴보고, 실내에 있다면 화면의 자연 영상을 편하게 바라봐 주세요.\n\n안내가 잠시 멈추면 자신의 속도로 주변을 느껴보세요. 불편하면 언제든 활동을 멈춰도 괜찮습니다."
+            },
+            {
+              "id": "BODY",
+              "elapsed_seconds": 90,
+              "text": "먼저 지금 앉아 있는 몸의 느낌을 가볍게 알아차려 보세요.\n\n몸이 의자나 바닥에 닿는 느낌이 어떤가요?\n\n자세를 바르게 만들려고 애쓰지 않아도 괜찮습니다. 지금 편안한 자세로 잠시 머물러 주세요."
+            },
+            {
+              "id": "BREATH",
+              "elapsed_seconds": 180,
+              "text": "이제 호흡에 잠시 주의를 가져와 보세요.\n\n숨을 들이쉬고 내쉴 때 몸에서 느껴지는 움직임을 가볍게 알아차립니다.\n\n호흡을 바꾸려고 하지 않아도 괜찮아요. 자연스럽게 이어지는 호흡을 자신의 속도로 느껴보세요."
+            },
+            {
+              "id": "TOUCH",
+              "elapsed_seconds": 270,
+              "text": "이번에는 몸에 닿는 느낌을 조금 더 살펴보세요.\n\n발이 바닥에 닿는 느낌이나 손이 놓여 있는 곳의 감촉을 느껴볼 수 있습니다.\n\n공기의 온도나 바람이 느껴진다면 그것도 가볍게 알아차려 보세요. 특별한 느낌을 찾으려고 애쓰지 않아도 괜찮습니다."
+            },
+            {
+              "id": "SOUND",
+              "elapsed_seconds": 360,
+              "text": "이제 주변에서 들리는 소리에 귀를 기울여 보세요.\n\n가까운 곳이나 먼 곳에서 어떤 소리가 들리나요?\n\n자연의 소리가 들릴 수도 있고, 사람이나 다른 생활의 소리가 들릴 수도 있습니다. 소리가 없거나 잘 들리지 않아도 괜찮아요."
+            },
+            {
+              "id": "SOUND_OBSERVE",
+              "elapsed_seconds": 450,
+              "text": "들리는 소리가 있다면 좋고 나쁨을 판단하기보다, 그저 소리가 들린다는 것을 알아차려 보세요.\n\n소리는 나타났다가 사라지고, 다시 다른 소리가 들릴 수도 있습니다.\n\n소리에 집중하는 것이 불편하다면 언제든 몸이 닿는 느낌이나 편안한 풍경으로 주의를 옮겨도 좋아요."
+            },
+            {
+              "id": "NATURE",
+              "elapsed_seconds": 540,
+              "text": "이제 눈앞의 자연을 천천히 살펴보세요.\n\n실제 주변을 보고 있다면 눈에 들어오는 나무나 식물, 하늘을 편하게 바라봐 주세요.\n\n영상을 보고 있다면 화면에 보이는 풍경을 부담 없이 살펴봅니다. 특별한 것을 찾아내려고 하지 않아도 괜찮아요."
+            },
+            {
+              "id": "LIGHT_COLOR",
+              "elapsed_seconds": 630,
+              "text": "눈에 들어오는 빛과 색을 가볍게 알아차려 보세요.\n\n밝은 곳과 어두운 곳이 있을 수도 있고, 여러 가지 색이 보일 수도 있습니다.\n\n어떤 색을 꼭 찾아야 하는 것은 아닙니다. 지금 자연스럽게 눈길이 가는 곳을 편하게 바라봐 주세요."
+            },
+            {
+              "id": "MOVEMENT",
+              "elapsed_seconds": 720,
+              "text": "주변이나 화면에서 움직이는 것이 있다면 천천히 살펴보세요.\n\n나뭇잎이나 물결처럼 작은 움직임이 보일 수도 있습니다.\n\n움직임이 없거나 잘 보이지 않아도 괜찮아요. 눈앞의 풍경을 지금 모습 그대로 바라보면 됩니다."
+            },
+            {
+              "id": "ATTENTION",
+              "elapsed_seconds": 810,
+              "text": "지금 마음이 가는 곳이 있다면 그곳에 잠시 머물러 보세요.\n\n하나의 나뭇잎일 수도 있고, 빛이 닿는 모습이나 풍경 전체일 수도 있습니다.\n\n시선이 다른 곳으로 옮겨가도 괜찮아요. 편안하게 느껴지는 대로 자연스럽게 살펴보세요."
+            },
+            {
+              "id": "OPEN",
+              "elapsed_seconds": 900,
+              "text": "이제 시선이나 소리, 몸의 느낌 중에서 자연스럽게 알아차려지는 것이 있다면 잠시 주의를 두어 보세요.\n\n하나만 계속 바라보려고 애쓰지 않아도 괜찮습니다.\n\n지금 이 순간에 느껴지는 것들이 어떻게 나타나고 바뀌는지 열린 마음으로 살펴봅니다."
+            },
+            {
+              "id": "THOUGHTS",
+              "elapsed_seconds": 990,
+              "text": "주변을 살펴보는 동안 떠오르는 생각이나 감정이 있을 수도 있습니다.\n\n생각을 멈추거나 다른 감정을 만들려고 하지 않아도 괜찮아요.\n\n지금 어떤 경험이 있는지 가볍게 알아차리고, 원할 때 다시 주변의 풍경이나 몸의 느낌으로 돌아와 보세요."
+            },
+            {
+              "id": "RETURN",
+              "elapsed_seconds": 1080,
+              "text": "이제 활동을 마무리할 준비를 하겠습니다.\n\n다시 몸이 의자나 바닥에 닿아 있는 느낌을 알아차려 보세요.\n\n지금 있는 공간과 주변의 소리를 편안하게 느끼며 잠시 머물러 주세요. 바로 움직이지 않아도 괜찮습니다."
+            },
+            {
+              "id": "END",
+              "elapsed_seconds": 1160,
+              "text": "이제 자연을 알아차리는 활동을 마무리합니다.\n\n화면을 보고 있었다면 천천히 시선을 주변 공간으로 옮겨 보세요.\n\n몸을 가볍게 움직이고, 자신의 속도로 다음 활동을 시작하면 됩니다."
+            }
+          ],
+          "render": {
+            "status": "SPEC_ONLY",
+            "activity_seconds": 1200,
+            "timer_start": "AT_START_AUDIO",
+            "timer_continues_during_audio": true,
+            "cues": [
+              {
+                "elapsed_seconds": 0,
+                "script_id": "START"
+              },
+              {
+                "elapsed_seconds": 90,
+                "script_id": "BODY"
+              },
+              {
+                "elapsed_seconds": 180,
+                "script_id": "BREATH"
+              },
+              {
+                "elapsed_seconds": 270,
+                "script_id": "TOUCH"
+              },
+              {
+                "elapsed_seconds": 360,
+                "script_id": "SOUND"
+              },
+              {
+                "elapsed_seconds": 450,
+                "script_id": "SOUND_OBSERVE"
+              },
+              {
+                "elapsed_seconds": 540,
+                "script_id": "NATURE"
+              },
+              {
+                "elapsed_seconds": 630,
+                "script_id": "LIGHT_COLOR"
+              },
+              {
+                "elapsed_seconds": 720,
+                "script_id": "MOVEMENT"
+              },
+              {
+                "elapsed_seconds": 810,
+                "script_id": "ATTENTION"
+              },
+              {
+                "elapsed_seconds": 900,
+                "script_id": "OPEN"
+              },
+              {
+                "elapsed_seconds": 990,
+                "script_id": "THOUGHTS"
+              },
+              {
+                "elapsed_seconds": 1080,
+                "script_id": "RETURN"
+              },
+              {
+                "elapsed_seconds": 1160,
+                "script_id": "END"
+              }
+            ],
+            "silence_between_cues": true,
+            "on_stop": "STOP_TIMER_AND_CANCEL_ALL_PENDING_AUDIO",
+            "completion_sound": "UNDECIDED",
+            "note": "각 클립 길이와 간격, 마지막 안내 40초 이내, 총 20분을 실제 제작 후 검증."
+          },
+          "selection": {
+            "type": "APPROVED_FIXED_SCRIPT",
+            "script_ids": [
+              "START",
+              "BODY",
+              "BREATH",
+              "TOUCH",
+              "SOUND",
+              "SOUND_OBSERVE",
+              "NATURE",
+              "LIGHT_COLOR",
+              "MOVEMENT",
+              "ATTENTION",
+              "OPEN",
+              "THOUGHTS",
+              "RETURN",
+              "END"
+            ]
+          },
+          "personalization": {
+            "script_rewrite": false
+          },
+          "generation": {
+            "method": "TTS_FROM_APPROVED_TEXT",
+            "status": "SPEC_ONLY",
+            "language": "ko-KR",
+            "provider": "BROWSER_SPEECH_SYNTHESIS",
+            "voice_id": null,
+            "clips": [
+              {
+                "id": "START",
+                "asset_url": null,
+                "duration_seconds": null
+              },
+              {
+                "id": "BODY",
+                "asset_url": null,
+                "duration_seconds": null
+              },
+              {
+                "id": "BREATH",
+                "asset_url": null,
+                "duration_seconds": null
+              },
+              {
+                "id": "TOUCH",
+                "asset_url": null,
+                "duration_seconds": null
+              },
+              {
+                "id": "SOUND",
+                "asset_url": null,
+                "duration_seconds": null
+              },
+              {
+                "id": "SOUND_OBSERVE",
+                "asset_url": null,
+                "duration_seconds": null
+              },
+              {
+                "id": "NATURE",
+                "asset_url": null,
+                "duration_seconds": null
+              },
+              {
+                "id": "LIGHT_COLOR",
+                "asset_url": null,
+                "duration_seconds": null
+              },
+              {
+                "id": "MOVEMENT",
+                "asset_url": null,
+                "duration_seconds": null
+              },
+              {
+                "id": "ATTENTION",
+                "asset_url": null,
+                "duration_seconds": null
+              },
+              {
+                "id": "OPEN",
+                "asset_url": null,
+                "duration_seconds": null
+              },
+              {
+                "id": "THOUGHTS",
+                "asset_url": null,
+                "duration_seconds": null
+              },
+              {
+                "id": "RETURN",
+                "asset_url": null,
+                "duration_seconds": null
+              },
+              {
+                "id": "END",
+                "asset_url": null,
+                "duration_seconds": null
+              }
+            ],
+            "quality_checks": [
+              "각 클립 지속시간, 음성 간 겹침 및 전체 20분 검토",
+              "실제 환경과 영상 두 경우 문안 적합성 점검",
+              "START와 guide 중복 재생 방지"
+            ]
+          },
+          "script_review": {
+            "status": "DRAFT",
+            "source": "P38 3.1.3: 1·3·5주 수업 시작 20분, 착석, 지도자 동일 대본, 기본 운동 녹음은 숙제용 제공. P22 실제 식물원·온실. LUMI 대본/영상은 별도 설계.",
+            "note": "원본 스크립트 미확보. LUMI 작성 문안 및 간격은 직접 검증되지 않음."
+          }
+        },
+        {
+          "slot": "VISUAL_VIDEO",
+          "required": false,
+          "evidence_stimulus": "영상 대안은 P38·P22의 실제 자연환경과 다른 LUMI 변형; 동일 효과 미확인.",
+          "source_policy": {},
+          "note": "영상 준비 및 접근성, 반복 경계·권리 검수 필요.",
+          "selection": {
+            "scene": "잔잔한 나뭇잎이나 물결 등 천천히 움직이는 자연 영상",
+            "asset_url": null,
+            "license": null,
+            "provider": "PIXABAY",
+            "endpoint": "VIDEO_SEARCH",
+            "query_tags": [
+              "calm nature",
+              "forest stream"
+            ],
+            "min_source_duration_seconds": 30,
+            "quality_gate": "자연 영상·출처·이용 조건·반복 재생 적합성 검토"
+          },
+          "render": {
+            "video_mode_only": true,
+            "loop": true,
+            "activity_seconds": 1200,
+            "nature_sound": "UNDECIDED",
+            "note": "자연음 사용 여부 결정 보류. 20분 반복 재생은 LUMI 설계; 선택형 모드 연결 확인 필요.",
+            "duration_seconds": 1200
+          }
+        }
+      ],
+      "session_modes": {
+        "status": "SPEC_ONLY",
+        "choose_before_session": true,
+        "modes": [
+          {
+            "id": "REAL_NATURE",
+            "environment": "공원·정원·식물원·온실 등 실제 자연환경",
+            "posture": "SEATED",
+            "uses_video": false
+          },
+          {
+            "id": "NATURE_VIDEO",
+            "environment": "실내 자연 영상",
+            "posture": "SEATED",
+            "uses_video": true,
+            "requires": [
+              "SCREEN",
+              "VIDEO_ASSET"
+            ]
+          }
+        ],
+        "note": "이 선택 분기는 확장 명세로 기존 앱의 지원 여부 미확인. 스키마 성공은 분기 실행 보장을 뜻하지 않음."
+      },
+      "session_ui": {
+        "status": "SPEC_ONLY",
+        "timer_initial_seconds": 1200,
+        "timer_format": "MM:SS",
+        "video_mode": "자연 영상과 방해되지 않는 타이머",
+        "real_nature_mode": "사용자가 화면을 보지 않아도 안내를 듣고 활동 가능",
+        "controls": {
+          "close_icon": true,
+          "on_exit": "STOP_TIMER_AND_ALL_AUDIO_AND_VIDEO"
+        },
+        "completion_sound": "UNDECIDED"
+      }
+    },
+    "notice_module": null
+  }
+}

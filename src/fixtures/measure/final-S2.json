@@ -1,0 +1,55 @@
+{
+  "measure": "FINAL",
+  "round": 1,
+  "instruments": [
+    {
+      "instrument_id": "INS-STAI6",
+      "name": "STAI 상태판 6문항 단축형 (STAI-6)",
+      "instruction": null,
+      "scale": {
+        "min": 1.0,
+        "max": 4.0,
+        "step": 1.0,
+        "kind": "LIKERT"
+      },
+      "items": [
+        {
+          "id": "calm",
+          "text": null,
+          "low_label": null,
+          "high_label": null
+        },
+        {
+          "id": "tense",
+          "text": null,
+          "low_label": null,
+          "high_label": null
+        },
+        {
+          "id": "upset",
+          "text": null,
+          "low_label": null,
+          "high_label": null
+        },
+        {
+          "id": "relaxed",
+          "text": null,
+          "low_label": null,
+          "high_label": null
+        },
+        {
+          "id": "content",
+          "text": null,
+          "low_label": null,
+          "high_label": null
+        },
+        {
+          "id": "worried",
+          "text": null,
+          "low_label": null,
+          "high_label": null
+        }
+      ]
+    }
+  ]
+}

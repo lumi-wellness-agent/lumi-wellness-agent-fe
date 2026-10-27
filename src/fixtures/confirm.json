@@ -1,0 +1,26 @@
+{
+  "evaluation": {
+    "goal": "S2",
+    "round": 1,
+    "deltas": {
+      "valence": 1.0,
+      "arousal": -2.0
+    },
+    "improved": true,
+    "completed": true
+  },
+  "proposal": {
+    "recommended": "END",
+    "reason": "사전보다 나아졌다",
+    "options": [
+      "END",
+      "CHANGE_ACTIVITY",
+      "ADDITIONAL_SESSION"
+    ]
+  },
+  "options": [
+    "END",
+    "CHANGE_ACTIVITY",
+    "ADDITIONAL_SESSION"
+  ]
+}

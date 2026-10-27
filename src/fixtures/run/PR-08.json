@@ -1,0 +1,452 @@
+{
+  "plan": {
+    "activity": {
+      "protocol_id": "PR-08",
+      "minutes": 20,
+      "evidence_record_ids": []
+    },
+    "rationale": "(견본) 추천 이유는 plan이 LLM으로 쓴다 — 사용자 상태, 고른 이유, 근거와 한계 2~3문장.",
+    "relaxed": [],
+    "environment_gaps": [],
+    "reference_card": {
+      "protocol_id": "PR-08",
+      "name": "유도 심상 20분",
+      "minutes": 20,
+      "composition": "SINGLE",
+      "badges": [
+        "NO_VERIFIED_EVIDENCE"
+      ],
+      "goal": {
+        "goal": "S2",
+        "label": "긴장·스트레스 완화",
+        "secondary_goal": null,
+        "source": "INFERRED",
+        "reason": "(견본) intake가 상황 단서로 고른 목표의 판단 이유 한 줄",
+        "definitions": [
+          {
+            "goal": "S2",
+            "concept": "stress",
+            "page": "2",
+            "sentence": "Stress means a situation in which a person feels tense, restless, nervous or anxious or is unable to sleep at night because his/her mind is troubled all the time.",
+            "paper": {
+              "paper_id": "N04",
+              "title": "Validity of a single-item measure of stress symptoms",
+              "authors": "Elo, Leppänen & Jahkola",
+              "year": 2003,
+              "doi": "10.5271/sjweh.752",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/14712852/"
+            }
+          },
+          {
+            "goal": "S2",
+            "concept": "state anxiety",
+            "page": "1",
+            "sentence": "The first questionnaire measures state anxiety (how one feels at the moment), the second, trait anxiety (how one generally feels).",
+            "paper": {
+              "paper_id": "N07",
+              "title": "The development of a six-item short-form of the state scale of the Spielberger State-Trait Anxiety Inventory (STAI)",
+              "authors": "Marteau & Bekker",
+              "year": 1992,
+              "doi": "10.1111/j.2044-8260.1992.tb00997.x",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/1393159/"
+            }
+          },
+          {
+            "goal": "S2",
+            "concept": "affect (pleasure · arousal)",
+            "page": "1",
+            "sentence": "The evidence suggests that these interrelationships can be represented by a spatial model in which affective concepts fall in a circle in the following order: pleasure (0°), excitement (45°), arousal (90°), distress (135°), displeasure (180°), depression (225°), sleepiness (270°), and relaxation (315°).",
+            "paper": {
+              "paper_id": "N01",
+              "title": "A circumplex model of affect",
+              "authors": "Russell",
+              "year": 1980,
+              "doi": "10.1037/h0077714",
+              "url": "https://doi.org/10.1037/h0077714"
+            }
+          }
+        ],
+        "evidence_outcomes": [
+          "SUBJECTIVE_STRESS",
+          "AFFECT"
+        ],
+        "measured_by": {
+          "instrument_id": "INS-STAI6",
+          "name": "STAI 상태판 6문항 단축형 (STAI-6)",
+          "concept": "상태 불안",
+          "provisional": false
+        },
+        "notes": []
+      },
+      "grades": {
+        "SUBJECTIVE_STRESS": "B",
+        "AFFECT": "B"
+      },
+      "evidence": [],
+      "limits": [
+        "연구 참여자에게서 관찰된 결과이며, 진단이나 치료 효과를 뜻하지 않습니다.",
+        "이번에는 이 활동을 직접 뒷받침하는 검증된 연구를 찾지 못했습니다.",
+        "한국 성인 대상 검증 없음"
+      ]
+    }
+  },
+  "content": {
+    "protocol_id": "PR-08",
+    "name": "유도 심상 20분",
+    "steps": [
+      {
+        "order": 1,
+        "type": "ACTIVITY",
+        "label": "녹음 안내 심상 20분",
+        "minutes": 20.0,
+        "optional": false
+      }
+    ],
+    "assets": [],
+    "asset_warnings": [],
+    "image_urls": [],
+    "guide_text": "지금부터 20분 동안 음성 안내를 들으며 편안한 장소를 떠올려 보겠습니다.",
+    "notice_prompt": null,
+    "content_spec": {
+      "slots": [
+        {
+          "slot": "GUIDE_AUDIO",
+          "required": true,
+          "evidence_stimulus": "P18-E3: 녹음 안내 20분 단회",
+          "source_policy": {
+            "fixed_text": "ALLOWED",
+            "tts": "ALLOWED",
+            "llm_rewrite": "FORBIDDEN"
+          },
+          "note": "사용자 승인 대본과 시점 명세. 실제 음성 생성, 타이머 및 음파 화면 구현은 별도.",
+          "text": "지금부터 20분 동안 음성 안내를 들으며 편안한 장소를 떠올려 보겠습니다.\n\n편하게 앉거나 누워 주세요. 눈을 감거나 편안한 곳에 시선을 두어도 좋습니다.\n\n안내가 멈추면 자신의 속도로 장면을 떠올려 보세요. 불편하다면 눈을 뜨고 주변을 살펴보거나 언제든 멈춰도 괜찮습니다.\n\n이제 실제로 가봤거나 마음속으로 만든 편안한 장소를 하나 떠올려 보세요.",
+          "scripts": [
+            {
+              "id": "START",
+              "elapsed_seconds": 0,
+              "text": "지금부터 20분 동안 음성 안내를 들으며 편안한 장소를 떠올려 보겠습니다.\n\n편하게 앉거나 누워 주세요. 눈을 감거나 편안한 곳에 시선을 두어도 좋습니다.\n\n안내가 멈추면 자신의 속도로 장면을 떠올려 보세요. 불편하다면 눈을 뜨고 주변을 살펴보거나 언제든 멈춰도 괜찮습니다.\n\n이제 실제로 가봤거나 마음속으로 만든 편안한 장소를 하나 떠올려 보세요."
+            },
+            {
+              "id": "GENTLE_IMAGERY",
+              "elapsed_seconds": 80,
+              "text": "장면이 선명하게 보이지 않아도 괜찮아요.\n\n그저 자신에게 편안하게 느껴지는 장소를 떠올리며 잠시 머물러 보세요."
+            },
+            {
+              "id": "PLACE",
+              "elapsed_seconds": 120,
+              "text": "이제 떠올린 장소의 전체적인 모습을 가볍게 살펴보세요.\n\n넓게 펼쳐진 곳일 수도 있고, 아늑한 작은 공간일 수도 있습니다.\n\n어떤 모습이어야 한다고 정할 필요는 없어요. 지금 떠오르는 모습 그대로 두어도 괜찮습니다."
+            },
+            {
+              "id": "COMFORT",
+              "elapsed_seconds": 210,
+              "text": "그 장소에서 마음이 가는 부분이 있나요?\n\n특별한 무언가를 찾아내지 않아도 괜찮습니다. 편안하게 느껴지는 곳이 있다면, 그곳에 잠시 머물러 보세요.\n\n다른 장소가 더 편하게 느껴진다면 언제든 바꾸어도 좋습니다."
+            },
+            {
+              "id": "LIGHT_COLOR",
+              "elapsed_seconds": 300,
+              "text": "이번에는 그 장소의 빛이나 색을 천천히 떠올려 보세요.\n\n밝은 곳일 수도 있고, 은은한 빛이 있는 곳일 수도 있습니다.\n\n떠오르는 색이 있다면 가볍게 바라보고, 아무 색도 떠오르지 않는다면 편안한 느낌만 따라가도 괜찮습니다."
+            },
+            {
+              "id": "SPACE",
+              "elapsed_seconds": 390,
+              "text": "그 장소에서 내가 어디에 있는지 가볍게 떠올려 보세요.\n\n앉아 있을 수도 있고, 누워 있거나 편안하게 서 있을 수도 있습니다.\n\n내 주변이 어떤 모습인지 천천히 살펴보되, 떠오르지 않는 부분은 그대로 두어도 괜찮아요."
+            },
+            {
+              "id": "SOUND",
+              "elapsed_seconds": 480,
+              "text": "원한다면 그 장소에서 들려올 것 같은 소리를 떠올려 보세요.\n\n조용한 소리가 있을 수도 있고, 아무 소리도 들리지 않는 편안한 공간일 수도 있습니다.\n\n어떤 소리가 떠오르든, 지금 자신에게 편안한 정도로만 머물러 보세요."
+            },
+            {
+              "id": "TEMPERATURE",
+              "elapsed_seconds": 570,
+              "text": "이번에는 그곳의 온도나 공기를 떠올려 볼 수 있습니다.\n\n따뜻하거나 시원한 느낌이 들 수도 있고, 그저 온화하고 편안하게 느껴질 수도 있어요.\n\n특별한 감각이 떠오르지 않아도 괜찮습니다. 자신의 속도로 잠시 머물러 보세요."
+            },
+            {
+              "id": "SUPPORT",
+              "elapsed_seconds": 660,
+              "text": "상상 속에서 몸이 닿아 있는 곳을 가볍게 떠올려 보세요.\n\n의자나 침대일 수도 있고, 다른 편안한 곳일 수도 있습니다.\n\n지금 실제로 몸을 움직일 필요는 없어요. 편안하게 지지받는 느낌을 상상하며 잠시 머물러 보세요."
+            },
+            {
+              "id": "SELECT_SENSATION",
+              "elapsed_seconds": 750,
+              "text": "지금까지 떠올린 모습이나 감각 중에 마음에 드는 것이 있다면 하나를 골라 보세요.\n\n빛이나 색일 수도 있고, 소리나 온도일 수도 있습니다. 단지 편안한 장소라는 느낌이어도 괜찮아요.\n\n고르기 어렵다면 아무것도 정하지 않고 조용히 머물러도 좋습니다."
+            },
+            {
+              "id": "STAY",
+              "elapsed_seconds": 840,
+              "text": "이제 잠시, 자신이 선택한 장소에 그대로 머물러 보겠습니다.\n\n무언가를 더 만들어내거나 바꾸려고 애쓰지 않아도 괜찮아요.\n\n다른 생각이 떠오르면 그대로 알아차리고, 원할 때 다시 편안한 장소나 느낌으로 돌아와 보세요."
+            },
+            {
+              "id": "PREPARE_RETURN",
+              "elapsed_seconds": 930,
+              "text": "이제 잠시 후 이 활동을 마무리할 준비를 하겠습니다.\n\n떠올린 장소를 천천히 한 번 더 살펴보세요. 마음에 남는 모습이나 느낌이 있다면 가볍게 기억해 두어도 좋습니다.\n\n서두르지 않고, 자신의 속도로 장면에서 조금씩 돌아올 준비를 해보세요."
+            },
+            {
+              "id": "BODY",
+              "elapsed_seconds": 1020,
+              "text": "이제 마음속 장면에서 잠시 벗어나, 지금 몸이 닿아 있는 곳에 주의를 가져와 보세요.\n\n의자나 바닥, 침대에 몸이 닿아 있는 느낌을 가볍게 알아차립니다.\n\n특별히 자세를 바꿀 필요는 없습니다. 지금 편안한 자세 그대로 있어도 좋아요."
+            },
+            {
+              "id": "SURROUNDINGS",
+              "elapsed_seconds": 1080,
+              "text": "지금 내가 있는 공간을 천천히 의식해 보세요.\n\n주변에서 들리는 소리가 있다면 가볍게 알아차리고, 몸이 닿은 곳의 느낌도 다시 느껴봅니다.\n\n원한다면 손이나 발을 가볍게 움직여도 괜찮습니다."
+            },
+            {
+              "id": "OPEN_EYES",
+              "elapsed_seconds": 1140,
+              "text": "이제 활동이 곧 끝납니다.\n\n눈을 감고 있었다면 준비가 되었을 때 천천히 눈을 떠 보세요. 눈을 뜨고 있었다면 주변을 편안하게 둘러보아도 좋습니다.\n\n바로 움직이기보다 잠시 현재의 공간에 머물러 주세요."
+            },
+            {
+              "id": "CLOSING",
+              "elapsed_seconds": 1180,
+              "text": "유도 심상 활동을 마무리합니다.\n\n자신의 속도로 천천히 일상으로 돌아가세요."
+            }
+          ],
+          "script_review": {
+            "status": "DRAFT",
+            "source": "P18-E3: 녹음 음성 유도 심상 20분. 원본 대본과 장면 및 간격은 확인하지 못함.",
+            "adaptations": [
+              "LUMI에서 자유 장소 선택, 감각별 안내, 휴식 간격과 현재로 돌아오는 순서 및 대본을 새로 설계함.",
+              "각 음성 시점과 UI, 배경음 및 종료음 미사용은 연구 조건 재현 또는 효과 동등성 근거가 아님."
+            ]
+          },
+          "selection": {
+            "type": "APPROVED_FIXED_SCRIPT",
+            "script_ids": [
+              "START",
+              "GENTLE_IMAGERY",
+              "PLACE",
+              "COMFORT",
+              "LIGHT_COLOR",
+              "SPACE",
+              "SOUND",
+              "TEMPERATURE",
+              "SUPPORT",
+              "SELECT_SENSATION",
+              "STAY",
+              "PREPARE_RETURN",
+              "BODY",
+              "SURROUNDINGS",
+              "OPEN_EYES",
+              "CLOSING"
+            ]
+          },
+          "render": {
+            "status": "SPEC_ONLY",
+            "activity_seconds": 1200,
+            "timer_start": "AT_START_AUDIO",
+            "timer_continues_during_audio": true,
+            "cues": [
+              {
+                "elapsed_seconds": 0,
+                "script_id": "START"
+              },
+              {
+                "elapsed_seconds": 80,
+                "script_id": "GENTLE_IMAGERY"
+              },
+              {
+                "elapsed_seconds": 120,
+                "script_id": "PLACE"
+              },
+              {
+                "elapsed_seconds": 210,
+                "script_id": "COMFORT"
+              },
+              {
+                "elapsed_seconds": 300,
+                "script_id": "LIGHT_COLOR"
+              },
+              {
+                "elapsed_seconds": 390,
+                "script_id": "SPACE"
+              },
+              {
+                "elapsed_seconds": 480,
+                "script_id": "SOUND"
+              },
+              {
+                "elapsed_seconds": 570,
+                "script_id": "TEMPERATURE"
+              },
+              {
+                "elapsed_seconds": 660,
+                "script_id": "SUPPORT"
+              },
+              {
+                "elapsed_seconds": 750,
+                "script_id": "SELECT_SENSATION"
+              },
+              {
+                "elapsed_seconds": 840,
+                "script_id": "STAY"
+              },
+              {
+                "elapsed_seconds": 930,
+                "script_id": "PREPARE_RETURN"
+              },
+              {
+                "elapsed_seconds": 1020,
+                "script_id": "BODY"
+              },
+              {
+                "elapsed_seconds": 1080,
+                "script_id": "SURROUNDINGS"
+              },
+              {
+                "elapsed_seconds": 1140,
+                "script_id": "OPEN_EYES"
+              },
+              {
+                "elapsed_seconds": 1180,
+                "script_id": "CLOSING"
+              }
+            ],
+            "silence_between_cues": true,
+            "countdown_sound": false,
+            "completion_sound": false,
+            "on_stop": "STOP_TIMER_AND_CANCEL_ALL_PENDING_AUDIO",
+            "at_1200_seconds": "COMPLETE_SESSION",
+            "note": "각 안내 실제 음성 길이는 미측정. 다음 안내 이전 종료 및 종료 20초 이내 마지막 음성 종료를 제작 후 검증."
+          },
+          "personalization": {
+            "location": "USER_CHOSEN_MENTALLY",
+            "script_rewrite": false
+          },
+          "generation": {
+            "method": "TTS_FROM_APPROVED_TEXT",
+            "status": "SPEC_ONLY",
+            "language": "ko-KR",
+            "voice_direction": "차분하고 또렷한 한국어, 동일 화자, 자연스러운 속도",
+            "background_music": false,
+            "background_ambience": false,
+            "llm_rewrite": false,
+            "provider": "BROWSER_SPEECH_SYNTHESIS",
+            "voice_id": null,
+            "clips": [
+              {
+                "id": "START",
+                "asset_url": null,
+                "duration_seconds": null
+              },
+              {
+                "id": "GENTLE_IMAGERY",
+                "asset_url": null,
+                "duration_seconds": null
+              },
+              {
+                "id": "PLACE",
+                "asset_url": null,
+                "duration_seconds": null
+              },
+              {
+                "id": "COMFORT",
+                "asset_url": null,
+                "duration_seconds": null
+              },
+              {
+                "id": "LIGHT_COLOR",
+                "asset_url": null,
+                "duration_seconds": null
+              },
+              {
+                "id": "SPACE",
+                "asset_url": null,
+                "duration_seconds": null
+              },
+              {
+                "id": "SOUND",
+                "asset_url": null,
+                "duration_seconds": null
+              },
+              {
+                "id": "TEMPERATURE",
+                "asset_url": null,
+                "duration_seconds": null
+              },
+              {
+                "id": "SUPPORT",
+                "asset_url": null,
+                "duration_seconds": null
+              },
+              {
+                "id": "SELECT_SENSATION",
+                "asset_url": null,
+                "duration_seconds": null
+              },
+              {
+                "id": "STAY",
+                "asset_url": null,
+                "duration_seconds": null
+              },
+              {
+                "id": "PREPARE_RETURN",
+                "asset_url": null,
+                "duration_seconds": null
+              },
+              {
+                "id": "BODY",
+                "asset_url": null,
+                "duration_seconds": null
+              },
+              {
+                "id": "SURROUNDINGS",
+                "asset_url": null,
+                "duration_seconds": null
+              },
+              {
+                "id": "OPEN_EYES",
+                "asset_url": null,
+                "duration_seconds": null
+              },
+              {
+                "id": "CLOSING",
+                "asset_url": null,
+                "duration_seconds": null
+              }
+            ],
+            "quality_checks": [
+              "승인 문안과 음성 일치 및 발음 검수",
+              "각 클립의 재생 길이 및 다음 시점과 겹침 확인",
+              "첫 안내 80초 이내, 마지막 안내 20초 이내 종료 확인",
+              "갑작스러운 음량 변화 없이 동일 화자와 일관된 음량 확인",
+              "전체 20분과 모든 침묵 구간 및 종료 확인"
+            ]
+          }
+        }
+      ],
+      "session_ui": {
+        "status": "SPEC_ONLY",
+        "component": "CIRCULAR_SESSION_TIMER",
+        "timer": {
+          "format": "MM:SS",
+          "initial_seconds": 1200,
+          "starts_at": "START_AUDIO",
+          "at_zero": "COMPLETE_WITHOUT_SOUND"
+        },
+        "outer_wave": {
+          "visible_when": "GUIDE_SPEECH_PLAYING",
+          "hidden_when": "SILENCE",
+          "animation": "SOFT_PLAYBACK_ANIMATION",
+          "actual_amplitude_analysis_required": false
+        },
+        "imagery_image_or_video": false,
+        "controls": {
+          "close_icon": true,
+          "back_navigation": true,
+          "on_exit": "STOP_TIMER_AND_ALL_AUDIO_AND_CANCEL_PENDING_CUES",
+          "completed_on_exit": false
+        },
+        "completion": {
+          "at_1200_seconds": "SUBMIT_SESSION_REPORT",
+          "completed": true,
+          "next": "MEASURE_POST"
+        },
+        "accessibility": {
+          "eyes_closed_optional": true
+        }
+      }
+    },
+    "notice_module": null
+  }
+}

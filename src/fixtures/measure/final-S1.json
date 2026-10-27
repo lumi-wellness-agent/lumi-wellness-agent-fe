@@ -1,0 +1,67 @@
+{
+  "measure": "FINAL",
+  "round": 1,
+  "instruments": [
+    {
+      "instrument_id": "INS-BSRI",
+      "name": "Brief State Rumination Inventory (BSRI)",
+      "instruction": null,
+      "scale": {
+        "min": 0.0,
+        "max": 100.0,
+        "step": 1.0,
+        "kind": "SLIDER"
+      },
+      "items": [
+        {
+          "id": "item1",
+          "text": null,
+          "low_label": null,
+          "high_label": null
+        },
+        {
+          "id": "item2",
+          "text": null,
+          "low_label": null,
+          "high_label": null
+        },
+        {
+          "id": "item3",
+          "text": null,
+          "low_label": null,
+          "high_label": null
+        },
+        {
+          "id": "item4",
+          "text": null,
+          "low_label": null,
+          "high_label": null
+        },
+        {
+          "id": "item5",
+          "text": null,
+          "low_label": null,
+          "high_label": null
+        },
+        {
+          "id": "item6",
+          "text": null,
+          "low_label": null,
+          "high_label": null
+        },
+        {
+          "id": "item7",
+          "text": null,
+          "low_label": null,
+          "high_label": null
+        },
+        {
+          "id": "item8",
+          "text": null,
+          "low_label": null,
+          "high_label": null
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,380 @@
+{
+  "plan": {
+    "activity": {
+      "protocol_id": "PR-14",
+      "minutes": 20,
+      "evidence_record_ids": []
+    },
+    "rationale": "(견본) 추천 이유는 plan이 LLM으로 쓴다 — 사용자 상태, 고른 이유, 근거와 한계 2~3문장.",
+    "relaxed": [],
+    "environment_gaps": [],
+    "reference_card": {
+      "protocol_id": "PR-14",
+      "name": "만다라 컬러링",
+      "minutes": 20,
+      "composition": "SINGLE",
+      "badges": [
+        "NO_VERIFIED_EVIDENCE"
+      ],
+      "goal": {
+        "goal": "S2",
+        "label": "긴장·스트레스 완화",
+        "secondary_goal": null,
+        "source": "INFERRED",
+        "reason": "(견본) intake가 상황 단서로 고른 목표의 판단 이유 한 줄",
+        "definitions": [
+          {
+            "goal": "S2",
+            "concept": "stress",
+            "page": "2",
+            "sentence": "Stress means a situation in which a person feels tense, restless, nervous or anxious or is unable to sleep at night because his/her mind is troubled all the time.",
+            "paper": {
+              "paper_id": "N04",
+              "title": "Validity of a single-item measure of stress symptoms",
+              "authors": "Elo, Leppänen & Jahkola",
+              "year": 2003,
+              "doi": "10.5271/sjweh.752",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/14712852/"
+            }
+          },
+          {
+            "goal": "S2",
+            "concept": "state anxiety",
+            "page": "1",
+            "sentence": "The first questionnaire measures state anxiety (how one feels at the moment), the second, trait anxiety (how one generally feels).",
+            "paper": {
+              "paper_id": "N07",
+              "title": "The development of a six-item short-form of the state scale of the Spielberger State-Trait Anxiety Inventory (STAI)",
+              "authors": "Marteau & Bekker",
+              "year": 1992,
+              "doi": "10.1111/j.2044-8260.1992.tb00997.x",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/1393159/"
+            }
+          },
+          {
+            "goal": "S2",
+            "concept": "affect (pleasure · arousal)",
+            "page": "1",
+            "sentence": "The evidence suggests that these interrelationships can be represented by a spatial model in which affective concepts fall in a circle in the following order: pleasure (0°), excitement (45°), arousal (90°), distress (135°), displeasure (180°), depression (225°), sleepiness (270°), and relaxation (315°).",
+            "paper": {
+              "paper_id": "N01",
+              "title": "A circumplex model of affect",
+              "authors": "Russell",
+              "year": 1980,
+              "doi": "10.1037/h0077714",
+              "url": "https://doi.org/10.1037/h0077714"
+            }
+          }
+        ],
+        "evidence_outcomes": [
+          "SUBJECTIVE_STRESS",
+          "AFFECT"
+        ],
+        "measured_by": {
+          "instrument_id": "INS-STAI6",
+          "name": "STAI 상태판 6문항 단축형 (STAI-6)",
+          "concept": "상태 불안",
+          "provisional": false
+        },
+        "notes": []
+      },
+      "grades": {
+        "SUBJECTIVE_STRESS": "A",
+        "AFFECT": "B"
+      },
+      "evidence": [],
+      "limits": [
+        "연구 참여자에게서 관찰된 결과이며, 진단이나 치료 효과를 뜻하지 않습니다.",
+        "이번에는 이 활동을 직접 뒷받침하는 검증된 연구를 찾지 못했습니다.",
+        "한국 성인 대상 검증 없음"
+      ]
+    }
+  },
+  "content": {
+    "protocol_id": "PR-14",
+    "name": "만다라 컬러링",
+    "steps": [
+      {
+        "order": 1,
+        "type": "ACTIVITY",
+        "label": "컬러링 20분",
+        "minutes": 20.0,
+        "optional": false
+      }
+    ],
+    "assets": [
+      {
+        "slot": "COLORING_TEMPLATE",
+        "url": "/assets/coloring/pr14/mandala-1.svg",
+        "provider": "CURATED_ASSET_LIBRARY",
+        "title": "만다라 도안 1",
+        "creator": null,
+        "source_url": null,
+        "license": null,
+        "generated": false,
+        "verification": "PENDING_CONTENT_REVIEW",
+        "metadata": {
+          "design_id": "mandala-1",
+          "format": "SVG",
+          "region_attribute": "data-region-id",
+          "region_count": 169,
+          "outline_id": "outline",
+          "view_box": "0 0 1920 1920",
+          "file_bytes": 132498,
+          "sha256": "F8CFFE524868B2D750DF7F041E5777EECFFD32416CC7298106EFC45B5DC1881E",
+          "origin": "scratch/pr14/assets/processed-images/mandala-1.svg (C 파트 전처리 SVG, #51)",
+          "provenance_note": "원본 이미지의 출처·라이선스가 적혀 있지 않다 — 확인 전까지 PENDING_CONTENT_REVIEW",
+          "asset_ref": "coloring/pr14_mandala_1",
+          "selection_mode": "FIRST_THEN_RANDOM",
+          "is_default": true
+        }
+      },
+      {
+        "slot": "COLORING_TEMPLATE",
+        "url": "/assets/coloring/pr14/mandala-2.svg",
+        "provider": "CURATED_ASSET_LIBRARY",
+        "title": "만다라 도안 2",
+        "creator": null,
+        "source_url": null,
+        "license": null,
+        "generated": false,
+        "verification": "PENDING_CONTENT_REVIEW",
+        "metadata": {
+          "design_id": "mandala-2",
+          "format": "SVG",
+          "region_attribute": "data-region-id",
+          "region_count": 137,
+          "outline_id": "outline",
+          "view_box": "0 0 1920 1920",
+          "file_bytes": 141701,
+          "sha256": "4804C58DF08DCAA6B9273E48E270B1441DE72FF75637087F067B22910417C761",
+          "origin": "scratch/pr14/assets/processed-images/mandala-2.svg (C 파트 전처리 SVG, #51)",
+          "provenance_note": "원본 이미지의 출처·라이선스가 적혀 있지 않다 — 확인 전까지 PENDING_CONTENT_REVIEW",
+          "asset_ref": "coloring/pr14_mandala_2",
+          "selection_mode": "FIRST_THEN_RANDOM",
+          "is_default": false
+        }
+      },
+      {
+        "slot": "COLORING_TEMPLATE",
+        "url": "/assets/coloring/pr14/mandala-3.svg",
+        "provider": "CURATED_ASSET_LIBRARY",
+        "title": "만다라 도안 3",
+        "creator": null,
+        "source_url": null,
+        "license": null,
+        "generated": false,
+        "verification": "PENDING_CONTENT_REVIEW",
+        "metadata": {
+          "design_id": "mandala-3",
+          "format": "SVG",
+          "region_attribute": "data-region-id",
+          "region_count": 147,
+          "outline_id": "outline",
+          "view_box": "0 0 1920 1920",
+          "file_bytes": 134454,
+          "sha256": "D0943F7492C4ABB972DA7D4A414C5EF1B57B5CD8F6B16E4D16F1E9D65B5F714C",
+          "origin": "scratch/pr14/assets/processed-images/mandala-3.svg (C 파트 전처리 SVG, #51)",
+          "provenance_note": "원본 이미지의 출처·라이선스가 적혀 있지 않다 — 확인 전까지 PENDING_CONTENT_REVIEW",
+          "asset_ref": "coloring/pr14_mandala_3",
+          "selection_mode": "FIRST_THEN_RANDOM",
+          "is_default": false
+        }
+      },
+      {
+        "slot": "COLORING_TEMPLATE",
+        "url": "/assets/coloring/pr14/mandala-4.svg",
+        "provider": "CURATED_ASSET_LIBRARY",
+        "title": "만다라 도안 4",
+        "creator": null,
+        "source_url": null,
+        "license": null,
+        "generated": false,
+        "verification": "PENDING_CONTENT_REVIEW",
+        "metadata": {
+          "design_id": "mandala-4",
+          "format": "SVG",
+          "region_attribute": "data-region-id",
+          "region_count": 449,
+          "outline_id": "outline",
+          "view_box": "0 0 504 512",
+          "file_bytes": 143207,
+          "sha256": "988B74856D8E19DEF59943251C036F98F9782AA7A6F5DEA1CA33381464D9C711",
+          "origin": "scratch/pr14/assets/processed-images/mandala-4.svg (C 파트 전처리 SVG, #51)",
+          "provenance_note": "원본 이미지의 출처·라이선스가 적혀 있지 않다 — 확인 전까지 PENDING_CONTENT_REVIEW",
+          "asset_ref": "coloring/pr14_mandala_4",
+          "selection_mode": "FIRST_THEN_RANDOM",
+          "is_default": false
+        }
+      },
+      {
+        "slot": "COLORING_TEMPLATE",
+        "url": "/assets/coloring/pr14/mandala-5.svg",
+        "provider": "CURATED_ASSET_LIBRARY",
+        "title": "만다라 도안 5",
+        "creator": null,
+        "source_url": null,
+        "license": null,
+        "generated": false,
+        "verification": "PENDING_CONTENT_REVIEW",
+        "metadata": {
+          "design_id": "mandala-5",
+          "format": "SVG",
+          "region_attribute": "data-region-id",
+          "region_count": 72,
+          "outline_id": "outline",
+          "view_box": "0 0 512 512",
+          "file_bytes": 27760,
+          "sha256": "40492B32EA0CA55B6E9FB48CB71E86C860CFA449BD7E2D389A0361A29E2C531E",
+          "origin": "scratch/pr14/assets/processed-images/mandala-5.svg (C 파트 전처리 SVG, #51)",
+          "provenance_note": "원본 이미지의 출처·라이선스가 적혀 있지 않다 — 확인 전까지 PENDING_CONTENT_REVIEW",
+          "asset_ref": "coloring/pr14_mandala_5",
+          "selection_mode": "FIRST_THEN_RANDOM",
+          "is_default": false
+        }
+      },
+      {
+        "slot": "COLORING_TEMPLATE",
+        "url": "/assets/coloring/pr14/mandala-6.svg",
+        "provider": "CURATED_ASSET_LIBRARY",
+        "title": "만다라 도안 6",
+        "creator": null,
+        "source_url": null,
+        "license": null,
+        "generated": false,
+        "verification": "PENDING_CONTENT_REVIEW",
+        "metadata": {
+          "design_id": "mandala-6",
+          "format": "SVG",
+          "region_attribute": "data-region-id",
+          "region_count": 225,
+          "outline_id": "outline",
+          "view_box": "0 0 512 512",
+          "file_bytes": 101589,
+          "sha256": "1B8A4B0F7192087DF651FAEA9F4E4BF06690A617BDBE0CDA5301E1F01F286A9D",
+          "origin": "scratch/pr14/assets/processed-images/mandala-6.svg (C 파트 전처리 SVG, #51)",
+          "provenance_note": "원본 이미지의 출처·라이선스가 적혀 있지 않다 — 확인 전까지 PENDING_CONTENT_REVIEW",
+          "asset_ref": "coloring/pr14_mandala_6",
+          "selection_mode": "FIRST_THEN_RANDOM",
+          "is_default": false
+        }
+      }
+    ],
+    "asset_warnings": [
+      "COLORING_TEMPLATE: 고정 자산의 내용 검수가 필요함 (coloring/pr14_mandala_1)",
+      "COLORING_TEMPLATE: 고정 자산의 내용 검수가 필요함 (coloring/pr14_mandala_2)",
+      "COLORING_TEMPLATE: 고정 자산의 내용 검수가 필요함 (coloring/pr14_mandala_3)",
+      "COLORING_TEMPLATE: 고정 자산의 내용 검수가 필요함 (coloring/pr14_mandala_4)",
+      "COLORING_TEMPLATE: 고정 자산의 내용 검수가 필요함 (coloring/pr14_mandala_5)",
+      "COLORING_TEMPLATE: 고정 자산의 내용 검수가 필요함 (coloring/pr14_mandala_6)"
+    ],
+    "image_urls": [],
+    "guide_text": "지금부터 만다라 컬러링을 약 20분 동안 합니다. 편한 자세로 시작하고, 불편하면 언제든 멈출 수 있습니다.",
+    "notice_prompt": null,
+    "content_spec": {
+      "slots": [
+        {
+          "slot": "COLORING_TEMPLATE",
+          "required": true,
+          "evidence_stimulus": "E01-E1: 불안 유발(두려웠던 경험 쓰기) → 20분 컬러링; E02-E1: 불안 유발 → 20분 컬러링; E03-E1: 불안 유발(글쓰기 4분) → 디지털 컬러링(시간 원문 확인); P31-E1: 20분 컬러링 vs 20분 독서; P32-E1: 반추 유도 → 조건; P30-E1: 불안 유발 → 20분 컬러링",
+          "source_policy": {
+            "curated": "ALLOWED",
+            "generated": "ALLOWED_WITH_FLAG",
+            "user_upload": "FORBIDDEN"
+          },
+          "note": "도안은 독립 영역(data-region-id)과 외곽선(id=outline)이 있는 SVG다(app/static/coloring/pr14). FE는 SVG를 받아 DOM에 넣고 영역을 칠한다 — 실행 중 PNG→SVG 변환은 하지 않는다",
+          "selection": {
+            "provider": "CURATED_ASSET_LIBRARY",
+            "mode": "FIRST_THEN_RANDOM",
+            "asset_refs": [
+              "coloring/pr14_mandala_1",
+              "coloring/pr14_mandala_2",
+              "coloring/pr14_mandala_3",
+              "coloring/pr14_mandala_4",
+              "coloring/pr14_mandala_5",
+              "coloring/pr14_mandala_6"
+            ],
+            "default_asset_ref": "coloring/pr14_mandala_1",
+            "note": "첫 도안을 먼저 보여 주고, 다 칠한 뒤 '다음 도안'을 누르면 저장된 도안 중 하나를 무작위로 보여 준다"
+          }
+        }
+      ],
+      "session_ui": {
+        "status": "PROPOSED",
+        "source": "scratch/pr14/pr14-runtime.json — C 파트 실행 계약(#51)을 옮겼다",
+        "asset_policy": {
+          "input_format": "SVG_ONLY",
+          "png_to_svg_runtime_conversion": false,
+          "required_region_attribute": "data-region-id",
+          "outline_id": "outline",
+          "source_directory": "app/static/coloring/pr14"
+        },
+        "timer": {
+          "planned_seconds": 1200,
+          "minimum_completion_seconds": 960,
+          "display_mode": "PROGRESS_ELAPSED",
+          "auto_stop_on_target": false,
+          "allow_pause": false,
+          "resume_on_valid_region_click": true
+        },
+        "palette": [
+          {
+            "name": "Deep Teal",
+            "hex": "#397D78"
+          },
+          {
+            "name": "Soft Blue",
+            "hex": "#759BC3"
+          },
+          {
+            "name": "Muted Purple",
+            "hex": "#8873A6"
+          },
+          {
+            "name": "Dusty Rose",
+            "hex": "#B86F87"
+          },
+          {
+            "name": "Terracotta",
+            "hex": "#C48760"
+          },
+          {
+            "name": "Soft Gold",
+            "hex": "#D4B85F"
+          },
+          {
+            "name": "Olive Green",
+            "hex": "#89964E"
+          },
+          {
+            "name": "Light Sand",
+            "hex": "#DFD1B5"
+          }
+        ],
+        "state": {
+          "region_states": [
+            "UNCOLORED",
+            "COLORED"
+          ],
+          "refresh": "pause_timer_keep_coloring_state",
+          "reset": "all_regions_uncolored",
+          "undo": "restore_previous_fill"
+        },
+        "storage": {
+          "mode": "browser_local_storage",
+          "key": "lumi.pr14.coloring.v1",
+          "official_server_record": false
+        },
+        "completion_rule": {
+          "required_completed_designs": 1,
+          "minimum_elapsed_seconds": 960
+        },
+        "verification": {
+          "automatic_activity": "not_performed",
+          "self_report": "not_required"
+        }
+      }
+    },
+    "notice_module": null
+  }
+}

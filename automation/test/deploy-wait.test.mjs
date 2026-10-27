@@ -6,67 +6,92 @@ import { main } from "../bin/deploy-wait.mjs";
 import { apiError, captureOutput, fakeGh, ghMissing, json, noSleep } from "./helpers.mjs";
 
 const REPO = json({ nameWithOwner: "lumi/fe" });
-const NO_DEPLOYMENT = json([]);
-const DEPLOYMENT = json([{ id: 42 }]);
-// 배포 상태 이력 (GitHub는 최신순으로 준다)
-const history = (...states) => json(states.map((state) => ({ state })));
+const URL = "https://vercel.com/team/fe/abc";
+// 커밋 상태 목록 (GitHub는 최신순으로 준다)
+const vercel = (...states) =>
+  json(states.map((state) => ({ context: "Vercel", state, target_url: URL })));
+const NONE = json([]);
+const COMMIT = json({ parents: [{ sha: "parent1" }] });
+const statusesCall = (sha) => ["api", `repos/lumi/fe/commits/${sha}/statuses?per_page=100`];
 
-test("이력에 success가 있으면 성공이다 — 뒤에 inactive가 덧붙어도", async (t) => {
+test("머지 커밋의 Vercel 최신 상태가 success면 성공이다", async (t) => {
   const output = captureOutput(t);
-  const { gh, calls } = fakeGh(REPO, DEPLOYMENT, history("inactive", "success", "in_progress"));
+  const { gh, calls } = fakeGh(REPO, vercel("success", "pending"));
 
   assert.equal(await main(["abc123"], { gh, sleep: noSleep }), 0);
-  assert.equal(output.out.at(-1), "DEPLOY_RESULT result=success");
-  assert.deepEqual(calls, [
-    ["repo", "view", "--json", "nameWithOwner"],
-    ["api", "repos/lumi/fe/deployments?sha=abc123&environment=Production"],
-    ["api", "repos/lumi/fe/deployments/42/statuses"],
-  ]);
+  assert.equal(output.out.at(-1), `DEPLOY_RESULT result=success url=${URL}`);
+  assert.deepEqual(calls, [["repo", "view", "--json", "nameWithOwner"], statusesCall("abc123")]);
 });
 
-test("배포가 생기고 끝날 때까지 기다린다", async (t) => {
+test("다른 컨텍스트의 상태는 보지 않는다", async (t) => {
   const output = captureOutput(t);
   const { gh } = fakeGh(
     REPO,
-    NO_DEPLOYMENT,
-    DEPLOYMENT,
-    history("in_progress"),
-    DEPLOYMENT,
-    history("success", "in_progress"),
+    json([
+      { context: "ci", state: "failure" },
+      { context: "Vercel", state: "success", target_url: URL },
+    ]),
   );
 
   assert.equal(await main(["abc123"], { gh, sleep: noSleep }), 0);
-  assert.equal(output.out.at(-1), "DEPLOY_RESULT result=success");
+  assert.equal(output.out.at(-1), `DEPLOY_RESULT result=success url=${URL}`);
 });
 
-for (const [states, want] of [
-  [["failure", "in_progress"], "failure"],
-  [["error"], "error"],
-  // 종료 상태 없이 더 새 배포로 대체됐다
-  [["inactive", "in_progress"], "SUPERSEDED"],
-]) {
-  test(`종료 상태 ${states.join(",")} → ${want}`, async (t) => {
+test("pending이면 끝날 때까지 기다린다", async (t) => {
+  const output = captureOutput(t);
+  const { gh } = fakeGh(REPO, vercel("pending"), vercel("success", "pending"));
+
+  assert.equal(await main(["abc123"], { gh, sleep: noSleep }), 0);
+  assert.equal(output.out.at(-1), `DEPLOY_RESULT result=success url=${URL}`);
+});
+
+for (const state of ["failure", "error"]) {
+  test(`종료 상태 ${state} → ${state}`, async (t) => {
     const output = captureOutput(t);
-    const { gh } = fakeGh(REPO, DEPLOYMENT, history(...states));
+    const { gh } = fakeGh(REPO, vercel(state, "pending"));
 
     assert.equal(await main(["abc123"], { gh, sleep: noSleep }), 1);
-    assert.equal(output.out.at(-1), `DEPLOY_RESULT result=${want}`);
+    assert.equal(output.out.at(-1), `DEPLOY_RESULT result=${state} url=${URL}`);
   });
 }
 
-// 배포가 한 번도 안 생겼으면 NOT_FOUND(연동 끊김 신호), 생겼는데 안 끝났으면 TIMEOUT이다
-for (const [responses, want] of [
-  [[NO_DEPLOYMENT], "NOT_FOUND"],
-  [[DEPLOYMENT, history("in_progress")], "TIMEOUT"],
+test("상태가 아직 없으면 직전 main 커밋을 한 번만 보고 생길 때까지 기다린다", async (t) => {
+  const output = captureOutput(t);
+  const { gh, calls } = fakeGh(REPO, NONE, COMMIT, vercel("success"), NONE, vercel("success"));
+
+  assert.equal(await main(["abc123"], { gh, sleep: noSleep }), 0);
+  assert.equal(output.out.at(-1), `DEPLOY_RESULT result=success url=${URL}`);
+  assert.deepEqual(calls.slice(1), [
+    statusesCall("abc123"),
+    ["api", "repos/lumi/fe/git/commits/abc123"],
+    statusesCall("parent1"),
+    statusesCall("abc123"),
+    statusesCall("abc123"),
+  ]);
+});
+
+// 머지 커밋에 상태가 끝내 안 생기면 직전 main 커밋으로 연동 여부를 가른다
+for (const [name, responses, want, code] of [
+  ["직전 커밋은 배포됨", [NONE, COMMIT, vercel("success")], "NOT_FOUND", 1],
+  ["직전 커밋도 상태 없음", [NONE, COMMIT, NONE], "NOT_CONNECTED", 0],
+  ["부모 없는 커밋", [NONE, json({ parents: [] })], "NOT_CONNECTED", 0],
 ]) {
-  test(`타임아웃 구분: ${want}`, async (t) => {
+  test(`상태 없음 · ${name} → ${want}`, async (t) => {
     const output = captureOutput(t);
     const { gh } = fakeGh(REPO, ...responses);
 
-    assert.equal(await main(["abc123"], { gh, sleep: noSleep, limitSeconds: 0 }), 1);
+    assert.equal(await main(["abc123"], { gh, sleep: noSleep, graceSeconds: 0 }), code);
     assert.equal(output.out.at(-1), `DEPLOY_RESULT result=${want}`);
   });
 }
+
+test("pending인 채로 시간이 다 되면 TIMEOUT이다", async (t) => {
+  const output = captureOutput(t);
+  const { gh } = fakeGh(REPO, vercel("pending"));
+
+  assert.equal(await main(["abc123"], { gh, sleep: noSleep, limitSeconds: 0 }), 1);
+  assert.equal(output.out.at(-1), `DEPLOY_RESULT result=TIMEOUT url=${URL}`);
+});
 
 test("레포 이름 조회 실패 → 바로 API_ERROR", async (t) => {
   const output = captureOutput(t);
@@ -77,23 +102,28 @@ test("레포 이름 조회 실패 → 바로 API_ERROR", async (t) => {
   assert.equal(calls.length, 1);
 });
 
-test("배포 상태 조회가 3회 연속 실패 → API_ERROR", async (t) => {
+test("상태 조회 실패가 3회 연속이 아니면 이어서 판정한다", async (t) => {
   const output = captureOutput(t);
-  const { gh } = fakeGh(
-    REPO,
-    DEPLOYMENT,
-    apiError(),
-    DEPLOYMENT,
-    apiError(),
-    DEPLOYMENT,
-    apiError(),
-  );
+  const { gh } = fakeGh(REPO, apiError(), apiError(), vercel("success"));
+
+  assert.equal(await main(["abc123"], { gh, sleep: noSleep }), 0);
+  assert.equal(output.out.at(-1), `DEPLOY_RESULT result=success url=${URL}`);
+});
+
+test("상태 조회가 3회 연속 실패 → API_ERROR", async (t) => {
+  const output = captureOutput(t);
+  const { gh } = fakeGh(REPO, apiError(), apiError(), apiError());
 
   assert.equal(await main(["abc123"], { gh, sleep: noSleep }), 1);
   assert.equal(output.out.at(-1), "DEPLOY_RESULT result=API_ERROR");
 });
 
-for (const responses of [["not json"], [json({ message: "Not Found" })], [DEPLOYMENT, "{}"]]) {
+for (const responses of [
+  ["not json"],
+  [json({ message: "Not Found" })],
+  [json([{ context: "Vercel", state: "queued" }])],
+  [NONE, "{}"],
+]) {
   test(`형식이 다른 응답 ${JSON.stringify(responses)} → ERROR`, async (t) => {
     const output = captureOutput(t);
     const { gh } = fakeGh(REPO, ...responses);

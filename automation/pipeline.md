@@ -69,20 +69,18 @@ CI 폴링: **`node automation/bin/run-wait.mjs ci.yml main "<MERGE_SHA>" 600`** 
 - `result=failure` 등 실패 conclusion → `main`이 깨진 상태다. 마커의 `run_id=`로 `gh run view <run-id> --log-failed`를 요약하고 **즉시 보고**한다 (「실패 시 재시작 규칙」).
 - `result=NOT_FOUND` → run이 아예 생성되지 않았다 — 워크플로우 미트리거(트리거 조건·파일명 변경 등) 신호이므로 `TIMEOUT`(진행 중일 수 있음)과 구분해 보고하고 중단. `TIMEOUT`·`API_ERROR`·`ERROR`는 「폴링 실행 규칙」대로 처리.
 
-## Step 3: Vercel 프로덕션 배포 확인 (연결된 경우에만)
+## Step 3: Vercel 프로덕션 배포 확인
 
-Vercel을 GitHub에 연결하면 `main` push를 Vercel이 감지해 프로덕션 배포를 시작하고, GitHub **Deployment**(`environment=Production`, 생성자 `vercel[bot]`)로 상태를 낸다 — 병합 커밋에는 check-run/commit-status가 붙지 않으므로 Deployments API를 폴링한다.
+`main` push를 Vercel이 감지해 프로덕션 배포를 시작하고, 결과를 머지 커밋의 **커밋 상태**(context `Vercel` — pending "Vercel is deploying your app" → success "Deployment has completed")로 남긴다. GitHub Deployment는 보지 않는다 — Vercel 프로젝트 설정에 따라 생기지 않을 수 있고, 이 레포는 0건이다(2026-10-27 실측. 같은 Vercel 범위의 cure-agent-fe에는 생긴다). 커밋 상태는 두 레포 모두에 붙는다.
 
-1. **연결 여부 판정** (한 번): `gh api "repos/lumi-wellness-agent/lumi-wellness-agent-fe/deployments?environment=Production&per_page=1" --jq 'length'`
-   - `0` → **Vercel 미연결**. 이 Step을 건너뛰고 Step 4로 간다. 최종 보고에 "프로덕션 배포 없음(Vercel 미연결) — `main` 반영까지"를 명시한다.
-   - `1` 이상 → 연결됨. 2로.
-2. 배포 폴링: **`node automation/bin/deploy-wait.mjs <MERGE_SHA>`** (30초 간격, 최대 10분) → `DEPLOY_RESULT` 마커.
-   - `result=success` → 배포 완료. (이후 새 배포가 이 배포를 inactive로 덮어도 스크립트는 상태 이력에서 success를 찾으므로 정상 판정된다.)
-   - `result=failure`·`error` → Vercel 대시보드에서 배포 로그를 확인하도록 안내하고 보고한다. Vercel은 이전 배포로 **즉시 롤백**이 가능하다.
-   - `result=SUPERSEDED` → 이 배포가 완료 전에 더 새 프로덕션 배포로 대체됨(연속 머지 상황). 최신 배포에 이 커밋이 포함돼 있는지 확인하고 결과를 보고한다.
-   - `result=NOT_FOUND` → 연결은 됐는데 이 커밋의 배포가 생성되지 않았다 — Vercel 프로젝트의 Production Branch가 `main`인지, Git 연동이 살아 있는지 확인을 안내한다. `TIMEOUT` → 아직 진행 중일 수 있으니 단정하지 말고 대시보드 확인을 안내한다. `API_ERROR` → 스크립트 stderr를 요약한다. `ERROR`(대문자) → 배포 상태 `error`와 다른 실행 환경 문제다 — 「폴링 실행 규칙」대로 처리한다.
+배포 폴링: **`node automation/bin/deploy-wait.mjs <MERGE_SHA>`** (30초 간격, 최대 10분) → `DEPLOY_RESULT` 마커. 연결 여부도 이 스크립트가 판정한다 — 머지 커밋에 `Vercel` 상태가 2분 안에 생기지 않으면 직전 `main` 커밋(첫 부모)의 상태로 가른다. 상태를 봤으면 마커에 `url=`(Vercel 배포 페이지)이 함께 찍힌다.
+- `result=success` → 배포 완료.
+- `result=failure`·`error` → `url=`의 배포 페이지에서 로그를 확인하도록 안내하고 보고한다. Vercel은 이전 배포로 **즉시 롤백**이 가능하다.
+- `result=NOT_CONNECTED`(종료코드 0) → **Vercel 미연결** — 머지 커밋과 직전 `main` 커밋 어디에도 `Vercel` 상태가 없다. Step 4로 가고, 최종 보고에 "프로덕션 배포 없음(Vercel 미연결) — `main` 반영까지"를 명시한다.
+- `result=NOT_FOUND` → 직전 `main` 커밋은 배포됐는데 이 커밋의 배포가 생기지 않았다 — Vercel 프로젝트의 Production Branch가 `main`인지, Git 연동이 살아 있는지 확인을 안내한다.
+- `result=TIMEOUT` → 아직 진행 중일 수 있으니 단정하지 말고 `url=`로 확인을 안내한다. `API_ERROR` → 스크립트 stderr를 요약한다. `ERROR`(대문자) → 배포 상태 `error`와 다른 실행 환경 문제다 — 「폴링 실행 규칙」대로 처리한다.
 
-> 연결 뒤에는 PR에도 `Vercel`(프리뷰 배포) 체크가 붙는다. Step 1-5의 게이트는 전수 검사라 그 체크도 자동으로 기다린다. 브랜치 보호를 설정할 때 required check에 `Vercel` 컨텍스트를 함께 넣는다.
+> PR에도 `Vercel`(프리뷰 배포) 체크가 붙는다. Step 1-5의 게이트는 전수 검사라 그 체크도 자동으로 기다린다. 브랜치 보호를 설정할 때 required check에 `Vercel` 컨텍스트를 함께 넣는다.
 
 ## Step 4: 정리 & 보고
 

@@ -1,25 +1,31 @@
-// Vercel 프로덕션 배포 대기 — main 머지 커밋의 GitHub Deployment(environment=Production) 상태를
-// 폴링한다 (30초 간격, 최대 10분). 병합 커밋에는 check-run/commit-status가 붙지 않으므로
-// Deployments API를 본다. Vercel이 연결된 뒤에만 의미가 있다 (automation/pipeline.md Step 3-1이 먼저 판정).
+// Vercel 프로덕션 배포 대기 — main 머지 커밋의 커밋 상태(context `Vercel`)를 폴링한다 (30초 간격, 최대 10분).
+// Vercel은 배포 결과를 커밋 상태로 남긴다 — pending "Vercel is deploying your app" → success "Deployment has
+// completed". GitHub Deployment는 보지 않는다: Vercel 프로젝트 설정에 따라 생기지 않을 수 있고, 이 레포는
+// 0건이다(2026-10-27 실측. 같은 Vercel 범위의 cure-agent-fe에는 생긴다). 커밋 상태는 두 레포 모두에 붙는다.
 //
-// 상태는 최신 1건이 아니라 **이력 전체**에서 판정한다 — 새 배포가 성공하면 GitHub가 이전 배포에
-// inactive 상태를 자동으로 덧붙이므로(연속 머지), 최신 상태만 보면 성공한 배포를 놓친다.
-// 배포가 한 번도 생성되지 않은 채 타임아웃되면 NOT_FOUND로 구분한다 — Production Branch 불일치·Git 연동
-// 끊김 신호이므로, 진행 중일 수 있는 TIMEOUT과 다르게 처리한다.
+// 상태는 컨텍스트 `Vercel`의 최신 1건으로 판정한다 — 같은 컨텍스트에 새 상태가 오면 그것이 현재 값이다.
+// 연결 여부도 여기서 판정한다. 머지 커밋에 `Vercel` 상태가 GRACE_SECONDS 안에 생기지 않으면 직전 main 커밋
+// (첫 부모)으로 가른다 — 거기엔 있으면 NOT_FOUND(연동은 살아 있는데 이 커밋이 배포되지 않았다), 거기도
+// 없으면 NOT_CONNECTED(Vercel 미연결 — 확인할 배포가 없으므로 종료코드 0). Vercel은 push 직후 pending을
+// 남기므로, main CI를 기다린 뒤(pipeline.md Step 2) 도는 이 스크립트에서 2분이면 넉넉하다.
 // Node 표준 라이브러리와 gh만 쓴다 — bash·jq가 없는 Windows(PowerShell)에서도 같은 명령으로 돈다.
 //
 // 사용법: node automation/bin/deploy-wait.mjs <머지커밋SHA>
-// 종료 마커: DEPLOY_RESULT result=success|failure|error|SUPERSEDED|NOT_FOUND|TIMEOUT|API_ERROR|ERROR
-//   SUPERSEDED = 종료 상태 없이 더 새 배포로 대체됨 — 최신 프로덕션 배포에 이 커밋이 포함됐는지 확인할 것.
+// 종료 마커: DEPLOY_RESULT result=success|failure|error|NOT_CONNECTED|NOT_FOUND|TIMEOUT|API_ERROR|ERROR
+//   상태를 봤으면 url=<Vercel 배포 페이지>가 함께 찍힌다 — 실패·TIMEOUT이면 거기서 로그를 본다.
 //   소문자 error는 Vercel 배포 상태다. 대문자 ERROR = gh 부재·응답 형식 이상·예상 못 한 예외 (fail-closed).
 
 import { setTimeout as wait } from "node:timers/promises";
 
 import { GhFailed, runGh, runIfMain } from "./cli.mjs";
 
+const CONTEXT = "Vercel";
 const INTERVAL_MS = 30_000;
 const LIMIT_SECONDS = 600;
+const GRACE_SECONDS = 120;
 const MAX_API_ERRORS = 3;
+// 종료 상태별 종료코드. 그 밖의 상태는 pending(진행 중)뿐이다
+const DONE = { success: 0, failure: 1, error: 1 };
 
 function nameWithOwner(out) {
   const { nameWithOwner } = JSON.parse(out);
@@ -27,27 +33,28 @@ function nameWithOwner(out) {
   return nameWithOwner;
 }
 
-// `gh api …/deployments` 응답의 최신 배포 id. 없으면 null
-function latestDeployment(out) {
-  const deployments = JSON.parse(out);
-  if (!Array.isArray(deployments)) throw new TypeError("deployments 응답이 배열이 아니다");
-  return deployments[0]?.id ?? null;
-}
-
-// `gh api …/statuses` 응답의 상태 이력
-function states(out) {
+// `gh api …/commits/<sha>/statuses` 응답(최신순)에서 `Vercel`의 최신 상태. 없으면 null
+function vercelStatus(out) {
   const statuses = JSON.parse(out);
   if (!Array.isArray(statuses)) throw new TypeError("statuses 응답이 배열이 아니다");
-  return statuses.map((status) => status.state);
+  const status = statuses.find((item) => item.context === CONTEXT);
+  if (status === undefined) return null;
+  if (!Object.hasOwn(DONE, status.state) && status.state !== "pending") {
+    throw new TypeError(`알 수 없는 커밋 상태 ${status.state}`);
+  }
+  return { state: status.state, url: status.target_url };
 }
 
-// 이력에 성공이 하나라도 있으면 성공이다 (뒤에 inactive가 덧붙어도). 종료 상태가 없으면 null(진행 중)
-function outcome(history) {
-  if (history.includes("success")) return ["success", 0];
-  if (history.includes("failure")) return ["failure", 1];
-  if (history.includes("error")) return ["error", 1];
-  if (history.includes("inactive")) return ["SUPERSEDED", 1];
-  return null;
+// `gh api …/git/commits/<sha>` 응답의 첫 부모 SHA. 부모가 없으면(루트 커밋) null
+function firstParent(out) {
+  const { parents } = JSON.parse(out);
+  if (!Array.isArray(parents)) throw new TypeError("parents가 배열이 아니다");
+  return parents[0]?.sha ?? null;
+}
+
+function finish(result, url, code) {
+  console.log(`DEPLOY_RESULT result=${result}${url ? ` url=${url}` : ""}`);
+  return code;
 }
 
 // gh를 실행할 수 없거나 응답 형식이 다르면 재시도해도 소용없는 실행 환경 문제다 (fail-closed)
@@ -57,13 +64,18 @@ function environmentError(error) {
   return 1;
 }
 
-export async function main(argv, { gh = runGh, sleep = wait, limitSeconds = LIMIT_SECONDS } = {}) {
+export async function main(
+  argv,
+  { gh = runGh, sleep = wait, limitSeconds = LIMIT_SECONDS, graceSeconds = GRACE_SECONDS } = {},
+) {
   if (argv.length !== 1) {
     console.error("usage: deploy-wait.mjs <머지커밋SHA>");
     return 2;
   }
   const [sha] = argv;
-  const deadline = performance.now() + limitSeconds * 1000;
+  const start = performance.now();
+  const deadline = start + limitSeconds * 1000;
+  const graceEnd = start + graceSeconds * 1000;
   let repo;
   try {
     repo = nameWithOwner(gh(["repo", "view", "--json", "nameWithOwner"]));
@@ -72,18 +84,22 @@ export async function main(argv, { gh = runGh, sleep = wait, limitSeconds = LIMI
     console.log("DEPLOY_RESULT result=API_ERROR");
     return 1;
   }
+  const statusOf = (ref) =>
+    vercelStatus(gh(["api", `repos/${repo}/commits/${ref}/statuses?per_page=100`]));
   let apiErrors = 0;
-  let found = false;
+  let status = null;
+  // 직전 main 커밋에 `Vercel` 상태가 있었나 — 머지 커밋에 상태가 없을 때 한 번만 본다
+  let parentDeployed = null;
   for (;;) {
-    let result = null;
+    let queried = false;
     try {
-      const deployments = gh(["api", `repos/${repo}/deployments?sha=${sha}&environment=Production`]);
-      const id = latestDeployment(deployments);
-      if (id !== null) {
-        found = true;
-        result = outcome(states(gh(["api", `repos/${repo}/deployments/${id}/statuses`])));
+      status = statusOf(sha);
+      if (status === null && parentDeployed === null) {
+        const parent = firstParent(gh(["api", `repos/${repo}/git/commits/${sha}`]));
+        parentDeployed = parent !== null && statusOf(parent) !== null;
       }
       apiErrors = 0;
+      queried = true;
     } catch (error) {
       if (!(error instanceof GhFailed)) return environmentError(error);
       // GitHub 조회 실패를 pending으로 삼키지 않는다 — 3회 연속 실패 시 API_ERROR로 종료.
@@ -94,15 +110,13 @@ export async function main(argv, { gh = runGh, sleep = wait, limitSeconds = LIMI
         return 1;
       }
     }
-    if (result !== null) {
-      const [state, code] = result;
-      console.log(`DEPLOY_RESULT result=${state}`);
-      return code;
+    if (queried && status !== null && Object.hasOwn(DONE, status.state)) {
+      return finish(status.state, status.url, DONE[status.state]);
     }
-    if (performance.now() >= deadline) {
-      console.log(`DEPLOY_RESULT result=${found ? "TIMEOUT" : "NOT_FOUND"}`);
-      return 1;
+    if (queried && status === null && performance.now() >= graceEnd) {
+      return parentDeployed ? finish("NOT_FOUND", null, 1) : finish("NOT_CONNECTED", null, 0);
     }
+    if (performance.now() >= deadline) return finish("TIMEOUT", status?.url, 1);
     await sleep(INTERVAL_MS);
   }
 }

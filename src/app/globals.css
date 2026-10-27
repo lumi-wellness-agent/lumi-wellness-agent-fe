@@ -4,7 +4,7 @@
  * 하루의 빛: 시간대에 따라 색 토큰만 바꾼다. 글꼴, 글자 크기, 반경은 한 벌이다.
  * <html data-light>는 layout의 <head> 스크립트가 첫 화면 전에 정한다(src/lib/light.ts).
  * 기본값은 sunlit(B 볕)이다. 휴대폰이 다크 모드면 sunlit과 mist는 어두운 짝을 쓰고, moonlight는 늘 어둡다.
- * 각 세트의 글자·배경 대비는 WCAG AA(글자 4.5:1, 표시선 3:1)를 넘는다.
+ * 각 세트의 대비는 WCAG AA(글자 4.5:1, 표시선과 컨트롤 테두리 3:1)를 넘는다.
  */
 :root {
   color-scheme: light;
@@ -14,8 +14,8 @@
   --lumi-ink: #3a2e24;
   --lumi-ink-muted: #6e5e4f;
   --lumi-line: #ece2d1;
-  --lumi-line-control: #e3d6c0;
-  --lumi-line-strong: #d9cbb4;
+  --lumi-line-control: #998d79;
+  --lumi-line-strong: #91846f;
   --lumi-control: #fffdf9;
   --lumi-primary: #4a392b;
   --lumi-on-primary: #fff8ec;
@@ -40,8 +40,8 @@
     --lumi-ink: #f3ebdd;
     --lumi-ink-muted: #c4b6a3;
     --lumi-line: #3a3027;
-    --lumi-line-control: #4a3e32;
-    --lumi-line-strong: #57493b;
+    --lumi-line-control: #796c5f;
+    --lumi-line-strong: #827364;
     --lumi-control: #2a221b;
     --lumi-primary: #efe2c8;
     --lumi-on-primary: #2a1f14;
@@ -66,8 +66,8 @@
   --lumi-ink: #1d2a39;
   --lumi-ink-muted: #5a6878;
   --lumi-line: #dce4ec;
-  --lumi-line-control: #d3dde8;
-  --lumi-line-strong: #b9c6d4;
+  --lumi-line-control: #848d97;
+  --lumi-line-strong: #798693;
   --lumi-control: #ffffff;
   --lumi-primary: #2e5c8a;
   --lumi-on-primary: #ffffff;
@@ -92,8 +92,8 @@
     --lumi-ink: #e3eaf2;
     --lumi-ink-muted: #9fb0c2;
     --lumi-line: #26364a;
-    --lumi-line-control: #33465c;
-    --lumi-line-strong: #3b4e66;
+    --lumi-line-control: #5c7088;
+    --lumi-line-strong: #637791;
     --lumi-control: #172433;
     --lumi-primary: #8db4de;
     --lumi-on-primary: #0e1823;
@@ -118,8 +118,8 @@
   --lumi-ink: #eceaf8;
   --lumi-ink-muted: #a6a7c6;
   --lumi-line: #2e3656;
-  --lumi-line-control: rgb(236 234 248 / 0.14);
-  --lumi-line-strong: #4a5278;
+  --lumi-line-control: rgb(236 234 248 / 0.42);
+  --lumi-line-strong: #737da5;
   --lumi-control: rgb(236 234 248 / 0.04);
   --lumi-primary: #b4adf4;
   --lumi-on-primary: #171c33;

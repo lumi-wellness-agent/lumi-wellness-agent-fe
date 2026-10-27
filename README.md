@@ -1,10 +1,10 @@
 # lumi-wellness-agent-fe
 
 LUMI(Light + Mind)의 프론트엔드입니다. LUMI는 심리학 이론·임상/실험 연구 Reference 기반 AI 웰니스 에이전트입니다.
-React·Next.js App Router·TypeScript를 사용하고 Vercel에 배포합니다.
+React·Next.js App Router·TypeScript·Tailwind CSS v4를 사용하고 Vercel에 배포합니다.
 백엔드는 [lumi-wellness-agent-be](https://github.com/lumi-wellness-agent/lumi-wellness-agent-be)에서 개발합니다.
 
-현재는 시작 화면과 개발·빌드·검증 환경을 구성한 단계입니다. 세션 화면과 API 호출은 아직 구현하지 않았습니다.
+현재는 시작 화면, 디자인 토큰(하루의 빛), 개발·빌드·검증 환경을 구성한 단계입니다. 세션 화면과 API 호출은 아직 구현하지 않았습니다.
 
 ## 사용자 흐름 (기획)
 
@@ -52,10 +52,14 @@ npm run dev
 
 ```text
 src/app/
-├─ layout.tsx        공통 레이아웃·메타데이터
+├─ layout.tsx        공통 레이아웃·메타데이터·글꼴, 첫 화면 전에 빛을 정하는 스크립트
 ├─ page.tsx          시작 화면
-└─ globals.css       전역 스타일
+├─ light-sync.tsx    앱으로 돌아오면 빛을 다시 정하고 브라우저 상단 색을 맞춤
+└─ globals.css       Tailwind v4와 디자인 토큰 (하루의 빛)
+src/lib/
+└─ light.ts          시간대·세션·설정에 따라 빛을 정하는 규칙
 next.config.ts      Next.js 설정
+postcss.config.mjs  Tailwind v4 PostCSS 플러그인
 tsconfig.json       TypeScript 설정
 eslint.config.mjs   ESLint 설정
 .env.example        환경 변수 예시
@@ -63,6 +67,50 @@ eslint.config.mjs   ESLint 설정
 .github/ISSUE_TEMPLATE/    이슈 템플릿 (BE와 동일 — ship 하네스가 이슈 본문을 만들 때 쓴다)
 automation/                ship 하네스 (준비 문서 README.md + 하네스 중립 명세 + 게이트·폴링 스크립트)
 ```
+
+## 디자인 시스템: 하루의 빛
+
+시간대에 따라 화면 색만 바꿉니다. 글꼴(제목 고운돋움, 본문 Noto Sans KR), 글자 크기, 반경은 하나입니다.
+
+| 기기 시각 | 빛 | `<html data-light>` |
+| --- | --- | --- |
+| 05:00~11:59 | A 물안개 | `mist` |
+| 12:00~17:59 | B 볕 (기본값) | `sunlit` |
+| 18:00~04:59 | C 달빛 | `moonlight` |
+
+토큰은 `src/app/globals.css`에 있습니다. 시간대별 값은 `--lumi-*` 변수에 두고 아래 Tailwind 클래스로 씁니다.
+색 토큰은 `bg-` · `text-` · `border-` 어디에나 붙일 수 있습니다.
+
+| 쓰임 | 클래스 |
+| --- | --- |
+| 페이지 배경 · 카드 · 옅은 면 | `bg-page` · `bg-surface` · `bg-surface-muted` |
+| 글자 · 보조 글자 | `text-ink` · `text-ink-muted` |
+| 구분선 · 칩과 선택 행 테두리 · 라디오와 보조 버튼 테두리 | `border-line` · `border-line-control` · `border-line-strong` |
+| 칩과 선택 행 바탕 | `bg-control` |
+| 주요 버튼 | `bg-primary` · `text-on-primary` |
+| 선택한 칩과 행 | `bg-primary-soft` · `text-on-primary-soft` · `border-indicator` · `shadow-selected` |
+| 강조 · 진행 막대 | `bg-accent` · `bg-progress` |
+| 세션 목표 색 (아이콘·점) | `bg-goal-s1` · `bg-goal-s2` · `bg-goal-s3` |
+| 카드 그림자 | `shadow-card` |
+| 반경 | `rounded-card` 18 · `rounded-button` 14 · `rounded-chip` 12 · `rounded-row` 12 (px) |
+| 글자 크기 | `text-title` 26 · `text-body` 15 · `text-caption` 13 (px) |
+| 제목 글꼴 | `font-display` (본문은 기본 `font-sans`) |
+
+- Tailwind 기본 팔레트(`bg-gray-100` 등)는 지웠습니다. 고정 색은 시간대가 바뀌어도 그대로 남기 때문입니다.
+  사진 위 오버레이용으로 `white` · `black`만 남겼습니다.
+- 휴대폰이 다크 모드면 A와 B는 어두운 짝으로 바뀌고 C는 늘 어둡습니다. 색 세트는 A · A 다크 · B · B 다크 · C
+  다섯 개이고, 모두 WCAG AA 대비(글자 4.5:1, 표시선 3:1)를 넘습니다. 새 화면은 다섯 세트에서 모두 확인합니다.
+- 서버는 사용자의 시각을 모르므로 `layout.tsx`의 `<head>` 스크립트가 첫 화면 전에 `data-light`를 정합니다.
+  앱으로 돌아오면 다시 정하고, 브라우저 상단 색(`theme-color`)을 화면 배경에 맞춥니다.
+- 아래 규칙은 `src/lib/light.ts`의 함수로 지킵니다.
+  - 세션 중에는 색을 바꾸지 않습니다. 감상 전후 측정을 같은 화면에서 하기 위해서입니다. 세션을 시작할 때
+    `lockLight()`, 마칠 때 `unlockLight()`를 부릅니다.
+  - 설정에서 화면 색을 고정하면 `pickLight("mist" | "sunlit" | "moonlight")`, 시간대 따라로 되돌리면
+    `pickLight(null)`을 부릅니다.
+  - 프로필 `avoided_colors`에 검정이나 진한 보라가 있으면 `setAvoidDark(true)`를 부릅니다. 저녁·밤에도 C 대신
+    B를 씁니다.
+- 다른 시간대를 보려면 브라우저 개발자 도구 콘솔에서 `localStorage.setItem("lumi:light-pick", "moonlight")`를
+  실행하고 새로고침합니다. `localStorage.removeItem("lumi:light-pick")`로 되돌립니다.
 
 ## 백엔드 연동
 

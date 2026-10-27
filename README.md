@@ -63,6 +63,7 @@ postcss.config.mjs  Tailwind v4 PostCSS 플러그인
 tsconfig.json       TypeScript 설정
 eslint.config.mjs   ESLint 설정
 .env.example        환경 변수 예시
+AGENTS.md           AI 에이전트(Codex·Claude Code) 작업 규칙
 .github/workflows/ci.yml   PR·main 푸시 검증 (lint · typecheck · test · build)
 .github/ISSUE_TEMPLATE/    이슈 템플릿 (BE와 동일 — ship 하네스가 이슈 본문을 만들 때 쓴다)
 automation/                ship 하네스 (준비 문서 README.md + 하네스 중립 명세 + 게이트·폴링 스크립트)

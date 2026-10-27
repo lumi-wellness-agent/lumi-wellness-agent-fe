@@ -57,7 +57,8 @@ src/app/
 ├─ light-sync.tsx    앱으로 돌아오면 빛을 다시 정하고 브라우저 상단 색을 맞춤
 └─ globals.css       Tailwind v4와 디자인 토큰 (하루의 빛)
 src/lib/
-└─ light.ts          시간대·세션·설정에 따라 빛을 정하는 규칙
+├─ light.ts          시간대·세션·설정에 따라 빛을 정하는 규칙
+└─ speech.ts         안내 음성 — 대본을 speechSynthesis로 읽고 음성을 고르는 규칙 (테스트 speech.test.mjs)
 next.config.ts      Next.js 설정
 postcss.config.mjs  Tailwind v4 PostCSS 플러그인
 tsconfig.json       TypeScript 설정
@@ -138,7 +139,7 @@ BE 노드 docstring에 있습니다. 세션 하나가 BE 그래프 실행(LangGr
 | --- | --- | --- | --- |
 | 1 | `POST /sessions` | `CareRequest` — 자유 텍스트 + 칩(목표 · 가용 시간 · 장소) + 프로필 | 사전 측정 문항(SAM + 목표 척도). 세션을 열지 않으면 종료(`SAFETY` · `NO_GOAL`) |
 | 2 | `POST /sessions/{id}/measure` | 사전 측정 응답 | 계획(추천 활동 · 추천 이유) · 콘텐츠 |
-| 3 | `POST /sessions/{id}/report` | `SessionReport` — 완료 여부 · 중단 사유 · NOTICE 한 단어(점수는 보내지 않음) | 사후 측정 문항(SAM, S3는 + MFVAS) |
+| 3 | `POST /sessions/{id}/report` | `SessionReport` — 완료 여부 · 중단 사유 · NOTICE 감정 단어 1~3개(`notice_words`, 점수는 보내지 않음) | 사후 측정 문항(SAM, S3는 + MFVAS) |
 | 4 | `POST /sessions/{id}/measure` | 사후 측정 응답 | 평가(전후 비교) · 다음 단계 제안 |
 | 5 | `POST /sessions/{id}/decision` | `ReplanDecision` — 종료 · 활동 변경 · 추가 세션 | 활동 변경·추가 세션이면 새 계획·콘텐츠(3부터 반복). 종료면 S1·S2는 종료 측정 문항(BSRI · STAI-6), S3는 세션 종료 |
 | 6 | `POST /sessions/{id}/measure` | 종료 측정 응답(S1·S2만) | 세션 종료 |
@@ -147,6 +148,22 @@ BE 노드 docstring에 있습니다. 세션 하나가 BE 그래프 실행(LangGr
   응답은 받은 도구 전부를 `{instrument_id: {item_id: value}}`로 묶어 보냅니다.
 - 안전 신호가 있으면(`SAFETY`) 세션 대신 안전 안내로 끝납니다. 목표를 정하지 못하면(`NO_GOAL`) 목표 칩을
   보여 주고 `goal`을 채워 1부터 다시 보냅니다.
+
+## 안내 음성
+
+활동 대본은 녹음 음원 없이 브라우저 `speechSynthesis`로 읽습니다(BE README 「RUN 페이로드」). 녹음 음원은 PR-21만
+있습니다. 규칙은 `src/lib/speech.ts`의 함수로 지킵니다.
+
+- 음성은 좋은 순서로 고릅니다 — 데스크톱 크롬의 `Google 한국의`(온라인) → 엣지의 `Microsoft … Online (Natural)`
+  → 사파리 · iOS · 맥의 `Yuna`. macOS의 기계음 계열(Eddy · Flo 등)은 쓰지 않습니다. 오류가 나면(온라인 음성의
+  네트워크 오류 등) 다음 음성으로 그 문장부터 다시 읽습니다.
+- 대본은 문장 단위로 나눠 읽습니다(문장 사이 0.4초, 빈 줄 사이 1.5초). 크롬 온라인 음성은 한 번에 15초쯤 넘게
+  읽으면 끊깁니다.
+- 활동 화면을 열 때 `loadVoices()`, 시작 버튼 `onClick`에서 `unlockSpeech()`(iOS는 사용자가 누른 순간에 처음
+  읽어야 소리가 납니다), 재생 시점마다 `speakScript(text)`, 멈추거나 화면을 떠날 때 `cancelSpeech()`를 부릅니다.
+  새 대본을 읽으면 읽던 대본은 멈춥니다.
+- `speakScript()`가 `false`면(지원하지 않는 브라우저 · 읽을 음성 없음 · 중간에 멈춤) 화면 문구만 보여 줍니다.
+  대본의 `source_policy.tts`가 `FORBIDDEN`이면 읽지 않습니다.
 
 ## 브랜치·PR 규칙
 

@@ -1,0 +1,62 @@
+{
+  "measure": "POST",
+  "round": 1,
+  "instruments": [
+    {
+      "instrument_id": "INS-SAM",
+      "name": "Self-Assessment Manikin (SAM)",
+      "instruction": "지금 느낌에 가장 가까운 그림을 고르세요.",
+      "scale": {
+        "min": 1.0,
+        "max": 9.0,
+        "step": 1.0,
+        "kind": "PICTORIAL"
+      },
+      "items": [
+        {
+          "id": "valence",
+          "text": "지금 기분은 어떤가요?",
+          "low_label": "불쾌",
+          "high_label": "유쾌"
+        },
+        {
+          "id": "arousal",
+          "text": "지금 얼마나 들떠 있거나 긴장되어 있나요?",
+          "low_label": "차분",
+          "high_label": "흥분·긴장"
+        }
+      ]
+    },
+    {
+      "instrument_id": "INS-MFVAS",
+      "name": "정신 피로 VAS (Mental Fatigue VAS)",
+      "instruction": "지금 느낌에 가장 가까운 곳에 표시해 주세요.",
+      "scale": {
+        "min": 0.0,
+        "max": 100.0,
+        "step": 1.0,
+        "kind": "SLIDER"
+      },
+      "items": [
+        {
+          "id": "fatigue",
+          "text": "지금 머리가 얼마나 피로한가요?",
+          "low_label": "전혀 피로하지 않다",
+          "high_label": "매우 피로하다"
+        },
+        {
+          "id": "concentration",
+          "text": "지금 집중하기가 얼마나 어려운가요?",
+          "low_label": "전혀 어렵지 않다",
+          "high_label": "매우 어렵다"
+        },
+        {
+          "id": "energy",
+          "text": "지금 기운이 얼마나 있나요?",
+          "low_label": "전혀 없다",
+          "high_label": "매우 많다"
+        }
+      ]
+    }
+  ]
+}

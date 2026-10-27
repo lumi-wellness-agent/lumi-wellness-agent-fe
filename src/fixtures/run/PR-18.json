@@ -1,0 +1,224 @@
+{
+  "plan": {
+    "activity": {
+      "protocol_id": "PR-18",
+      "minutes": 20,
+      "evidence_record_ids": []
+    },
+    "rationale": "(견본) 추천 이유는 plan이 LLM으로 쓴다 — 사용자 상태, 고른 이유, 근거와 한계 2~3문장.",
+    "relaxed": [],
+    "environment_gaps": [],
+    "reference_card": {
+      "protocol_id": "PR-18",
+      "name": "강렬한 긍정 경험 글쓰기 20분",
+      "minutes": 20,
+      "composition": "SINGLE",
+      "badges": [
+        "NO_VERIFIED_EVIDENCE"
+      ],
+      "goal": {
+        "goal": "S2",
+        "label": "긴장·스트레스 완화",
+        "secondary_goal": null,
+        "source": "INFERRED",
+        "reason": "(견본) intake가 상황 단서로 고른 목표의 판단 이유 한 줄",
+        "definitions": [
+          {
+            "goal": "S2",
+            "concept": "stress",
+            "page": "2",
+            "sentence": "Stress means a situation in which a person feels tense, restless, nervous or anxious or is unable to sleep at night because his/her mind is troubled all the time.",
+            "paper": {
+              "paper_id": "N04",
+              "title": "Validity of a single-item measure of stress symptoms",
+              "authors": "Elo, Leppänen & Jahkola",
+              "year": 2003,
+              "doi": "10.5271/sjweh.752",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/14712852/"
+            }
+          },
+          {
+            "goal": "S2",
+            "concept": "state anxiety",
+            "page": "1",
+            "sentence": "The first questionnaire measures state anxiety (how one feels at the moment), the second, trait anxiety (how one generally feels).",
+            "paper": {
+              "paper_id": "N07",
+              "title": "The development of a six-item short-form of the state scale of the Spielberger State-Trait Anxiety Inventory (STAI)",
+              "authors": "Marteau & Bekker",
+              "year": 1992,
+              "doi": "10.1111/j.2044-8260.1992.tb00997.x",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/1393159/"
+            }
+          },
+          {
+            "goal": "S2",
+            "concept": "affect (pleasure · arousal)",
+            "page": "1",
+            "sentence": "The evidence suggests that these interrelationships can be represented by a spatial model in which affective concepts fall in a circle in the following order: pleasure (0°), excitement (45°), arousal (90°), distress (135°), displeasure (180°), depression (225°), sleepiness (270°), and relaxation (315°).",
+            "paper": {
+              "paper_id": "N01",
+              "title": "A circumplex model of affect",
+              "authors": "Russell",
+              "year": 1980,
+              "doi": "10.1037/h0077714",
+              "url": "https://doi.org/10.1037/h0077714"
+            }
+          }
+        ],
+        "evidence_outcomes": [
+          "SUBJECTIVE_STRESS",
+          "AFFECT"
+        ],
+        "measured_by": {
+          "instrument_id": "INS-STAI6",
+          "name": "STAI 상태판 6문항 단축형 (STAI-6)",
+          "concept": "상태 불안",
+          "provisional": false
+        },
+        "notes": []
+      },
+      "grades": {
+        "SUBJECTIVE_STRESS": "B",
+        "AFFECT": "B"
+      },
+      "evidence": [],
+      "limits": [
+        "연구 참여자에게서 관찰된 결과이며, 진단이나 치료 효과를 뜻하지 않습니다.",
+        "이번에는 이 활동을 직접 뒷받침하는 검증된 연구를 찾지 못했습니다.",
+        "한국 성인 대상 검증 없음"
+      ]
+    }
+  },
+  "content": {
+    "protocol_id": "PR-18",
+    "name": "강렬한 긍정 경험 글쓰기 20분",
+    "steps": [
+      {
+        "order": 1,
+        "type": "ACTIVITY",
+        "label": "글쓰기 20분",
+        "minutes": 20.0,
+        "optional": false
+      }
+    ],
+    "assets": [],
+    "asset_warnings": [],
+    "image_urls": [],
+    "guide_text": "지금부터 강렬한 긍정 경험 글쓰기 20분을 약 20분 동안 합니다. 편한 자세로 시작하고, 불편하면 언제든 멈출 수 있습니다.",
+    "notice_prompt": null,
+    "content_spec": {
+      "slots": [
+        {
+          "slot": "WRITING_PROMPT",
+          "required": true,
+          "evidence_stimulus": "E14-E1: 20분 × 3일",
+          "source_policy": {
+            "fixed_text": "ALLOWED",
+            "tts": "ALLOWED",
+            "llm_rewrite": "FORBIDDEN"
+          },
+          "note": "E14 2.3.1의 실험 조건 지시문(Maslow 1971 기반)을 옮겼다. 대조 조건도 같은 20분을 썼고 주제(남은 하루 일정 · 신고 있는 신발 · 자기 방 묘사)만 달랐다 — 지시문이 곧 처치라 뜻을 바꾸지 않는다",
+          "scripts": [
+            {
+              "id": "IPE_PROMPT",
+              "phase": "WRITING",
+              "required": true,
+              "text": "살면서 가장 멋졌던 경험, 가장 행복했던 순간, 황홀했던 순간, 벅차올랐던 순간을 생각해 보세요. 사랑에 빠졌을 때, 음악을 들을 때, 책이나 그림이 갑자기 마음을 사로잡았을 때, 또는 무언가를 만들어 내던 멋진 순간일 수도 있습니다. 그런 경험이나 순간을 하나 고르세요. 그 순간에 있는 자신을, 그 경험에 얽힌 느낌과 감정까지 모두 떠올려 보세요. 이제 그 경험을 되도록 자세히 써 보세요. 그때 들었던 느낌과 생각, 감정을 담아 주세요. 그 감정을 최대한 다시 느껴 보세요.",
+              "source_text": "Think of the most wonderful experience or experiences in your life, happiest moments, ecstatic moments, moments of rapture, perhaps from being in love, or from listening to music, or suddenly “being hit” by a book or painting or from some great creative moment. Choose one such experience or moment. Try to imagine yourself at that moment, including all the feelings and emotions associated with the experience. Now write about the experience in as much detail as possible trying to include the feelings, thoughts, and emotions that were present at the time. Please try your best to re-experience the emotions involved.",
+              "source_ref": "E14 p.6 — 2.3.1 Writing instructions(실험 조건)"
+            },
+            {
+              "id": "IPE_REPEAT_NOTE",
+              "phase": "WRITING",
+              "required": false,
+              "text": "지난번과 같은 경험을 써도 되고, 새로운 경험을 골라도 됩니다.",
+              "source_text": "You may either write about the same experience as yesterday, or you may choose a new one.",
+              "source_ref": "E14 p.6 — 2·3일차 지시문",
+              "note": "같은 사용자가 이 활동을 두 번째 이상 할 때 IPE_PROMPT 뒤에 붙인다"
+            }
+          ]
+        }
+      ],
+      "session_ui": {
+        "status": "PROPOSED",
+        "source": "scratch/pr18/pr18-runtime.json — C 파트 실행 계약(#51)을 옮겼다",
+        "state_flow": [
+          "INTRO",
+          "WRITING",
+          "PAUSED",
+          "COMPLETED",
+          "STOPPED"
+        ],
+        "timer": {
+          "target_seconds": 900,
+          "research_reference_seconds": 1200,
+          "display_mode": "HIDDEN_INTERNAL",
+          "show_progress": false,
+          "show_remaining_time": false,
+          "start_trigger": "first_text_input",
+          "record_started_at": true,
+          "record_elapsed_seconds": true,
+          "user_pause_control": false,
+          "refresh_pauses_timer": true,
+          "resume_trigger": "next_text_input",
+          "auto_stop_on_target": false
+        },
+        "prompt": {
+          "status": "SOURCE_TRANSLATED",
+          "script_id": "IPE_PROMPT",
+          "source_must_be_verified": true
+        },
+        "input": {
+          "required_for_completion": true,
+          "minimum_characters": 300,
+          "count_for_validation_only": true,
+          "allow_edit": true,
+          "allow_delete": true,
+          "max_length": 5000,
+          "normalize_whitespace": true,
+          "start_on_first_input": true
+        },
+        "completion": {
+          "requires_minimum_characters": true,
+          "requires_user_confirmation": true,
+          "content_quality_evaluation": false,
+          "duration_required": false
+        },
+        "persistence": {
+          "storage": "localStorage",
+          "key": "lumi.pr18.writing.v1",
+          "autosave_debounce_ms": 500,
+          "restore_running_as": "PAUSED",
+          "restore_fields": [
+            "writing_text",
+            "elapsed_seconds",
+            "activity_completed"
+          ],
+          "refresh_log": "internal_only",
+          "refresh_count_user_visible": false,
+          "browser_close_status": "STOPPED",
+          "unexpected_error_status": "STOPPED",
+          "completion_idempotency": true
+        },
+        "internal_log": {
+          "enabled": true,
+          "record_refresh_events": true,
+          "record_error_type_and_message": true,
+          "include_writing_text": false,
+          "show_error_details_to_user": false
+        },
+        "privacy": {
+          "server_text_storage": false,
+          "allow_export": true,
+          "allow_delete": true
+        },
+        "test_modes": [
+          30,
+          60
+        ]
+      }
+    },
+    "notice_module": null
+  }
+}

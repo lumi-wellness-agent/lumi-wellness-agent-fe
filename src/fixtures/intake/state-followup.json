@@ -1,0 +1,50 @@
+{
+  "type": "intake_question",
+  "question_id": "q2",
+  "slot": "state_followup",
+  "turn": 2,
+  "max_turns": 3,
+  "text": "요즘 오래 집중해야 하는 일이 많았나요, 신경 쓰이는 일이 있었나요?",
+  "groups": [
+    {
+      "key": "state_followup",
+      "select": "single",
+      "options": [
+        {
+          "label": "오래 집중하는 일이 많았어요",
+          "set": {
+            "order_condition": "POST_FATIGUE",
+            "goal_hint": [
+              "S3"
+            ]
+          }
+        },
+        {
+          "label": "신경 쓰이는 일이 있었어요",
+          "set": {
+            "order_condition": "POST_STRESS",
+            "goal_hint": [
+              "S2"
+            ]
+          }
+        },
+        {
+          "label": "둘 다예요",
+          "set": {
+            "order_condition": "POST_STRESS",
+            "goal_hint": [
+              "S2",
+              "S3"
+            ]
+          }
+        },
+        {
+          "label": "잘 모르겠어요",
+          "set": {}
+        }
+      ]
+    }
+  ],
+  "allow_free_text": true,
+  "skip_label": null
+}

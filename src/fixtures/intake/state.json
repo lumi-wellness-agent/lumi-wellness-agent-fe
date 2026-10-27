@@ -1,0 +1,46 @@
+{
+  "type": "intake_question",
+  "question_id": "q1",
+  "slot": "state",
+  "turn": 1,
+  "max_turns": 3,
+  "text": "방금 있었던 일 때문인가요, 곧 있을 일 때문인가요?",
+  "groups": [
+    {
+      "key": "state",
+      "select": "single",
+      "options": [
+        {
+          "label": "방금 있었던 일 때문이에요",
+          "set": {
+            "order_condition": "POST_STRESS"
+          }
+        },
+        {
+          "label": "곧 있을 일이 걱정돼요",
+          "set": {
+            "order_condition": "PRE_STRESS"
+          }
+        },
+        {
+          "label": "오래 집중해서 지쳤어요",
+          "set": {
+            "order_condition": "POST_FATIGUE"
+          }
+        },
+        {
+          "label": "딱히 계기는 없어요",
+          "set": {
+            "order_condition": "NO_INDUCTION"
+          }
+        },
+        {
+          "label": "잘 모르겠어요",
+          "set": {}
+        }
+      ]
+    }
+  ],
+  "allow_free_text": true,
+  "skip_label": null
+}

@@ -1,0 +1,385 @@
+{
+  "plan": {
+    "activity": {
+      "protocol_id": "PR-12",
+      "minutes": 30,
+      "evidence_record_ids": []
+    },
+    "rationale": "(견본) 추천 이유는 plan이 LLM으로 쓴다 — 사용자 상태, 고른 이유, 근거와 한계 2~3문장.",
+    "relaxed": [],
+    "environment_gaps": [],
+    "reference_card": {
+      "protocol_id": "PR-12",
+      "name": "자연 속 걷기 + 좋은 것 3가지 알아차리기",
+      "minutes": 30,
+      "composition": "VALIDATED_MULTIMODAL",
+      "badges": [
+        "NO_VERIFIED_EVIDENCE"
+      ],
+      "goal": {
+        "goal": "S2",
+        "label": "긴장·스트레스 완화",
+        "secondary_goal": null,
+        "source": "INFERRED",
+        "reason": "(견본) intake가 상황 단서로 고른 목표의 판단 이유 한 줄",
+        "definitions": [
+          {
+            "goal": "S2",
+            "concept": "stress",
+            "page": "2",
+            "sentence": "Stress means a situation in which a person feels tense, restless, nervous or anxious or is unable to sleep at night because his/her mind is troubled all the time.",
+            "paper": {
+              "paper_id": "N04",
+              "title": "Validity of a single-item measure of stress symptoms",
+              "authors": "Elo, Leppänen & Jahkola",
+              "year": 2003,
+              "doi": "10.5271/sjweh.752",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/14712852/"
+            }
+          },
+          {
+            "goal": "S2",
+            "concept": "state anxiety",
+            "page": "1",
+            "sentence": "The first questionnaire measures state anxiety (how one feels at the moment), the second, trait anxiety (how one generally feels).",
+            "paper": {
+              "paper_id": "N07",
+              "title": "The development of a six-item short-form of the state scale of the Spielberger State-Trait Anxiety Inventory (STAI)",
+              "authors": "Marteau & Bekker",
+              "year": 1992,
+              "doi": "10.1111/j.2044-8260.1992.tb00997.x",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/1393159/"
+            }
+          },
+          {
+            "goal": "S2",
+            "concept": "affect (pleasure · arousal)",
+            "page": "1",
+            "sentence": "The evidence suggests that these interrelationships can be represented by a spatial model in which affective concepts fall in a circle in the following order: pleasure (0°), excitement (45°), arousal (90°), distress (135°), displeasure (180°), depression (225°), sleepiness (270°), and relaxation (315°).",
+            "paper": {
+              "paper_id": "N01",
+              "title": "A circumplex model of affect",
+              "authors": "Russell",
+              "year": 1980,
+              "doi": "10.1037/h0077714",
+              "url": "https://doi.org/10.1037/h0077714"
+            }
+          }
+        ],
+        "evidence_outcomes": [
+          "SUBJECTIVE_STRESS",
+          "AFFECT"
+        ],
+        "measured_by": {
+          "instrument_id": "INS-STAI6",
+          "name": "STAI 상태판 6문항 단축형 (STAI-6)",
+          "concept": "상태 불안",
+          "provisional": false
+        },
+        "notes": []
+      },
+      "grades": {
+        "SUBJECTIVE_STRESS": "—",
+        "AFFECT": "B"
+      },
+      "evidence": [],
+      "limits": [
+        "연구 참여자에게서 관찰된 결과이며, 진단이나 치료 효과를 뜻하지 않습니다.",
+        "이번에는 이 활동을 직접 뒷받침하는 검증된 연구를 찾지 못했습니다.",
+        "한국 성인 대상 검증 없음"
+      ]
+    }
+  },
+  "content": {
+    "protocol_id": "PR-12",
+    "name": "자연 속 걷기 + 좋은 것 3가지 알아차리기",
+    "steps": [
+      {
+        "order": 1,
+        "type": "ACTIVITY",
+        "label": "자연 속 걷기와 알아차림",
+        "minutes": 30.0,
+        "optional": false
+      }
+    ],
+    "assets": [],
+    "asset_warnings": [],
+    "image_urls": [],
+    "guide_text": "자연 속을 편안하게 걸으며 좋은 것 3가지를 알아차려 기록합니다.",
+    "notice_prompt": null,
+    "content_spec": {
+      "slots": [
+        {
+          "slot": "OUTDOOR_TASK",
+          "required": true,
+          "evidence_stimulus": "E17-E1: 매일 기록 × 5일; E18-E1: 30분 보행 × 5일",
+          "source_policy": {
+            "fixed_text": "ALLOWED",
+            "tts": "ALLOWED",
+            "llm_rewrite": "FORBIDDEN"
+          },
+          "note": "scripts는 화면 단계(phase)별 고정 문구다(PR-11과 같은 id). FE는 phase로 찾고 text가 비면 fallback_text를 쓴다",
+          "scripts": [
+            {
+              "id": "INTRO_GUIDE",
+              "phase": "PRE_ACTIVITY_CHECK",
+              "required": true,
+              "text": "권장 시간 동안 편안하게 걸으며 주변의 좋은 것을 알아차려 보세요. 불편하거나 위험하면 중단하세요.",
+              "fallback_text": "권장 시간 동안 편안하게 걷고, 불편하면 중단하세요.",
+              "source_policy": {
+                "fixed_text": "ALLOWED",
+                "tts": "ALLOWED",
+                "llm_rewrite": "FORBIDDEN"
+              }
+            },
+            {
+              "id": "DURING_ACTIVITY_GUIDE",
+              "phase": "RUNNING",
+              "required": true,
+              "text": "자연 속을 편안하게 걸으며 주변을 살펴보세요.",
+              "fallback_text": "주변을 살펴보며 편안하게 걸어보세요.",
+              "source_policy": {
+                "fixed_text": "ALLOWED",
+                "tts": "FORBIDDEN",
+                "llm_rewrite": "FORBIDDEN"
+              }
+            },
+            {
+              "id": "TARGET_REACHED_GUIDE",
+              "phase": "TARGET_REACHED",
+              "required": true,
+              "text": "권장 시간에 도달했습니다. 활동을 마쳤다면 다음 단계로 이동하세요.",
+              "fallback_text": "권장 시간에 도달했습니다.",
+              "source_policy": {
+                "fixed_text": "ALLOWED",
+                "tts": "ALLOWED",
+                "llm_rewrite": "FORBIDDEN"
+              }
+            },
+            {
+              "id": "STOP_CONFIRMATION",
+              "phase": "STOP_CONFIRMATION",
+              "required": true,
+              "text": "활동을 중단하시겠습니까?",
+              "fallback_text": "활동을 중단하시겠습니까?",
+              "source_policy": {
+                "fixed_text": "ALLOWED",
+                "tts": "FORBIDDEN",
+                "llm_rewrite": "FORBIDDEN"
+              }
+            },
+            {
+              "id": "LIMITATION_NOTICE",
+              "phase": "RESULT",
+              "required": true,
+              "text": "이 활동은 실제 보행 여부나 개인별 효과를 자동으로 확인하거나 검증하지 않습니다.",
+              "fallback_text": "실제 보행 여부와 효과는 자동으로 확인되지 않습니다.",
+              "source_policy": {
+                "fixed_text": "ALLOWED",
+                "tts": "FORBIDDEN",
+                "llm_rewrite": "FORBIDDEN"
+              }
+            }
+          ]
+        },
+        {
+          "slot": "WRITING_PROMPT",
+          "required": true,
+          "evidence_stimulus": "E17-E1: 매일 기록 × 5일; E18-E1: 30분 보행 × 5일",
+          "source_policy": {
+            "fixed_text": "ALLOWED",
+            "tts": "ALLOWED",
+            "llm_rewrite": "FORBIDDEN"
+          },
+          "note": "보행이 끝난 뒤 알아차린 좋은 것을 1~3개 적는다(session_ui.noticing)",
+          "scripts": [
+            {
+              "id": "NOTICING_PROMPT",
+              "phase": "NOTICING_INPUT",
+              "required": true,
+              "text": "자연에서 발견한 좋은 것을 한 가지 이상 기록해 주세요.",
+              "fallback_text": "좋았던 것을 한 가지 이상 기록해 주세요.",
+              "source_policy": {
+                "fixed_text": "ALLOWED",
+                "tts": "FORBIDDEN",
+                "llm_rewrite": "FORBIDDEN"
+              }
+            }
+          ]
+        }
+      ],
+      "session_ui": {
+        "status": "PROPOSED",
+        "source": "scratch/pr12/pr12-runtime.json — C 파트 실행 계약(#51)을 옮겼다",
+        "timer": {
+          "recommended_duration_seconds": 1800,
+          "display_mode": "PROGRESS_ELAPSED",
+          "progress_max_percent": 100,
+          "show_elapsed_time": true,
+          "show_remaining_time": true,
+          "auto_stop_on_target": false,
+          "continue_elapsed_after_target": false,
+          "allow_pause": true,
+          "allow_early_stop": true,
+          "test_presets_seconds": [
+            30,
+            60
+          ]
+        },
+        "safety_check": {
+          "required": true,
+          "mode": "USER_SELF_CONFIRMATION",
+          "items": [
+            "walking_environment",
+            "body_condition"
+          ],
+          "labels": {
+            "walking_environment": "현재 보행할 장소와 경로가 충분히 안전합니다.",
+            "body_condition": "현재 몸 상태로 이 활동을 진행할 수 있습니다."
+          },
+          "initial_value": false,
+          "start_enabled_when": "all_items_true",
+          "does_not_certify_safety": true,
+          "request_location_permission": false,
+          "request_sensor_permission": false
+        },
+        "content_validation": {
+          "required_slots": [
+            "INTRO_GUIDE",
+            "TARGET_REACHED_GUIDE",
+            "STOP_CONFIRMATION",
+            "LIMITATION_NOTICE"
+          ],
+          "missing_required_slot": "SHOW_ERROR_AND_BLOCK_START",
+          "missing_optional_slot": "HIDE_AND_LOG_SLOT",
+          "error_text": "안내 문구를 불러오지 못했습니다. 활동을 시작하지 말고 잠시 후 다시 시도해 주세요."
+        },
+        "duration_input": {
+          "field": "selected_duration_option",
+          "allowed_values": [
+            "PR12-30"
+          ],
+          "default": "PR12-30",
+          "options": {
+            "PR12-30": {
+              "minutes": 30,
+              "planned_seconds": 1800
+            }
+          },
+          "user_override": false
+        },
+        "tts_policy": {
+          "play_once_at": [
+            "PROGRESS_0",
+            "PROGRESS_25",
+            "PROGRESS_50",
+            "PROGRESS_75",
+            "PROGRESS_100"
+          ],
+          "on_failure": "CONSOLE_WARN_ONLY",
+          "user_error_message": false
+        },
+        "voice_guide": {
+          "milestones": {
+            "0": "자연 속을 편안하게 걸으며 주변을 살펴보세요.",
+            "25": "주변에서 눈에 띄는 좋은 것을 하나 찾아보세요.",
+            "50": "걸음을 이어가며 지금 느껴지는 좋은 점을 알아차려 보세요.",
+            "75": "조금 더 걸은 뒤 기억에 남는 좋은 것을 기록해 보세요.",
+            "100": "보행 시간이 끝났습니다. 다음 단계에서 알아차린 내용을 기록해 주세요."
+          },
+          "source_policy": {
+            "fixed_text": "ALLOWED",
+            "llm_rewrite": "FORBIDDEN"
+          }
+        },
+        "phase_history_policy": {
+          "record_events": [
+            "PRE_ACTIVITY_CHECK_CONFIRMED",
+            "ACTIVITY_STARTED",
+            "PAUSED",
+            "RESUMED",
+            "TARGET_REACHED",
+            "NOTICING_INPUT",
+            "REPORT_STARTED",
+            "COMPLETED",
+            "STOPPED"
+          ],
+          "cancelled_popup_recorded": false,
+          "paused_seconds": "NOT_IMPLEMENTED"
+        },
+        "noticing": {
+          "target_count": 3,
+          "allow_during_activity": false,
+          "allow_after_activity": true,
+          "allow_edit": true,
+          "allow_partial_save": true,
+          "prompts": [
+            "자연에서 보거나 발견한 것",
+            "들린 소리",
+            "몸이나 마음으로 느낀 점",
+            "자연환경에서 인상 깊었던 점"
+          ],
+          "recording_phase": "AFTER_ACTIVITY",
+          "minimum_count": 1,
+          "maximum_count": 3
+        },
+        "self_report": {
+          "fields": {
+            "walked_outdoors": {
+              "type": "boolean",
+              "required": true
+            },
+            "walked_minutes": {
+              "type": "integer",
+              "minimum": 0,
+              "required": true
+            },
+            "completed_activity": {
+              "type": "boolean",
+              "required": true
+            },
+            "discomfort": {
+              "type": "string",
+              "required": false
+            },
+            "reflection": {
+              "type": "string",
+              "required": false
+            }
+          }
+        },
+        "verification": {
+          "automatic_walking": "disabled",
+          "gps": "disabled",
+          "sensor_steps": "disabled",
+          "self_report_is_not_objective_verification": true
+        },
+        "storage": {
+          "mode": "browser_local_storage",
+          "key": "lumi.pr12.noticing.v1",
+          "official_server_record": false
+        },
+        "completion_rules": {
+          "walking_ended": "target_reached == true and timer_status == STOPPED",
+          "noticing_completed": "recorded_count >= minimum_count",
+          "self_report_saved": "noticing_report_saved == true",
+          "wellness_completed": "walking_ended == true and noticing_completed == true and noticing_report_saved == true"
+        },
+        "state_model": {
+          "walking_states": [
+            "READY",
+            "RUNNING",
+            "PAUSED",
+            "STOPPED_WALKING"
+          ],
+          "wellness_states": [
+            "NOTICING_INPUT",
+            "REPORT",
+            "COMPLETED"
+          ]
+        }
+      }
+    },
+    "notice_module": null
+  }
+}

@@ -1,0 +1,435 @@
+{
+  "plan": {
+    "activity": {
+      "protocol_id": "PR-15",
+      "minutes": 3,
+      "evidence_record_ids": []
+    },
+    "rationale": "(견본) 추천 이유는 plan이 LLM으로 쓴다 — 사용자 상태, 고른 이유, 근거와 한계 2~3문장.",
+    "relaxed": [],
+    "environment_gaps": [],
+    "reference_card": {
+      "protocol_id": "PR-15",
+      "name": "자연 도안 디지털 컬러링 3–5분",
+      "minutes": 3,
+      "composition": "EXPERIMENTAL",
+      "badges": [
+        "EXPERIMENTAL",
+        "NO_VERIFIED_EVIDENCE"
+      ],
+      "goal": {
+        "goal": "S1",
+        "label": "반추 완화",
+        "secondary_goal": null,
+        "source": "INFERRED",
+        "reason": "(견본) intake가 상황 단서로 고른 목표의 판단 이유 한 줄",
+        "definitions": [
+          {
+            "goal": "S1",
+            "concept": "repetitive negative thinking",
+            "page": "1–2",
+            "sentence": "Repetitive negative thinking (RNT) poses such a transdiagnostic process being defined as a thinking process that is repetitive, passive, and/or relatively uncontrollable, and focused on negative content (Ehring & Watkins, 2008).",
+            "paper": {
+              "paper_id": "P12",
+              "title": "Efficacy of cognitive behavioral therapy in treating repetitive negative thinking, rumination, and worry – a transdiagnostic meta-analysis",
+              "authors": "Stenzel et al.",
+              "year": 2025,
+              "doi": "10.1017/S0033291725000017",
+              "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12017360/"
+            }
+          },
+          {
+            "goal": "S1",
+            "concept": "rumination",
+            "page": "1",
+            "sentence": "Rumination is a common form of repetitive negative thinking involving persistent distressing thoughts (Martin & Tesser, 2006; Nolen-Hoeksema et al., 2008).",
+            "paper": {
+              "paper_id": "N26",
+              "title": "Impact of a Momentary Mindfulness Intervention on Rumination, Negative Affect, and their Dynamics in Daily Life",
+              "authors": "Bolzenkötter, Neubauer & Koval",
+              "year": 2025,
+              "doi": "10.1007/s42761-024-00291-9",
+              "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12209136/"
+            }
+          },
+          {
+            "goal": "S1",
+            "concept": "state rumination",
+            "page": "2",
+            "sentence": "Rumination has recently been conceptualized as a state-dependent cognitive response, triggered by situational factors such as perceived discrepancies between goals and current circumstances (Michel-Kröhler et al., 2023; Smith & Alloy, 2009; Tamm et al., 2024).",
+            "paper": {
+              "paper_id": "N25",
+              "title": "Measurement Invariance of the Brief State Rumination Inventory Across Administration Methods, National Samples, and Sex",
+              "authors": "Chiorri et al.",
+              "year": 2026,
+              "doi": "10.1080/00223891.2026.2726459",
+              "url": "https://www.tandfonline.com/doi/full/10.1080/00223891.2026.2726459"
+            }
+          }
+        ],
+        "evidence_outcomes": [
+          "RUMINATION"
+        ],
+        "measured_by": {
+          "instrument_id": "INS-BSRI",
+          "name": "Brief State Rumination Inventory (BSRI)",
+          "concept": "상태 반추",
+          "provisional": false
+        },
+        "notes": []
+      },
+      "grades": {
+        "RUMINATION": "—"
+      },
+      "evidence": [],
+      "limits": [
+        "연구 참여자에게서 관찰된 결과이며, 진단이나 치료 효과를 뜻하지 않습니다.",
+        "여러 활동을 묶은 실험적 구성이라, 함께 했을 때의 효과는 검증되지 않았습니다.",
+        "이번에는 이 활동을 직접 뒷받침하는 검증된 연구를 찾지 못했습니다.",
+        "한국 성인 대상 검증 없음"
+      ]
+    }
+  },
+  "content": {
+    "protocol_id": "PR-15",
+    "name": "자연 도안 디지털 컬러링 3–5분",
+    "steps": [
+      {
+        "order": 1,
+        "type": "ACTIVITY",
+        "label": "자연 도안 컬러링 3–5분",
+        "minutes": 3.0,
+        "optional": false
+      },
+      {
+        "order": 2,
+        "type": "NOTICE",
+        "label": "지금 느낌 알아차리기",
+        "minutes": 0.5,
+        "optional": true
+      }
+    ],
+    "assets": [
+      {
+        "slot": "COLORING_TEMPLATE",
+        "url": "/assets/coloring/pr15/nature-1.svg",
+        "provider": "CURATED_ASSET_LIBRARY",
+        "title": "자연 도안 1",
+        "creator": null,
+        "source_url": null,
+        "license": null,
+        "generated": false,
+        "verification": "PENDING_CONTENT_REVIEW",
+        "metadata": {
+          "design_id": "nature-1",
+          "format": "SVG",
+          "region_attribute": "data-region-id",
+          "region_count": 42,
+          "outline_id": "outline",
+          "view_box": "0 0 512 512",
+          "file_bytes": 29378,
+          "sha256": "224A2D10D2BDD45F6958638DEEF773CF7857242BA4D5F4E08B942CC57AC31543",
+          "origin": "scratch/pr15/assets/processed_images/nature-1.svg (C 파트 전처리 SVG, #51)",
+          "provenance_note": "원본 이미지의 출처·라이선스가 적혀 있지 않다 — 확인 전까지 PENDING_CONTENT_REVIEW",
+          "asset_ref": "coloring/pr15_nature_1",
+          "selection_mode": "RANDOM_ONE",
+          "is_default": true
+        }
+      },
+      {
+        "slot": "COLORING_TEMPLATE",
+        "url": "/assets/coloring/pr15/nature-3.svg",
+        "provider": "CURATED_ASSET_LIBRARY",
+        "title": "자연 도안 3",
+        "creator": null,
+        "source_url": null,
+        "license": null,
+        "generated": false,
+        "verification": "PENDING_CONTENT_REVIEW",
+        "metadata": {
+          "design_id": "nature-3",
+          "format": "SVG",
+          "region_attribute": "data-region-id",
+          "region_count": 56,
+          "outline_id": "outline",
+          "view_box": "0 0 612 408",
+          "file_bytes": 22600,
+          "sha256": "17B7100C6706DA0F7E9DA62D8A63E93BE95FD62E6F57F0A5B12ABA6C6926F1DA",
+          "origin": "scratch/pr15/assets/processed_images/nature-3.svg (C 파트 전처리 SVG, #51)",
+          "provenance_note": "원본 이미지의 출처·라이선스가 적혀 있지 않다 — 확인 전까지 PENDING_CONTENT_REVIEW",
+          "asset_ref": "coloring/pr15_nature_3",
+          "selection_mode": "RANDOM_ONE",
+          "is_default": false
+        }
+      },
+      {
+        "slot": "COLORING_TEMPLATE",
+        "url": "/assets/coloring/pr15/nature-5.svg",
+        "provider": "CURATED_ASSET_LIBRARY",
+        "title": "자연 도안 5",
+        "creator": null,
+        "source_url": null,
+        "license": null,
+        "generated": false,
+        "verification": "PENDING_CONTENT_REVIEW",
+        "metadata": {
+          "design_id": "nature-5",
+          "format": "SVG",
+          "region_attribute": "data-region-id",
+          "region_count": 61,
+          "outline_id": "outline",
+          "view_box": "0 0 612 612",
+          "file_bytes": 34491,
+          "sha256": "423022D73ED356180AEA903C7743DEEDAC546DD69E8A9D0BA9EC04CEBE820B8A",
+          "origin": "scratch/pr15/assets/processed_images/nature-5.svg (C 파트 전처리 SVG, #51)",
+          "provenance_note": "원본 이미지의 출처·라이선스가 적혀 있지 않다 — 확인 전까지 PENDING_CONTENT_REVIEW",
+          "asset_ref": "coloring/pr15_nature_5",
+          "selection_mode": "RANDOM_ONE",
+          "is_default": false
+        }
+      },
+      {
+        "slot": "COLORING_TEMPLATE",
+        "url": "/assets/coloring/pr15/nature-6.svg",
+        "provider": "CURATED_ASSET_LIBRARY",
+        "title": "자연 도안 6",
+        "creator": null,
+        "source_url": null,
+        "license": null,
+        "generated": false,
+        "verification": "PENDING_CONTENT_REVIEW",
+        "metadata": {
+          "design_id": "nature-6",
+          "format": "SVG",
+          "region_attribute": "data-region-id",
+          "region_count": 51,
+          "outline_id": "outline",
+          "view_box": "0 0 612 612",
+          "file_bytes": 36886,
+          "sha256": "3346F82AC67C978C205326A1681E53AFA2FE9222D41D97E6B7E61A6CBE59513E",
+          "origin": "scratch/pr15/assets/processed_images/nature-6.svg (C 파트 전처리 SVG, #51)",
+          "provenance_note": "원본 이미지의 출처·라이선스가 적혀 있지 않다 — 확인 전까지 PENDING_CONTENT_REVIEW",
+          "asset_ref": "coloring/pr15_nature_6",
+          "selection_mode": "RANDOM_ONE",
+          "is_default": false
+        }
+      },
+      {
+        "slot": "COLORING_TEMPLATE",
+        "url": "/assets/coloring/pr15/nature-7.svg",
+        "provider": "CURATED_ASSET_LIBRARY",
+        "title": "자연 도안 7",
+        "creator": null,
+        "source_url": null,
+        "license": null,
+        "generated": false,
+        "verification": "PENDING_CONTENT_REVIEW",
+        "metadata": {
+          "design_id": "nature-7",
+          "format": "SVG",
+          "region_attribute": "data-region-id",
+          "region_count": 27,
+          "outline_id": "outline",
+          "view_box": "0 0 612 612",
+          "file_bytes": 26415,
+          "sha256": "1B2294B39F2054AE590644BBCBF981D38748E2F8CA7DCDBA6F5644EC63B3C537",
+          "origin": "scratch/pr15/assets/processed_images/nature-7.svg (C 파트 전처리 SVG, #51)",
+          "provenance_note": "원본 이미지의 출처·라이선스가 적혀 있지 않다 — 확인 전까지 PENDING_CONTENT_REVIEW",
+          "asset_ref": "coloring/pr15_nature_7",
+          "selection_mode": "RANDOM_ONE",
+          "is_default": false
+        }
+      }
+    ],
+    "asset_warnings": [
+      "COLORING_TEMPLATE: 고정 자산의 내용 검수가 필요함 (coloring/pr15_nature_1)",
+      "COLORING_TEMPLATE: 고정 자산의 내용 검수가 필요함 (coloring/pr15_nature_3)",
+      "COLORING_TEMPLATE: 고정 자산의 내용 검수가 필요함 (coloring/pr15_nature_5)",
+      "COLORING_TEMPLATE: 고정 자산의 내용 검수가 필요함 (coloring/pr15_nature_6)",
+      "COLORING_TEMPLATE: 고정 자산의 내용 검수가 필요함 (coloring/pr15_nature_7)"
+    ],
+    "image_urls": [],
+    "guide_text": "지금부터 자연 도안 디지털 컬러링 3–5분을 약 3분 동안 합니다. 편한 자세로 시작하고, 불편하면 언제든 멈출 수 있습니다.",
+    "notice_prompt": "지금 느낌 알아차리기",
+    "content_spec": {
+      "slots": [
+        {
+          "slot": "COLORING_TEMPLATE",
+          "required": true,
+          "evidence_stimulus": "P34-E1: 자기선택: 경외/분홍/자연/파랑 vs 무관 이미지",
+          "source_policy": {
+            "curated": "ALLOWED",
+            "generated": "ALLOWED_WITH_FLAG",
+            "user_upload": "FORBIDDEN"
+          },
+          "note": "도안은 독립 영역(data-region-id)과 외곽선(id=outline)이 있는 SVG다(app/static/coloring/pr15). FE는 SVG를 받아 DOM에 넣고 영역을 칠한다",
+          "selection": {
+            "provider": "CURATED_ASSET_LIBRARY",
+            "mode": "RANDOM_ONE",
+            "asset_refs": [
+              "coloring/pr15_nature_1",
+              "coloring/pr15_nature_3",
+              "coloring/pr15_nature_5",
+              "coloring/pr15_nature_6",
+              "coloring/pr15_nature_7"
+            ],
+            "default_asset_ref": "coloring/pr15_nature_1",
+            "note": "도안 1개를 무작위로 골라 보여 준다"
+          }
+        },
+        {
+          "slot": "NOTICE_PROMPT",
+          "required": false,
+          "evidence_stimulus": "P34-E1: 자기선택: 경외/분홍/자연/파랑 vs 무관 이미지",
+          "source_policy": {
+            "fixed_text": "ALLOWED",
+            "tts": "ALLOWED",
+            "llm_rewrite": "FORBIDDEN"
+          },
+          "note": "초안: selection · render · personalization · generation은 담당자가 채운다(PR-01.json 참고)"
+        }
+      ],
+      "session_ui": {
+        "status": "PROPOSED",
+        "source": "scratch/pr15/pr15-runtime.json — C 파트 실행 계약(#51)을 옮겼다",
+        "design_count": 5,
+        "recommended_duration_seconds": 300,
+        "timer": {
+          "display_mode": "HIDDEN_INTERNAL",
+          "start_trigger": "first_valid_region_click",
+          "record_started_at": true,
+          "record_elapsed_seconds": true,
+          "auto_stop": false
+        },
+        "palette": {
+          "fixed": true,
+          "colors": [
+            "#397D78",
+            "#759BC3",
+            "#8873A6",
+            "#B86F87",
+            "#C48760",
+            "#D4B85F",
+            "#89964E",
+            "#DFD1B5"
+          ]
+        },
+        "state": {
+          "region_states": [
+            "uncolored",
+            "colored"
+          ],
+          "initial_state": "uncolored",
+          "outline_click_ignored": true
+        },
+        "eraser": {
+          "enabled": true,
+          "ui": "palette_adjacent_icon",
+          "effect": "fill_white_and_set_uncolored"
+        },
+        "completion": {
+          "minimum_completion_percent": 80,
+          "requires_user_confirmation": true,
+          "auto_complete": false,
+          "continue_coloring_after_threshold": true
+        },
+        "progress": {
+          "show_completion_rate": true,
+          "show_remaining_region_count": true,
+          "show_timer": false
+        },
+        "persistence": {
+          "storage": "localStorage",
+          "key": "lumi.pr15.coloring.v1",
+          "autosave_debounce_ms": 500,
+          "restore_after_reload_or_close": true,
+          "clear_on_completed": true
+        },
+        "features": {
+          "undo": false,
+          "reset": false
+        }
+      }
+    },
+    "notice_module": {
+      "status": "PROPOSED",
+      "source": "scratch/pr16/pr16-runtime.json — C 파트 실행 계약(#51)을 옮겼다",
+      "state_flow": [
+        "HOST_ACTIVITY_RUNNING",
+        "PR16_POPUP_READY",
+        "PR16_INPUTTING",
+        "PR16_COMPLETED",
+        "SKIPPED",
+        "STOPPED"
+      ],
+      "popup": {
+        "enabled": true,
+        "start_text": "감정이나 분위기를 1~3개의 짧은 단어로 입력해 주세요. 이 활동에는 정답이 있지 않습니다.",
+        "actions": [
+          "SKIP",
+          "CONTINUE"
+        ],
+        "close_button": false,
+        "outside_click_closes": false
+      },
+      "input": {
+        "mode": "three_slots",
+        "slot_count": 3,
+        "minimum_valid_slots": 1,
+        "allow_free_text": true,
+        "per_slot_min_words": 1,
+        "per_slot_max_words": 3,
+        "per_slot_max_characters": 20,
+        "allow_blank_slots": true,
+        "blank_policy": "block_confirmation",
+        "sentence_input": false,
+        "normalize_whitespace": true,
+        "reject_line_breaks": true
+      },
+      "completion": {
+        "normal": "at_least_one_valid_phrase_and_user_confirm",
+        "allowed_statuses": [
+          "COMPLETED",
+          "SKIPPED",
+          "STOPPED"
+        ],
+        "skip_returns_to_host": true,
+        "stop_returns_to_host": false,
+        "self_report_only": true
+      },
+      "timer": {
+        "enabled": false,
+        "host_activity_owns_timing": true
+      },
+      "host_integration": {
+        "host_protocol_ids": [
+          "PR-01",
+          "PR-09",
+          "PR-15",
+          "PR-21"
+        ],
+        "trigger": "HOST_NOTICE_STEP",
+        "return_target": "HOST_ACTIVITY",
+        "selection_status": "INTEGRATED",
+        "note": "steps에 NOTICE 단계가 있는 활동이 호스트다. prepare가 호스트의 ActivityContent.notice_module로 이 session_ui를 싣고, FE는 그 NOTICE 단계를 이 팝업으로 그린다. 호스트 NOTICE 슬롯에 text가 있으면 그 문구를, 없으면 popup.start_text를 보여 준다"
+      },
+      "persistence": {
+        "storage": "localStorage",
+        "key": "lumi.pr16.notice.v1",
+        "refresh_policy": "mark_host_and_pr16_stopped",
+        "duplicate_completion_block": true
+      },
+      "privacy": {
+        "server_text_storage": true,
+        "separate_record": true,
+        "allow_export": true,
+        "allow_delete": true
+      },
+      "constraints": {
+        "no_diagnosis": true,
+        "no_score": true,
+        "no_therapy_claim": true
+      }
+    }
+  }
+}

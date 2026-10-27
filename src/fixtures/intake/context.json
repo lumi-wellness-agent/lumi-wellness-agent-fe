@@ -1,0 +1,84 @@
+{
+  "type": "intake_question",
+  "question_id": "q3",
+  "slot": "context",
+  "turn": 3,
+  "max_turns": 3,
+  "text": "지금 어디에 계세요? 이어폰이 있으세요? 쓸 수 있는 시간은 얼마나 되세요?",
+  "groups": [
+    {
+      "key": "setting",
+      "select": "single",
+      "options": [
+        {
+          "label": "집이나 혼자 있는 방",
+          "set": {
+            "setting": "HOME"
+          }
+        },
+        {
+          "label": "사무실·카페",
+          "set": {
+            "setting": "OFFICE_CAFE"
+          }
+        },
+        {
+          "label": "지하철·버스",
+          "set": {
+            "setting": "TRANSIT"
+          }
+        },
+        {
+          "label": "밖에 나갈 수 있어요",
+          "set": {
+            "setting": "OUTDOOR"
+          }
+        }
+      ]
+    },
+    {
+      "key": "earphones",
+      "select": "single",
+      "options": [
+        {
+          "label": "있어요",
+          "set": {
+            "earphones": true
+          }
+        },
+        {
+          "label": "없어요",
+          "set": {
+            "earphones": false
+          }
+        }
+      ]
+    },
+    {
+      "key": "minutes",
+      "select": "single",
+      "options": [
+        {
+          "label": "5분",
+          "set": {
+            "minutes": 5
+          }
+        },
+        {
+          "label": "10분",
+          "set": {
+            "minutes": 10
+          }
+        },
+        {
+          "label": "20분 이상",
+          "set": {
+            "minutes": 20
+          }
+        }
+      ]
+    }
+  ],
+  "allow_free_text": false,
+  "skip_label": null
+}

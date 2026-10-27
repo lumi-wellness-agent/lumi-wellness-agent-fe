@@ -28,6 +28,18 @@ Codex·Claude Code 같은 AI 에이전트가 이 저장소에서 작업할 때 �
 - 새 화면은 다섯 색 세트에서 모두 확인한다. 시간대는 개발자 도구 콘솔에서 `localStorage.setItem("lumi:light-pick", "moonlight")`(`mist`·`sunlit`도 같다)를 실행하고 새로고침해 바꾸고, `localStorage.removeItem("lumi:light-pick")`로 되돌린다. 다크 짝은 개발자 도구 Rendering 패널에서 `prefers-color-scheme: dark`를 켜서 본다.
 - 세션 화면은 시작할 때 `lockLight()`, 마칠 때 `unlockLight()`를 부른다(`src/lib/light.ts`). 설정·프로필과 잇는 `pickLight()`·`setAvoidDark()` 규칙은 README에 있다.
 
+## 팀 작업
+
+역할과 담당 파일은 [TEAM.md](TEAM.md)에 있다.
+
+- 담당은 자기 폴더만 고친다 — 플레이어는 `src/players/<플레이어>/`, intake 화면(A)은 `src/session/intake/`,
+  측정 화면(B)은 `src/session/measure/`. 계약 파일(`src/lib/api/types.ts` · `src/players/types.ts` · `catalog.ts` ·
+  `player-host.tsx`)과 그 밖의 `src/session/`은 통합 담당과 먼저 맞춘다.
+- 화면은 BE가 보낸 값(질문 · 측정 도구 · `content.content_spec`)으로 그리고, 활동별 시간 · 문구 · 자산이나 목표별
+  도구를 코드에 박지 않는다.
+- 화면은 `/dev`(목업 세션 · 화면 미리보기 · 플레이어 미리보기)에서 BE 없이 확인한다. `src/fixtures/`는
+  `scripts/fixtures.py`가 만든 견본이라 손으로 고치지 않는다.
+
 ## 검증과 배포
 
 - 변경을 마치면 `npm run lint`, `npm run typecheck`, `npm test`, `npm run build`를 통과시킨다. CI도 같은 명령을 돌린다.

@@ -1,0 +1,187 @@
+{
+  "plan": {
+    "activity": {
+      "protocol_id": "PR-19",
+      "minutes": 5,
+      "evidence_record_ids": []
+    },
+    "rationale": "(견본) 추천 이유는 plan이 LLM으로 쓴다 — 사용자 상태, 고른 이유, 근거와 한계 2~3문장.",
+    "relaxed": [],
+    "environment_gaps": [],
+    "reference_card": {
+      "protocol_id": "PR-19",
+      "name": "세 가지 좋은 일 기록(일간 1주)",
+      "minutes": 5,
+      "composition": "SINGLE",
+      "badges": [
+        "NO_VERIFIED_EVIDENCE"
+      ],
+      "goal": {
+        "goal": "S2",
+        "label": "긴장·스트레스 완화",
+        "secondary_goal": null,
+        "source": "INFERRED",
+        "reason": "(견본) intake가 상황 단서로 고른 목표의 판단 이유 한 줄",
+        "definitions": [
+          {
+            "goal": "S2",
+            "concept": "stress",
+            "page": "2",
+            "sentence": "Stress means a situation in which a person feels tense, restless, nervous or anxious or is unable to sleep at night because his/her mind is troubled all the time.",
+            "paper": {
+              "paper_id": "N04",
+              "title": "Validity of a single-item measure of stress symptoms",
+              "authors": "Elo, Leppänen & Jahkola",
+              "year": 2003,
+              "doi": "10.5271/sjweh.752",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/14712852/"
+            }
+          },
+          {
+            "goal": "S2",
+            "concept": "state anxiety",
+            "page": "1",
+            "sentence": "The first questionnaire measures state anxiety (how one feels at the moment), the second, trait anxiety (how one generally feels).",
+            "paper": {
+              "paper_id": "N07",
+              "title": "The development of a six-item short-form of the state scale of the Spielberger State-Trait Anxiety Inventory (STAI)",
+              "authors": "Marteau & Bekker",
+              "year": 1992,
+              "doi": "10.1111/j.2044-8260.1992.tb00997.x",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/1393159/"
+            }
+          },
+          {
+            "goal": "S2",
+            "concept": "affect (pleasure · arousal)",
+            "page": "1",
+            "sentence": "The evidence suggests that these interrelationships can be represented by a spatial model in which affective concepts fall in a circle in the following order: pleasure (0°), excitement (45°), arousal (90°), distress (135°), displeasure (180°), depression (225°), sleepiness (270°), and relaxation (315°).",
+            "paper": {
+              "paper_id": "N01",
+              "title": "A circumplex model of affect",
+              "authors": "Russell",
+              "year": 1980,
+              "doi": "10.1037/h0077714",
+              "url": "https://doi.org/10.1037/h0077714"
+            }
+          }
+        ],
+        "evidence_outcomes": [
+          "SUBJECTIVE_STRESS",
+          "AFFECT"
+        ],
+        "measured_by": {
+          "instrument_id": "INS-STAI6",
+          "name": "STAI 상태판 6문항 단축형 (STAI-6)",
+          "concept": "상태 불안",
+          "provisional": false
+        },
+        "notes": []
+      },
+      "grades": {
+        "SUBJECTIVE_STRESS": "—",
+        "AFFECT": "B"
+      },
+      "evidence": [],
+      "limits": [
+        "연구 참여자에게서 관찰된 결과이며, 진단이나 치료 효과를 뜻하지 않습니다.",
+        "이번에는 이 활동을 직접 뒷받침하는 검증된 연구를 찾지 못했습니다.",
+        "한국 성인 대상 검증 없음"
+      ]
+    }
+  },
+  "content": {
+    "protocol_id": "PR-19",
+    "name": "세 가지 좋은 일 기록(일간 1주)",
+    "steps": [
+      {
+        "order": 1,
+        "type": "ACTIVITY",
+        "label": "기록 5–10분",
+        "minutes": 5.0,
+        "optional": false
+      }
+    ],
+    "assets": [],
+    "asset_warnings": [],
+    "image_urls": [],
+    "guide_text": "지금부터 세 가지 좋은 일 기록을 약 5분 동안 합니다. 편한 자세로 시작하고, 불편하면 언제든 멈출 수 있습니다.",
+    "notice_prompt": null,
+    "content_spec": {
+      "slots": [
+        {
+          "slot": "WRITING_PROMPT",
+          "required": true,
+          "evidence_stimulus": "E11-E1: 1주 과제, 6개월 추적; E12-E1: 온라인 일기(기간 원문 확인)",
+          "source_policy": {
+            "fixed_text": "ALLOWED",
+            "tts": "ALLOWED",
+            "llm_rewrite": "FORBIDDEN"
+          },
+          "note": "초안: selection · render · personalization · generation은 담당자가 채운다(PR-01.json 참고)"
+        }
+      ],
+      "session_ui": {
+        "status": "PROPOSED",
+        "source": "scratch/pr19/pr19-runtime.json — C 파트 실행 계약(#51)을 옮겼다",
+        "challenge": {
+          "duration_days": 7,
+          "one_entry_per_day": true,
+          "max_good_things": 3,
+          "min_good_things": 1
+        },
+        "state_flow": [
+          "DAILY_OVERVIEW",
+          "DAY_ENTRY",
+          "EDITING",
+          "DAY_COMPLETED",
+          "WEEK_OVERVIEW"
+        ],
+        "entry": {
+          "fields": [
+            "content"
+          ],
+          "prompt": "오늘 어떤 좋은 일이 있었나요? 그 일이 왜 좋았는지도 함께 적어 보세요.",
+          "max_items": 3,
+          "min_items_for_completion": 1,
+          "ignore_blank_or_whitespace_only": true,
+          "allow_edit": true,
+          "allow_delete": true
+        },
+        "date": {
+          "source": "submitted_at",
+          "timezone_source": "browser",
+          "entry_date_format": "YYYY-MM-DD",
+          "allow_past_edit": true
+        },
+        "timer": {
+          "recommended_seconds": 300,
+          "display_mode": "HIDDEN_INTERNAL",
+          "record_started_at": true,
+          "record_submitted_at": true,
+          "record_elapsed_seconds": true,
+          "required_for_completion": false
+        },
+        "completion": {
+          "daily_requires_minimum_entries": true,
+          "challenge_completion_requires_all_days": false,
+          "self_report_only": true
+        },
+        "persistence": {
+          "storage": "localStorage",
+          "key": "lumi.pr19.journal.v1"
+        },
+        "privacy": {
+          "server_text_storage": false,
+          "allow_export": true,
+          "allow_delete": true
+        },
+        "research": {
+          "evidence_status": "MIXED_NEEDS_REVIEW",
+          "no_guaranteed_effect_claim": true
+        }
+      }
+    },
+    "notice_module": null
+  }
+}

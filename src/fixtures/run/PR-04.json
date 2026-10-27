@@ -1,0 +1,199 @@
+{
+  "plan": {
+    "activity": {
+      "protocol_id": "PR-04",
+      "minutes": 4,
+      "evidence_record_ids": []
+    },
+    "rationale": "(견본) 추천 이유는 plan이 LLM으로 쓴다 — 사용자 상태, 고른 이유, 근거와 한계 2~3문장.",
+    "relaxed": [],
+    "environment_gaps": [],
+    "reference_card": {
+      "protocol_id": "PR-04",
+      "name": "자연음 듣기(스트레스 후·과제 전후)",
+      "minutes": 4,
+      "composition": "SINGLE",
+      "badges": [
+        "NO_VERIFIED_EVIDENCE"
+      ],
+      "goal": {
+        "goal": "S2",
+        "label": "긴장·스트레스 완화",
+        "secondary_goal": null,
+        "source": "INFERRED",
+        "reason": "(견본) intake가 상황 단서로 고른 목표의 판단 이유 한 줄",
+        "definitions": [
+          {
+            "goal": "S2",
+            "concept": "stress",
+            "page": "2",
+            "sentence": "Stress means a situation in which a person feels tense, restless, nervous or anxious or is unable to sleep at night because his/her mind is troubled all the time.",
+            "paper": {
+              "paper_id": "N04",
+              "title": "Validity of a single-item measure of stress symptoms",
+              "authors": "Elo, Leppänen & Jahkola",
+              "year": 2003,
+              "doi": "10.5271/sjweh.752",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/14712852/"
+            }
+          },
+          {
+            "goal": "S2",
+            "concept": "state anxiety",
+            "page": "1",
+            "sentence": "The first questionnaire measures state anxiety (how one feels at the moment), the second, trait anxiety (how one generally feels).",
+            "paper": {
+              "paper_id": "N07",
+              "title": "The development of a six-item short-form of the state scale of the Spielberger State-Trait Anxiety Inventory (STAI)",
+              "authors": "Marteau & Bekker",
+              "year": 1992,
+              "doi": "10.1111/j.2044-8260.1992.tb00997.x",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/1393159/"
+            }
+          },
+          {
+            "goal": "S2",
+            "concept": "affect (pleasure · arousal)",
+            "page": "1",
+            "sentence": "The evidence suggests that these interrelationships can be represented by a spatial model in which affective concepts fall in a circle in the following order: pleasure (0°), excitement (45°), arousal (90°), distress (135°), displeasure (180°), depression (225°), sleepiness (270°), and relaxation (315°).",
+            "paper": {
+              "paper_id": "N01",
+              "title": "A circumplex model of affect",
+              "authors": "Russell",
+              "year": 1980,
+              "doi": "10.1037/h0077714",
+              "url": "https://doi.org/10.1037/h0077714"
+            }
+          }
+        ],
+        "evidence_outcomes": [
+          "SUBJECTIVE_STRESS",
+          "AFFECT"
+        ],
+        "measured_by": {
+          "instrument_id": "INS-STAI6",
+          "name": "STAI 상태판 6문항 단축형 (STAI-6)",
+          "concept": "상태 불안",
+          "provisional": false
+        },
+        "notes": []
+      },
+      "grades": {
+        "SUBJECTIVE_STRESS": "—",
+        "AFFECT": "미확인"
+      },
+      "evidence": [],
+      "limits": [
+        "연구 참여자에게서 관찰된 결과이며, 진단이나 치료 효과를 뜻하지 않습니다.",
+        "이번에는 이 활동을 직접 뒷받침하는 검증된 연구를 찾지 못했습니다.",
+        "한국 성인 대상 검증 없음"
+      ]
+    }
+  },
+  "content": {
+    "protocol_id": "PR-04",
+    "name": "자연음 듣기(스트레스 후·과제 전후)",
+    "steps": [
+      {
+        "order": 1,
+        "type": "ACTIVITY",
+        "label": "검수된 자연음 듣기",
+        "minutes": 4.0,
+        "optional": false
+      }
+    ],
+    "assets": [],
+    "asset_warnings": [
+      "SOUNDSCAPE: FREESOUND_API_KEY가 설정되지 않음"
+    ],
+    "image_urls": [],
+    "guide_text": "지금부터 잔잔한 자연음을 약 4분 동안 듣습니다. 볼륨을 편안한 수준으로 맞추고, 불편하거나 귀가 피로하면 언제든 멈춰 주세요.",
+    "notice_prompt": null,
+    "content_spec": {
+      "slots": [
+        {
+          "slot": "SOUNDSCAPE",
+          "required": true,
+          "evidence_stimulus": "N14-E1: 암산 스트레스 → 소리 조건 회복(라틴 방진 순서); N16-E1: 사운드스케이프 40개×20초; N18-E1: VR TSST → 회복 조건",
+          "source_policy": {
+            "curated": "ALLOWED",
+            "generated": "FORBIDDEN",
+            "user_upload": "FORBIDDEN"
+          },
+          "note": null,
+          "selection": {
+            "provider": "FREESOUND",
+            "api_version": "v2",
+            "authentication": "TOKEN",
+            "query_tags": [
+              "birds quiet",
+              "gentle stream",
+              "forest ambience",
+              "soft rain nature"
+            ],
+            "license_allowlist": [
+              "CC0",
+              "CC BY"
+            ],
+            "exclude_query_terms": [
+              "footstep",
+              "walking",
+              "voice",
+              "speech",
+              "music",
+              "thunder",
+              "waterfall",
+              "traffic",
+              "car"
+            ],
+            "required_metadata": [
+              "id",
+              "name",
+              "username",
+              "license",
+              "url",
+              "previews",
+              "duration",
+              "tags"
+            ],
+            "exclude_tags": [
+              "급류",
+              "폭포 근접음",
+              "천둥",
+              "경보음",
+              "사람 목소리",
+              "음악"
+            ],
+            "quality_gate": "INS-SOUND·N15 선호 기준과 수동 청취 검수(클리핑·돌발 고음·반복 경계)를 통과한 음원만"
+          },
+          "render": {
+            "duration_seconds": 240,
+            "loop": "4분보다 짧으면 검수된 무봉제 루프만 허용",
+            "fade_in_seconds": 2,
+            "fade_out_seconds": 2,
+            "volume": "사용자 조절, 안전 상한 적용"
+          },
+          "personalization": {
+            "soundscape": "새소리·물소리·숲·비 중 사용자가 선호한 범주",
+            "avoid": "CareRequest.constraints의 기피 소리와 청각 민감 정보",
+            "default": "선호가 없으면 검수 점수가 높은 잔잔한 숲 소리"
+          },
+          "generation": {
+            "enabled": false,
+            "reason": "생성 자연음의 효과 근거가 없어 Freesound 검수 음원만 사용"
+          },
+          "attribution": {
+            "required": true,
+            "fields": [
+              "title",
+              "creator",
+              "source_url",
+              "license"
+            ]
+          }
+        }
+      ]
+    },
+    "notice_module": null
+  }
+}

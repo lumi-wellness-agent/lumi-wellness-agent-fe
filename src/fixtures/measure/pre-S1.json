@@ -1,0 +1,92 @@
+{
+  "measure": "PRE",
+  "round": 0,
+  "instruments": [
+    {
+      "instrument_id": "INS-SAM",
+      "name": "Self-Assessment Manikin (SAM)",
+      "instruction": "지금 느낌에 가장 가까운 그림을 고르세요.",
+      "scale": {
+        "min": 1.0,
+        "max": 9.0,
+        "step": 1.0,
+        "kind": "PICTORIAL"
+      },
+      "items": [
+        {
+          "id": "valence",
+          "text": "지금 기분은 어떤가요?",
+          "low_label": "불쾌",
+          "high_label": "유쾌"
+        },
+        {
+          "id": "arousal",
+          "text": "지금 얼마나 들떠 있거나 긴장되어 있나요?",
+          "low_label": "차분",
+          "high_label": "흥분·긴장"
+        }
+      ]
+    },
+    {
+      "instrument_id": "INS-BSRI",
+      "name": "Brief State Rumination Inventory (BSRI)",
+      "instruction": null,
+      "scale": {
+        "min": 0.0,
+        "max": 100.0,
+        "step": 1.0,
+        "kind": "SLIDER"
+      },
+      "items": [
+        {
+          "id": "item1",
+          "text": null,
+          "low_label": null,
+          "high_label": null
+        },
+        {
+          "id": "item2",
+          "text": null,
+          "low_label": null,
+          "high_label": null
+        },
+        {
+          "id": "item3",
+          "text": null,
+          "low_label": null,
+          "high_label": null
+        },
+        {
+          "id": "item4",
+          "text": null,
+          "low_label": null,
+          "high_label": null
+        },
+        {
+          "id": "item5",
+          "text": null,
+          "low_label": null,
+          "high_label": null
+        },
+        {
+          "id": "item6",
+          "text": null,
+          "low_label": null,
+          "high_label": null
+        },
+        {
+          "id": "item7",
+          "text": null,
+          "low_label": null,
+          "high_label": null
+        },
+        {
+          "id": "item8",
+          "text": null,
+          "low_label": null,
+          "high_label": null
+        }
+      ]
+    }
+  ]
+}

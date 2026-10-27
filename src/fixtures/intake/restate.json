@@ -1,0 +1,11 @@
+{
+  "type": "intake_question",
+  "question_id": "r1",
+  "slot": "restate",
+  "turn": 0,
+  "max_turns": 3,
+  "text": "오늘 하루는 어떠셨어요? 지금 상황을 한두 마디로 들려주세요. 예: 발표 끝나고 계속 생각나요",
+  "groups": [],
+  "allow_free_text": true,
+  "skip_label": "그냥 시작할게요"
+}

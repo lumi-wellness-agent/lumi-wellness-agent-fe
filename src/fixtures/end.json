@@ -1,0 +1,30 @@
+{
+  "reason": "DONE",
+  "goal": "S2",
+  "rounds": [
+    {
+      "round": 1,
+      "protocol_id": "PR-06",
+      "minutes": 5,
+      "completed": true,
+      "deltas": {
+        "valence": 1.0,
+        "arousal": -2.0
+      },
+      "improved": true,
+      "next_step": "END"
+    }
+  ],
+  "goal_scale": {
+    "instrument_id": "INS-STAI6",
+    "pre": {
+      "total": 53.33
+    },
+    "end": {
+      "total": 43.33
+    },
+    "delta": {
+      "total": -10.0
+    }
+  }
+}

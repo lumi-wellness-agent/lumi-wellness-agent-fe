@@ -1,0 +1,284 @@
+{
+  "plan": {
+    "activity": {
+      "protocol_id": "PR-16",
+      "minutes": 1,
+      "evidence_record_ids": []
+    },
+    "rationale": "(견본) 추천 이유는 plan이 LLM으로 쓴다 — 사용자 상태, 고른 이유, 근거와 한계 2~3문장.",
+    "relaxed": [],
+    "environment_gaps": [],
+    "reference_card": {
+      "protocol_id": "PR-16",
+      "name": "감정에 이름 붙이기(NOTICE 모듈)",
+      "minutes": 1,
+      "composition": "STAGE_MODULE",
+      "badges": [
+        "NO_VERIFIED_EVIDENCE"
+      ],
+      "goal": {
+        "goal": "S1",
+        "label": "반추 완화",
+        "secondary_goal": null,
+        "source": "INFERRED",
+        "reason": "(견본) intake가 상황 단서로 고른 목표의 판단 이유 한 줄",
+        "definitions": [
+          {
+            "goal": "S1",
+            "concept": "repetitive negative thinking",
+            "page": "1–2",
+            "sentence": "Repetitive negative thinking (RNT) poses such a transdiagnostic process being defined as a thinking process that is repetitive, passive, and/or relatively uncontrollable, and focused on negative content (Ehring & Watkins, 2008).",
+            "paper": {
+              "paper_id": "P12",
+              "title": "Efficacy of cognitive behavioral therapy in treating repetitive negative thinking, rumination, and worry – a transdiagnostic meta-analysis",
+              "authors": "Stenzel et al.",
+              "year": 2025,
+              "doi": "10.1017/S0033291725000017",
+              "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12017360/"
+            }
+          },
+          {
+            "goal": "S1",
+            "concept": "rumination",
+            "page": "1",
+            "sentence": "Rumination is a common form of repetitive negative thinking involving persistent distressing thoughts (Martin & Tesser, 2006; Nolen-Hoeksema et al., 2008).",
+            "paper": {
+              "paper_id": "N26",
+              "title": "Impact of a Momentary Mindfulness Intervention on Rumination, Negative Affect, and their Dynamics in Daily Life",
+              "authors": "Bolzenkötter, Neubauer & Koval",
+              "year": 2025,
+              "doi": "10.1007/s42761-024-00291-9",
+              "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12209136/"
+            }
+          },
+          {
+            "goal": "S1",
+            "concept": "state rumination",
+            "page": "2",
+            "sentence": "Rumination has recently been conceptualized as a state-dependent cognitive response, triggered by situational factors such as perceived discrepancies between goals and current circumstances (Michel-Kröhler et al., 2023; Smith & Alloy, 2009; Tamm et al., 2024).",
+            "paper": {
+              "paper_id": "N25",
+              "title": "Measurement Invariance of the Brief State Rumination Inventory Across Administration Methods, National Samples, and Sex",
+              "authors": "Chiorri et al.",
+              "year": 2026,
+              "doi": "10.1080/00223891.2026.2726459",
+              "url": "https://www.tandfonline.com/doi/full/10.1080/00223891.2026.2726459"
+            }
+          }
+        ],
+        "evidence_outcomes": [
+          "RUMINATION"
+        ],
+        "measured_by": {
+          "instrument_id": "INS-BSRI",
+          "name": "Brief State Rumination Inventory (BSRI)",
+          "concept": "상태 반추",
+          "provisional": false
+        },
+        "notes": []
+      },
+      "grades": {
+        "RUMINATION": "—"
+      },
+      "evidence": [],
+      "limits": [
+        "연구 참여자에게서 관찰된 결과이며, 진단이나 치료 효과를 뜻하지 않습니다.",
+        "이번에는 이 활동을 직접 뒷받침하는 검증된 연구를 찾지 못했습니다.",
+        "한국 성인 대상 검증 없음"
+      ]
+    }
+  },
+  "content": {
+    "protocol_id": "PR-16",
+    "name": "감정에 이름 붙이기(NOTICE 모듈)",
+    "steps": [
+      {
+        "order": 1,
+        "type": "NOTICE",
+        "label": "지금 감정을 한 단어로 명명",
+        "minutes": 1.0,
+        "optional": false
+      }
+    ],
+    "assets": [],
+    "asset_warnings": [],
+    "image_urls": [],
+    "guide_text": "지금부터 감정에 이름 붙이기를 약 1분 동안 합니다. 편한 자세로 시작하고, 불편하면 언제든 멈출 수 있습니다.",
+    "notice_prompt": "지금 감정을 한 단어로 명명",
+    "content_spec": {
+      "slots": [
+        {
+          "slot": "NOTICE_PROMPT",
+          "required": true,
+          "evidence_stimulus": "E10-E1: 정서 얼굴에 정서 단어 명명 vs 다른 과제(블록 순서 counterbalance)",
+          "source_policy": {
+            "fixed_text": "ALLOWED",
+            "tts": "ALLOWED",
+            "llm_rewrite": "FORBIDDEN"
+          },
+          "note": "초안: selection · render · personalization · generation은 담당자가 채운다(PR-01.json 참고)"
+        }
+      ],
+      "session_ui": {
+        "status": "PROPOSED",
+        "source": "scratch/pr16/pr16-runtime.json — C 파트 실행 계약(#51)을 옮겼다",
+        "state_flow": [
+          "HOST_ACTIVITY_RUNNING",
+          "PR16_POPUP_READY",
+          "PR16_INPUTTING",
+          "PR16_COMPLETED",
+          "SKIPPED",
+          "STOPPED"
+        ],
+        "popup": {
+          "enabled": true,
+          "start_text": "감정이나 분위기를 1~3개의 짧은 단어로 입력해 주세요. 이 활동에는 정답이 있지 않습니다.",
+          "actions": [
+            "SKIP",
+            "CONTINUE"
+          ],
+          "close_button": false,
+          "outside_click_closes": false
+        },
+        "input": {
+          "mode": "three_slots",
+          "slot_count": 3,
+          "minimum_valid_slots": 1,
+          "allow_free_text": true,
+          "per_slot_min_words": 1,
+          "per_slot_max_words": 3,
+          "per_slot_max_characters": 20,
+          "allow_blank_slots": true,
+          "blank_policy": "block_confirmation",
+          "sentence_input": false,
+          "normalize_whitespace": true,
+          "reject_line_breaks": true
+        },
+        "completion": {
+          "normal": "at_least_one_valid_phrase_and_user_confirm",
+          "allowed_statuses": [
+            "COMPLETED",
+            "SKIPPED",
+            "STOPPED"
+          ],
+          "skip_returns_to_host": true,
+          "stop_returns_to_host": false,
+          "self_report_only": true
+        },
+        "timer": {
+          "enabled": false,
+          "host_activity_owns_timing": true
+        },
+        "host_integration": {
+          "host_protocol_ids": [
+            "PR-01",
+            "PR-09",
+            "PR-15",
+            "PR-21"
+          ],
+          "trigger": "HOST_NOTICE_STEP",
+          "return_target": "HOST_ACTIVITY",
+          "selection_status": "INTEGRATED",
+          "note": "steps에 NOTICE 단계가 있는 활동이 호스트다. prepare가 호스트의 ActivityContent.notice_module로 이 session_ui를 싣고, FE는 그 NOTICE 단계를 이 팝업으로 그린다. 호스트 NOTICE 슬롯에 text가 있으면 그 문구를, 없으면 popup.start_text를 보여 준다"
+        },
+        "persistence": {
+          "storage": "localStorage",
+          "key": "lumi.pr16.notice.v1",
+          "refresh_policy": "mark_host_and_pr16_stopped",
+          "duplicate_completion_block": true
+        },
+        "privacy": {
+          "server_text_storage": true,
+          "separate_record": true,
+          "allow_export": true,
+          "allow_delete": true
+        },
+        "constraints": {
+          "no_diagnosis": true,
+          "no_score": true,
+          "no_therapy_claim": true
+        }
+      }
+    },
+    "notice_module": {
+      "status": "PROPOSED",
+      "source": "scratch/pr16/pr16-runtime.json — C 파트 실행 계약(#51)을 옮겼다",
+      "state_flow": [
+        "HOST_ACTIVITY_RUNNING",
+        "PR16_POPUP_READY",
+        "PR16_INPUTTING",
+        "PR16_COMPLETED",
+        "SKIPPED",
+        "STOPPED"
+      ],
+      "popup": {
+        "enabled": true,
+        "start_text": "감정이나 분위기를 1~3개의 짧은 단어로 입력해 주세요. 이 활동에는 정답이 있지 않습니다.",
+        "actions": [
+          "SKIP",
+          "CONTINUE"
+        ],
+        "close_button": false,
+        "outside_click_closes": false
+      },
+      "input": {
+        "mode": "three_slots",
+        "slot_count": 3,
+        "minimum_valid_slots": 1,
+        "allow_free_text": true,
+        "per_slot_min_words": 1,
+        "per_slot_max_words": 3,
+        "per_slot_max_characters": 20,
+        "allow_blank_slots": true,
+        "blank_policy": "block_confirmation",
+        "sentence_input": false,
+        "normalize_whitespace": true,
+        "reject_line_breaks": true
+      },
+      "completion": {
+        "normal": "at_least_one_valid_phrase_and_user_confirm",
+        "allowed_statuses": [
+          "COMPLETED",
+          "SKIPPED",
+          "STOPPED"
+        ],
+        "skip_returns_to_host": true,
+        "stop_returns_to_host": false,
+        "self_report_only": true
+      },
+      "timer": {
+        "enabled": false,
+        "host_activity_owns_timing": true
+      },
+      "host_integration": {
+        "host_protocol_ids": [
+          "PR-01",
+          "PR-09",
+          "PR-15",
+          "PR-21"
+        ],
+        "trigger": "HOST_NOTICE_STEP",
+        "return_target": "HOST_ACTIVITY",
+        "selection_status": "INTEGRATED",
+        "note": "steps에 NOTICE 단계가 있는 활동이 호스트다. prepare가 호스트의 ActivityContent.notice_module로 이 session_ui를 싣고, FE는 그 NOTICE 단계를 이 팝업으로 그린다. 호스트 NOTICE 슬롯에 text가 있으면 그 문구를, 없으면 popup.start_text를 보여 준다"
+      },
+      "persistence": {
+        "storage": "localStorage",
+        "key": "lumi.pr16.notice.v1",
+        "refresh_policy": "mark_host_and_pr16_stopped",
+        "duplicate_completion_block": true
+      },
+      "privacy": {
+        "server_text_storage": true,
+        "separate_record": true,
+        "allow_export": true,
+        "allow_delete": true
+      },
+      "constraints": {
+        "no_diagnosis": true,
+        "no_score": true,
+        "no_therapy_claim": true
+      }
+    }
+  }
+}

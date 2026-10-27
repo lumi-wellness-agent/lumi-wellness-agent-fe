@@ -7,7 +7,7 @@ export default function Home() {
       <h1 className="mt-5 mb-3 font-display text-[length:clamp(30px,8vw,40px)] leading-[1.25] tracking-[-0.02em]">
         지친 순간의 휴식,
         <br />
-        연구 근거와 함께.
+        루미와 함께.
       </h1>
       <p className="mb-8 break-keep text-ink-muted">
         지금 상황을 들려주면 회복 활동 하나를 추천하고, 추천 이유가 된 심리학 이론과 연구를 Reference 카드로 보여

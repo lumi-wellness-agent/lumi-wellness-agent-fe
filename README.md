@@ -33,7 +33,7 @@ Node.js 24와 npm을 사용합니다. 경로는 저장소 루트 기준입니다
 
 ```bash
 npm ci
-cp .env.example .env.local
+cp .env.example .env
 npm run dev
 ```
 
@@ -125,7 +125,11 @@ automation/                ship 하네스 (준비 문서 README.md + 하네스 �
 `BACKEND_API_URL`은 서버 측 API 연동을 위한 예시 환경 변수입니다. 현재 코드에서는 사용하지 않습니다.
 연동 구현 시 Next.js 서버 경유 또는 브라우저 직접 호출 중 방식을 정합니다.
 브라우저에서 직접 호출하면 BE에 FE 도메인에 대한 CORS 설정이 필요합니다.
-Supabase 접속 정보, LLM 키, 콘텐츠 공급자 키(Pixabay · Freesound · AI Horde)는 BE에서만 관리합니다.
+
+`NEXT_PUBLIC_SUPABASE_URL`과 `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`는 브라우저에서 Supabase 로그인(익명 체험 · Google · Kakao)에 씁니다.
+로그인으로 받은 access token을 BE 요청의 `Authorization: Bearer`에 붙이면 BE가 Supabase 공개 키(JWKS)로 검증합니다.
+둘 다 브라우저에 공개되는 것을 전제로 한 값이라 FE에 둡니다. 현재 코드에서는 아직 사용하지 않습니다.
+Supabase DB 접속 정보와 secret key, LLM 키, 콘텐츠 공급자 키(Pixabay · Freesound · AI Horde)는 BE에서만 관리합니다.
 
 ### 세션 요청 (설계안)
 

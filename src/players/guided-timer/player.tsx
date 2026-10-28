@@ -251,7 +251,7 @@ export default function GuidedTimerPlayer({ content, step, onFinish }: PlayerPro
         <div
           className="relative my-6 flex aspect-[4/3] w-full shrink-0 items-center justify-center overflow-hidden rounded-card bg-surface-muted bg-cover bg-center"
           style={visualBackground ? { backgroundImage: visualBackground } : undefined}
-          role="img"
+          role="region"
           aria-label={visualBackground ? "자연 풍경 사진 " + (visualIndex + 1) : "자연 사진 준비 영역"}
         >
           {!visualBackground && (

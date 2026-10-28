@@ -39,7 +39,50 @@ function cues(value: unknown): Cue[] {
 }
 
 function formatTime(seconds: number): string {
-  return Math.floor(seconds / 60) + ":" + String(seconds % 60).padStart(2, "0");
+  return String(Math.floor(seconds / 60)).padStart(2, "0") + ":" + String(seconds % 60).padStart(2, "0");
+}
+
+
+/** 이미지·외부 폰트 없이 그리는 7세그먼트 숫자. 색은 현재 테마의 글자 토큰을 따른다. */
+const SEGMENT_POINTS = [
+  "7,2 33,2 38,6 33,10 7,10 2,6",
+  "34,12 40,7 40,32 36,36 32,32 32,16",
+  "36,38 40,42 40,67 34,62 32,58 32,42",
+  "7,62 33,62 38,67 33,71 7,71 2,67",
+  "0,42 4,38 8,42 8,58 6,62 0,67",
+  "0,7 6,12 8,16 8,32 4,36 0,32",
+  "8,33 32,33 36,37 32,41 8,41 4,37",
+];
+const DIGIT_SEGMENTS: Record<string, readonly number[]> = {
+  "0": [0, 1, 2, 3, 4, 5],
+  "1": [1, 2],
+  "2": [0, 1, 6, 4, 3],
+  "3": [0, 1, 2, 3, 6],
+  "4": [5, 6, 1, 2],
+  "5": [0, 5, 6, 2, 3],
+  "6": [0, 5, 4, 3, 2, 6],
+  "7": [0, 1, 2],
+  "8": [0, 1, 2, 3, 4, 5, 6],
+  "9": [0, 1, 2, 3, 5, 6],
+};
+
+function DigitalClock({ value }: { value: string }) {
+  return (
+    <span aria-hidden="true" className="inline-flex items-center gap-1 text-ink">
+      {Array.from(value).map((digit, index) => digit === ":" ? (
+        <svg key={index} width="10" height="48" viewBox="0 0 14 74" fill="currentColor">
+          <rect x="3" y="22" width="8" height="8" rx="1" />
+          <rect x="3" y="46" width="8" height="8" rx="1" />
+        </svg>
+      ) : (
+        <svg key={index} width="26" height="48" viewBox="0 0 42 74" fill="currentColor">
+          {(DIGIT_SEGMENTS[digit] ?? []).map((segment) => (
+            <polygon key={segment} points={SEGMENT_POINTS[segment]} />
+          ))}
+        </svg>
+      ))}
+    </span>
+  );
 }
 
 export default function GuidedTimerPlayer({ content, step, onFinish }: PlayerProps) {
@@ -230,8 +273,9 @@ export default function GuidedTimerPlayer({ content, step, onFinish }: PlayerPro
             role="timer"
             aria-label={"남은 시간 " + formatTime(timerLabel)}
           >
-            <time className="font-display text-title tabular-nums text-ink" dateTime={"PT" + timerLabel + "S"}>
-              {formatTime(timerLabel)}
+            <time className="inline-flex items-center" dateTime={"PT" + timerLabel + "S"}>
+              <span className="sr-only">{formatTime(timerLabel)}</span>
+              <DigitalClock value={formatTime(timerLabel)} />
             </time>
           </div>
         </div>

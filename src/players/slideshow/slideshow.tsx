@@ -36,6 +36,8 @@ type Props = {
   emptyText?: string;
   /** 장면을 불러오지 못했을 때 안내. */
   failedText?: string;
+  /** 사진 밝기(0~1) — PR-21 render.brightness "사용자 조절". 글자는 어두워지지 않는다. */
+  brightness?: number;
 };
 
 export function Slideshow({
@@ -48,6 +50,7 @@ export function Slideshow({
   showCredit = true,
   emptyText = "사진을 준비하지 못했어요. 이 화면을 바라보며 천천히 쉬어 가세요.",
   failedText = "이미지를 불러오지 못했어요. 이 화면을 바라보며 천천히 쉬어 가세요.",
+  brightness = 1,
 }: Props) {
   const reduceMotion = useReducedMotion();
   const [failed, setFailed] = useState<ReadonlySet<string>>(new Set());
@@ -56,7 +59,10 @@ export function Slideshow({
 
   return (
     <figure className="flex flex-1 flex-col">
-      <div className="relative min-h-[50dvh] flex-1 overflow-hidden rounded-card bg-surface-muted">
+      <div
+        className="relative min-h-[50dvh] flex-1 overflow-hidden rounded-card bg-surface-muted"
+        style={brightness < 1 ? { filter: `brightness(${brightness})` } : undefined}
+      >
         {current < 0 || failed.has(slides[current].url) ? (
           <div className="bg-progress absolute inset-0 flex items-center justify-center p-6">
             <p className="max-w-[18rem] text-center break-keep text-ink">{current < 0 ? emptyText : failedText}</p>

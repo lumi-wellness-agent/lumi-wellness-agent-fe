@@ -68,7 +68,7 @@ const DIGIT_SEGMENTS: Record<string, readonly number[]> = {
 
 function DigitalClock({ value }: { value: string }) {
   return (
-    <span aria-hidden="true" className="inline-flex items-center gap-1 text-ink">
+    <span aria-hidden="true" className="inline-flex scale-[0.86] items-center gap-1 text-ink">
       {Array.from(value).map((digit, index) => digit === ":" ? (
         <svg key={index} width="10" height="48" viewBox="0 0 14 74" fill="currentColor">
           <rect x="3" y="22" width="8" height="8" rx="1" />
@@ -231,7 +231,7 @@ export default function GuidedTimerPlayer({ content, step, onFinish }: PlayerPro
   const timerProgress = started && activitySeconds > 0
     ? Math.max(0, Math.min(1, remaining / activitySeconds))
     : 1;
-  const timerVisualScale = timerProgress === 0 ? 0 : 0.35 + timerProgress * 0.65;
+  const timerCircumference = 2 * Math.PI * 84;
   const instructions = caption ?? content.guide_text;
   const title = step.label || content.name;
   const timerVisible = timerSpec.visible_during_instruction !== false;
@@ -277,20 +277,44 @@ export default function GuidedTimerPlayer({ content, step, onFinish }: PlayerPro
             </svg>
           )}
           <div
-            className="relative flex h-48 w-48 items-center justify-center overflow-hidden rounded-full border border-indicator bg-primary-soft shadow-card"
+            className="relative flex h-48 w-48 items-center justify-center rounded-full border border-line bg-primary-soft shadow-card"
             role="timer"
             aria-label={"남은 시간 " + formatTime(timerLabel)}
           >
-            <div
+            <svg
               aria-hidden="true"
-              className="absolute inset-0 rounded-full bg-primary transition-transform duration-1000 ease-linear motion-reduce:transition-none"
-              style={{ transform: "scale(" + timerVisualScale + ")" }}
-            />
-            <time
-              className="relative inline-flex items-center text-on-primary transition-transform duration-1000 ease-linear motion-reduce:transition-none"
-              dateTime={"PT" + timerLabel + "S"}
-              style={{ transform: "scale(" + timerVisualScale + ")" }}
+              viewBox="0 0 192 192"
+              className="pointer-events-none absolute inset-0 h-full w-full"
+              fill="none"
             >
+              <defs>
+                <linearGradient id="timer-progress-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="var(--lumi-accent)" />
+                  <stop offset="100%" stopColor="var(--lumi-indicator)" />
+                </linearGradient>
+              </defs>
+              <circle
+                cx="96"
+                cy="96"
+                r="84"
+                stroke="currentColor"
+                className="text-line"
+                strokeWidth="2"
+              />
+              <circle
+                cx="96"
+                cy="96"
+                r="84"
+                stroke="url(#timer-progress-gradient)"
+                strokeWidth="4"
+                strokeLinecap="round"
+                strokeDasharray={timerCircumference}
+                strokeDashoffset={timerCircumference * (1 - timerProgress)}
+                transform="rotate(-90 96 96)"
+                className="transition-[stroke-dashoffset] duration-1000 ease-linear motion-reduce:transition-none"
+              />
+            </svg>
+            <time className="relative inline-flex items-center" dateTime={"PT" + timerLabel + "S"}>
               <span className="sr-only">{formatTime(timerLabel)}</span>
               <DigitalClock value={formatTime(timerLabel)} />
             </time>

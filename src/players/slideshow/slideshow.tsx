@@ -83,8 +83,11 @@ export function Slideshow({
           })
         )}
       </div>
+      {current >= 0 && slides[current].reason && (
+        <p className="mt-2 text-caption break-keep text-ink-muted">{slides[current].reason}</p>
+      )}
       {showCredit && current >= 0 && slides[current].credit && (
-        <figcaption className="mt-2 truncate text-caption text-ink-muted">
+        <figcaption className={`truncate text-caption text-ink-muted ${slides[current].reason ? "mt-0.5" : "mt-2"}`}>
           {slides[current].sourceUrl ? (
             <a href={slides[current].sourceUrl} target="_blank" rel="noreferrer" className="underline">
               {slides[current].credit}

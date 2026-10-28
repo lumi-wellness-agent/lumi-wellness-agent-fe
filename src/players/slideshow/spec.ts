@@ -31,13 +31,30 @@ export function assetsOf(content: ActivityContent, ...slots: string[]): Activity
   return content.assets.filter((a) => slots.includes(a.slot));
 }
 
-/** 화면에 보일 장면 하나. credit은 사진 아래 작은 글씨(작가 · 출처)다. */
+/** 화면에 보일 장면 하나. credit은 사진 아래 작은 글씨(작가 · 출처), reason은 고른 이유(좋아하는 풍경)다. */
 export type Slide = {
   url: string;
   alt: string;
   credit?: string;
   sourceUrl?: string;
+  reason?: string;
 };
+
+/** BE 자산 metadata.preferred_scenery(app/content/resolver.SCENERY_QUERIES의 키) → 화면 문구. */
+const SCENERY_NAMES: Record<string, string> = {
+  forest: "숲",
+  "lake river": "호수·강",
+  sea: "바다",
+  mountain: "산",
+  flowers: "꽃",
+  sky: "하늘",
+};
+
+function reasonOf(asset: ActivityAsset): string | undefined {
+  const scenery = str(asset.metadata.preferred_scenery);
+  const name = scenery ? SCENERY_NAMES[scenery] : undefined;
+  return name ? `좋아하는 ${name} 풍경으로 골랐어요` : undefined;
+}
 
 export function slidesFrom(content: ActivityContent, ...slots: string[]): Slide[] {
   const fromAssets = assetsOf(content, ...slots).map((a) => ({
@@ -45,6 +62,7 @@ export function slidesFrom(content: ActivityContent, ...slots: string[]): Slide[
     alt: a.title ?? "자연 풍경 사진",
     credit: [a.creator, providerName(a.provider)].filter(Boolean).join(" · ") || undefined,
     sourceUrl: a.source_url ?? undefined,
+    reason: reasonOf(a),
   }));
   if (fromAssets.length) return fromAssets;
   // 옛 응답 호환 — 자산 대신 주소만 온 경우

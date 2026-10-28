@@ -45,7 +45,7 @@ export default function ImageMeditationPlayer({ content, step, onFinish }: Playe
       audio.volume = 0;
       audio.play().then(
         () => fadeVolume(audio, volume, 1),
-        () => setError("안내 음성을 재생하지 못했어요. 기기 소리가 켜져 있는지 확인해 주세요."),
+        () => setError((prev) => prev ?? "안내 음성을 재생하지 못했어요. 기기 소리가 켜져 있는지 확인해 주세요."),
       );
     }
     setStarted(true);

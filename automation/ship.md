@@ -8,7 +8,7 @@
 > - Claude Code → `.claude/commands/ship.md` (`/ship`)
 > - Codex → `.agents/skills/ship/SKILL.md` (`$ship`)
 >
-> 각 어댑터는 **폴링 모드**, **Co-Author 트레일러**, **안전 규칙 적용 방식**(훅 유무)을 지정한다. 배포(Phase 4)의 CI·Vercel 체크 폴링은 `automation/pipeline.md`의 「폴링 실행 규칙」에 정의된 **하네스별 모드**를 따른다.
+> 각 어댑터는 **폴링 모드**, **Co-Author 트레일러**, **안전 규칙 적용 방식**(훅 유무), **배포 뒤 디자인 시스템 동기화 여부**(Phase 5)를 지정한다. 배포(Phase 4)의 CI·Vercel 체크 폴링은 `automation/pipeline.md`의 「폴링 실행 규칙」에 정의된 **하네스별 모드**를 따른다.
 
 ## 실행 환경
 
@@ -102,6 +102,14 @@ CI·Vercel 체크 대기 폴링은 `automation/pipeline.md`의 「폴링 실행 
 - 변경사항 요약 (Phase 1에서 생성한 요약 또는 사용자 인자)
 - Phase 2 검증 결과 (PR 본문 「테스트 방법」에 실제 수행한 것만 적는다)
 - UI 변경 여부 (PR 본문에 스크린샷 안내를 남길지 결정)
+
+## Phase 5: 디자인 시스템 동기화 (배포 후)
+
+Phase 4가 `main` 머지까지 마쳤을 때만 한다. 디자인 시스템 아티팩트(「하루의 빛」 토큰을 담은 Claude Design System 아티팩트)를 `main`의 토큰 원천(`src/app/globals.css`·`src/lib/light.ts`)에 맞춘다.
+
+- **하네스 중립이 아니다.** 아티팩트는 소유자 계정에서만 열리고 게시 도구는 Claude Code에만 있다. 그래서 처리는 어댑터가 정한다(Claude Code: `.claude/commands/ship.md` 「디자인 시스템 동기화」). 지정하지 않은 하네스는 이 Phase를 건너뛴다.
+- **배포 뒤에 두는 이유**: 동기화는 레포에 커밋할 것을 만들지 않아 배포 커밋에 실을 필요가 없다. 배포 뒤에 두면 실제로 `main`에 올라간 토큰을 기준으로 맞추고, 배포가 실패하면 맞추지 않는다.
+- 건너뛰거나 게시가 거절돼도 배포 결과는 그대로다. 아티팩트가 마지막으로 맞춘 커밋을 기록하므로, 다음에 소유자가 Claude Code로 ship하면 그 사이의 변경(다른 사람이 배포한 것 포함)까지 함께 맞춘다.
 
 ## 규칙
 

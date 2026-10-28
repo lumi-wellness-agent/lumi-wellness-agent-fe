@@ -20,6 +20,16 @@ export const GROUP_LABELS: Record<string, string> = {
   minutes: "쓸 수 있는 시간",
 };
 
+/**
+ * 첫 질문 아래 예시 문장 — 누르면 입력 칸에 채워지고 고쳐 쓸 수 있다. 목표마다 하나씩, BE 단서표
+ * (data/intake_cues.json)의 표현으로 만들었다(S1 반추 · S2 긴장 · S3 피로). 목표를 고르는 칩이 아니다.
+ */
+export const EXAMPLE_TEXTS = [
+  "발표가 끝났는데 계속 생각나요",
+  "발표 앞두고 긴장돼요",
+  "몇 시간째 공부해서 머리가 멍해요",
+];
+
 /** 직접 쓰기 칸의 안내. 되묻기는 기분을 캐묻지 않고 상황을 가볍게 묻는다(BE READ_SYSTEM_PROMPT). */
 export const FREE_TEXT_HINTS = {
   restate: { label: "한두 마디면 충분해요", placeholder: "예: 회의가 많아서 좀 지쳤어요" },

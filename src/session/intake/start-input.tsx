@@ -7,6 +7,7 @@
  * 고르면 intake가 문장에서 읽은 값보다 우선한다. 목표(S1 · S2 · S3)는 묻지 않는다 — intake가 문장과 대화로 추론한다.
  * 로그인 · 게스트 고지 · 시작 버튼은 시작 화면(src/app/start-form.tsx, 통합 담당)이 맡는다.
  *
+ * 입력 칸 아래 예시 문장(EXAMPLE_TEXTS)을 누르면 칸에 채워진다 — 무엇을 쓰면 되는지 보여 주는 용도다.
  * 프로필(선호 풍경 · 선호 색 · 피하고 싶은 색)은 세션마다 다시 묻지 않는 선호라 이 기기에 기억해 두고(localStorage)
  * CareRequest.profile로 보낸다. 피하고 싶은 색에 검정 · 진한 보라가 있으면 setAvoidDark(true)(src/lib/light.ts).
  */
@@ -18,6 +19,7 @@ import { Chip } from "@/ui/controls";
 import {
   COLOR_CHOICES,
   DARK_COLORS,
+  EXAMPLE_TEXTS,
   GROUP_LABELS,
   MAX_PREFERRED_COLORS,
   MINUTE_CHOICES,
@@ -68,6 +70,8 @@ export function StartInput({ value, onChange }: { value: CareRequest; onChange: 
 
   const preferred = profile.preferred_colors ?? [];
   const avoided = profile.avoided_colors ?? [];
+  const contextCount = [value.setting, value.earphones, value.minutes_available].filter((v) => v != null).length;
+  const profileCount = (profile.preferred_scenery?.length ?? 0) + preferred.length + avoided.length;
   return (
     <>
       <label className="flex flex-col gap-2">
@@ -81,9 +85,21 @@ export function StartInput({ value, onChange }: { value: CareRequest; onChange: 
           className="rounded-row border border-line-control bg-control p-3 text-body text-ink"
         />
       </label>
+      <div className="mt-3">
+        <p className="mb-2 text-caption text-ink-muted">이렇게 써도 돼요</p>
+        <div className="flex flex-wrap gap-2">
+          {EXAMPLE_TEXTS.map((example) => (
+            <Chip key={example} selected={value.text === example} className="text-left" onClick={() => set({ text: example })}>
+              {example}
+            </Chip>
+          ))}
+        </div>
+      </div>
 
       <details className="mt-4">
-        <summary className="min-h-12 cursor-pointer content-center font-bold text-ink-muted">지금 여건 알려 주기 (선택)</summary>
+        <summary className="min-h-12 cursor-pointer content-center font-bold text-ink-muted">
+          지금 여건 알려 주기 (선택){contextCount > 0 && ` · ${contextCount}개 고름`}
+        </summary>
         <ChipGroup label={GROUP_LABELS.setting}>
           {(Object.keys(SETTING_LABELS) as Setting[]).map((key) => (
             <Chip key={key} selected={value.setting === key} onClick={() => set({ setting: value.setting === key ? null : key })}>
@@ -112,7 +128,9 @@ export function StartInput({ value, onChange }: { value: CareRequest; onChange: 
       </details>
 
       <details className="mt-1">
-        <summary className="min-h-12 cursor-pointer content-center font-bold text-ink-muted">내 취향 알려 주기 (선택)</summary>
+        <summary className="min-h-12 cursor-pointer content-center font-bold text-ink-muted">
+          내 취향 알려 주기 (선택){profileCount > 0 && ` · ${profileCount}개 고름`}
+        </summary>
         <p className="mt-1 text-caption text-ink-muted break-keep">이 기기에 기억해 두고 다음에도 써요.</p>
         <ChipGroup label="좋아하는 풍경">
           {SCENERY_CHOICES.map((c) => (

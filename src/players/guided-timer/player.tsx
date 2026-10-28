@@ -5,9 +5,10 @@
  * PR-06부터 구현하고, 같은 CIRCULAR_SESSION_TIMER 계약을 쓰는 PR-08·09·22로 확장한다.
  */
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { canSpeak, cancelSpeech, speakScript } from "@/lib/speech";
 import { playTone } from "@/lib/tone";
+import { useBrowserValue } from "@/lib/use-browser-value";
 import { Button } from "@/ui/controls";
 import type { ContentSlot } from "@/lib/api/types";
 import type { ActivityResult, PlayerProps } from "../types";
@@ -46,14 +47,14 @@ export default function GuidedTimerPlayer({ content, step, onFinish }: PlayerPro
   const [started, setStarted] = useState(false);
   const [preparing, setPreparing] = useState(false);
   const [speaking, setSpeaking] = useState(false);
-  const [speechAvailable, setSpeechAvailable] = useState(false);
+  const speechAvailable = useBrowserValue(canSpeak, false);
   const finishRef = useRef(false);
   const mountedRef = useRef(true);
   const endAtRef = useRef(0);
   const handledCuesRef = useRef(new Set<string>());
   const beepedRef = useRef(new Set<number>());
   const onFinishRef = useRef(onFinish);
-  onFinishRef.current = onFinish;
+  useEffect(() => { onFinishRef.current = onFinish; }, [onFinish]);
 
   const spec = content.content_spec;
   const sessionUi = useMemo(() => object(spec.session_ui), [spec]);
@@ -62,7 +63,7 @@ export default function GuidedTimerPlayer({ content, step, onFinish }: PlayerPro
   const guide = useMemo(() => object(slots.find((slot) => slot.slot === "GUIDE_AUDIO")), [slots]);
   const render = useMemo(() => object(guide.render), [guide]);
   const policy = useMemo(() => object(guide.source_policy), [guide]);
-  const scriptList = Array.isArray(guide.scripts) ? guide.scripts : [];
+  const scriptList = useMemo(() => Array.isArray(guide.scripts) ? guide.scripts : [], [guide]);
   const scriptById = useMemo(() => {
     const result = new Map<string, string>();
     for (const entry of scriptList) {
@@ -70,7 +71,7 @@ export default function GuidedTimerPlayer({ content, step, onFinish }: PlayerPro
       if (typeof item.id === "string" && typeof item.text === "string") result.set(item.id, item.text);
     }
     return result;
-  }, [guide]);
+  }, [scriptList]);
   const beforeTimer = strings(render.before_timer);
   const selectedScripts = object(guide.selection);
   const introOrder =
@@ -93,8 +94,25 @@ export default function GuidedTimerPlayer({ content, step, onFinish }: PlayerPro
   }, [render]);
   const ttsAllowed = policy.tts !== "FORBIDDEN";
 
+  const finishOnce = useCallback((result: ActivityResult) => {
+    if (finishRef.current) return;
+    finishRef.current = true;
+    cancelSpeech();
+    onFinishRef.current(result);
+  }, []);
+
+  const read = useCallback(async (text: string | undefined): Promise<void> => {
+    if (!text || !ttsAllowed || !speechAvailable) return;
+    setSpeaking(true);
+    try {
+      await speakScript(text);
+    } finally {
+      if (mountedRef.current) setSpeaking(false);
+    }
+  }, [ttsAllowed, speechAvailable]);
+
   useEffect(() => {
-    setSpeechAvailable(canSpeak());
+    mountedRef.current = true;
     return () => {
       mountedRef.current = false;
       cancelSpeech();
@@ -126,29 +144,9 @@ export default function GuidedTimerPlayer({ content, step, onFinish }: PlayerPro
       if (next === 0 && !cueByTime.has(0)) finishOnce({ completed: true });
     };
 
-    tick();
     const timer = window.setInterval(tick, 250);
     return () => window.clearInterval(timer);
-    // The timing contract is fixed when the player starts; callbacks use refs to stay current.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [started, countdown, cueByTime, scriptById]);
-
-  function finishOnce(result: ActivityResult) {
-    if (finishRef.current) return;
-    finishRef.current = true;
-    cancelSpeech();
-    onFinishRef.current(result);
-  }
-
-  async function read(text: string | undefined): Promise<void> {
-    if (!text || !ttsAllowed || !speechAvailable) return;
-    setSpeaking(true);
-    try {
-      await speakScript(text);
-    } finally {
-      if (mountedRef.current) setSpeaking(false);
-    }
-  }
+  }, [started, countdown, cueByTime, scriptById, read, finishOnce]);
 
   async function start() {
     if (preparing || started || finishRef.current) return;

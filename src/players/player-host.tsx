@@ -28,7 +28,9 @@ const COMPONENTS: Record<PlayerKey, LazyExoticComponent<ComponentType<PlayerProp
   grounding: lazy(() => import("./grounding/player")),
   coloring: lazy(() => import("./coloring/player")),
   writing: lazy(() => import("./writing/player")),
+  "daily-journal": lazy(() => import("./daily-journal/player")),
   "outdoor-walk": lazy(() => import("./outdoor-walk/player")),
+  "outdoor-walk-noticing": lazy(() => import("./outdoor-walk-noticing/player")),
 };
 
 const STOP_REASONS = ["불편해요", "어지러워요", "지금은 시간이 없어요", "그냥 그만할래요"];
@@ -55,7 +57,10 @@ export function PlayerHost({ content, onReport }: { content: ActivityContent; on
     else report({ completed: true, notice_words: noticeWords.current });
   };
   const onFinish = (result: ActivityResult) => {
-    if (result.completed) advance();
+    if (result.completed) {
+      if (result.noticeWords) noticeWords.current = result.noticeWords;
+      advance();
+    }
     else report({ completed: false, stopped_reason: result.stoppedReason });
   };
 

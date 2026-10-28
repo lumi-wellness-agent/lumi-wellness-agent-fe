@@ -23,6 +23,7 @@ import { progressLabel } from "./labels";
 
 const SESSION_KEY = "lumi:session-id";
 const DRAFT_KEY = "lumi:start";
+const VIEW_KEY = "lumi:session-view";
 const NAMES_KEY = "lumi:activity-names"; // END payload에는 protocol_id만 와서 RUN에서 본 이름을 기억한다
 
 type SessionRequest = (api: SessionApi, handlers: StreamHandlers) => Promise<SessionView>;
@@ -35,7 +36,7 @@ export type SessionStatus = {
 };
 
 export function useSession() {
-  const [status, setStatus] = useState<SessionStatus>({ view: null, busy: false, progress: null, error: null });
+  const [status, setStatus] = useState<SessionStatus>(() => ({ view: readSavedView(), busy: false, progress: null, error: null }));
   const current = useRef<{ id: string | null; view: SessionView | null }>({ id: null, view: null });
   const last = useRef<SessionRequest | null>(null);
 
@@ -54,6 +55,7 @@ export function useSession() {
     const show = (view: SessionView) => {
       current.current = { id: view.session_id, view };
       write(SESSION_KEY, view.step === "END" ? null : view.session_id);
+      write(VIEW_KEY, view.step === "END" ? null : JSON.stringify(view));
       if (view.step === "RUN") {
         const { protocol_id, name } = view.payload.content;
         write(NAMES_KEY, JSON.stringify({ ...activityNames(), [protocol_id]: name }));
@@ -121,6 +123,16 @@ export function forgetSession(): void {
   write(SESSION_KEY, null);
   write(DRAFT_KEY, null);
   write(NAMES_KEY, null);
+  write(VIEW_KEY, null);
+}
+
+function readSavedView(): SessionView | null {
+  try {
+    const raw = read(VIEW_KEY);
+    return raw ? (JSON.parse(raw) as SessionView) : null;
+  } catch {
+    return null;
+  }
 }
 
 /** 이 탭에서 RUN으로 받은 활동 이름(protocol_id → 이름). */

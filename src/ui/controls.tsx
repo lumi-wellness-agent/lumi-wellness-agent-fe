@@ -68,9 +68,9 @@ export function Chip({ selected, className = "", ...props }: ButtonHTMLAttribute
 export function Screen({ children, footer }: { children: ReactNode; footer?: ReactNode }) {
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-[480px] flex-col px-4 pt-6">
-      <div className="flex flex-1 flex-col pb-6">{children}</div>
+      <div className={footer ? "flex flex-1 flex-col pb-28" : "flex flex-1 flex-col pb-6"}>{children}</div>
       {footer && (
-        <div className="sticky bottom-0 -mx-4 flex flex-col gap-2 border-t border-line bg-page px-4 pt-3 pb-[calc(12px+env(safe-area-inset-bottom))]">
+        <div className="fixed bottom-0 left-1/2 z-20 flex w-full max-w-[480px] -translate-x-1/2 flex-col gap-2 border-t border-line bg-page px-4 pt-3 pb-[calc(12px+env(safe-area-inset-bottom))]">
           {footer}
         </div>
       )}

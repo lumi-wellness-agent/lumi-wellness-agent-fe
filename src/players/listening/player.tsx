@@ -96,7 +96,8 @@ function Listening({ sound, video, totalSeconds, fadeIn, fadeOut, onFinish }: Li
       audio.volume = 0;
       audio.play().then(
         () => fadeVolume(audio, volume, fadeIn),
-        () => setError("소리를 재생하지 못했어요. 기기 소리가 켜져 있는지 확인해 주세요."),
+        // 불러오기 실패(onError)가 먼저 왔으면 그 안내를 남긴다 — 더 정확하다
+        () => setError((prev) => prev ?? "소리를 재생하지 못했어요. 기기 소리가 켜져 있는지 확인해 주세요."),
       );
     }
     void videoRef.current?.play().catch(() => {});

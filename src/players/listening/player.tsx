@@ -175,8 +175,8 @@ type RunningProps = {
   onFinish: () => void;
 };
 
-/** 재생 중 — 시간 · 멈춤 · 음량. 끝나면 소리를 줄이고 멈춘다. */
-function Running({ audioRef, videoRef, totalSeconds, volume, setVolume, fadeOut, onFinish }: RunningProps) {
+/** 재생 중 — 시간 · 멈춤 · 음량. 끝나면 소리를 줄이고 멈춘다. 이미지 + 명상(PR-21)도 쓴다. */
+export function Running({ audioRef, videoRef, totalSeconds, volume, setVolume, fadeOut, onFinish }: RunningProps) {
   const [adjustable] = useState(canSetVolume);
   const timer = useActivityTimer(totalSeconds, () => {
     const audio = audioRef.current;
@@ -256,7 +256,7 @@ function Running({ audioRef, videoRef, totalSeconds, volume, setVolume, fadeOut,
   );
 }
 
-function Credits({ assets }: { assets: ActivityAsset[] }) {
+export function Credits({ assets }: { assets: ActivityAsset[] }) {
   if (!assets.length) return null;
   return (
     <Card className="mt-4">

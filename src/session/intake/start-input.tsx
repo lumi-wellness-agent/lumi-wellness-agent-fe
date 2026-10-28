@@ -81,7 +81,7 @@ export function StartInput({ value, onChange }: { value: CareRequest; onChange: 
           onChange={(e) => set({ text: e.target.value })}
           rows={3}
           maxLength={500}
-          placeholder="예: 발표 앞두고 긴장돼요"
+          placeholder="한두 마디면 충분해요"
           className="rounded-row border border-line-control bg-control p-3 text-body text-ink"
         />
       </label>
@@ -150,6 +150,7 @@ export function StartInput({ value, onChange }: { value: CareRequest; onChange: 
               <Chip
                 key={c.value}
                 selected={on}
+                className="disabled:opacity-40"
                 disabled={!on && (preferred.length >= MAX_PREFERRED_COLORS || avoided.includes(c.value))}
                 onClick={() => setProfile({ preferred_colors: toggled(preferred, c.value) })}
               >
@@ -165,6 +166,7 @@ export function StartInput({ value, onChange }: { value: CareRequest; onChange: 
               <Chip
                 key={c.value}
                 selected={on}
+                className="disabled:opacity-40"
                 disabled={!on && preferred.includes(c.value)}
                 onClick={() => setProfile({ avoided_colors: toggled(avoided, c.value) })}
               >

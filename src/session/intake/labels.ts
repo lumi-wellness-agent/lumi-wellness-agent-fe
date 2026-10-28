@@ -32,7 +32,8 @@ export const EXAMPLE_TEXTS = [
 
 /** 직접 쓰기 칸의 안내. 되묻기는 기분을 캐묻지 않고 상황을 가볍게 묻는다(BE READ_SYSTEM_PROMPT). */
 export const FREE_TEXT_HINTS = {
-  restate: { label: "한두 마디면 충분해요", placeholder: "예: 회의가 많아서 좀 지쳤어요" },
+  // 되묻기 문장에 예시가 이미 들어 있어(BE READ_SYSTEM_PROMPT · RESTATE_FIXED) 칸에는 다시 넣지 않는다
+  restate: { label: "한두 마디면 충분해요", placeholder: "" },
   withOptions: { label: "보기에 없으면 직접 적어 주세요", placeholder: "" },
   only: { label: "한두 마디로 적어 주세요", placeholder: "" },
 };

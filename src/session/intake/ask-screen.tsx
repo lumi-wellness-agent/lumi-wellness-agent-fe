@@ -16,6 +16,9 @@ import { Button, Chip, Heading, Screen } from "@/ui/controls";
 import { FREE_TEXT_HINTS, GROUP_LABELS } from "./labels";
 
 const isUnknown = (option: QuestionOption) => Object.keys(option.set).length === 0;
+/** 보기 문구가 모두 짧으면(이어폰 있어요/없어요 · 5분/10분) 한 줄에 나란히 — 환경 질문이 한 화면에 들어오게. */
+const SHORT_LABEL = 7;
+const isShortGroup = (options: QuestionOption[]) => options.every((o) => o.label.length <= SHORT_LABEL);
 
 export function AskScreen({
   question,
@@ -81,7 +84,7 @@ export function AskScreen({
             key={option.label}
             selected={picked[group.key] === i}
             disabled={busy}
-            className={`text-left ${typed ? "opacity-50" : ""}`}
+            className={`text-left ${typed ? "opacity-70" : ""}`}
             onClick={() => toggle(group.key, i)}
           >
             {option.label}
@@ -92,7 +95,7 @@ export function AskScreen({
             {GROUP_LABELS[group.key] && (
               <legend className="mb-2 text-caption font-bold text-ink-muted">{GROUP_LABELS[group.key]}</legend>
             )}
-            <div className="flex flex-col gap-2">{main.map(chip)}</div>
+            <div className={isShortGroup(group.options) ? "flex flex-wrap gap-2" : "flex flex-col gap-2"}>{main.map(chip)}</div>
             {unknown.length > 0 && <div className="mt-4 flex flex-col gap-2">{unknown.map(chip)}</div>}
           </fieldset>
         );

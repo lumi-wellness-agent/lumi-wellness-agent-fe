@@ -154,7 +154,7 @@ export const mockApi: SessionApi = {
       await emit(handlers, [{ node: "confirm" }, { node: "plan", step: "choose_activity" }, { node: "plan", step: "write_rationale" }, { node: "prepare" }]);
       return save(await runView(next, body.next_step === "CHANGE_ACTIVITY"));
     }
-    const payload = samOnly(await measureFixtures["final-S1"](), rounds.length);
+    const payload = samOnly(await measureFixtures["pre-S2"](), rounds.length, "FINAL");
     return save({ ...next, view: { session_id: sessionId, step: "MEASURE", node: "measure_final", payload } });
   },
 
@@ -193,10 +193,14 @@ function endView(state: MockState, finalSam?: Record<string, number>): SessionVi
 }
 
 /** BE의 instrument filter와 같은 계약으로, 목업은 SAM 하나만 응답 대상으로 둔다. */
-function samOnly(payload: MeasurePayload, round = payload.round): MeasurePayload {
+function samOnly(
+  payload: MeasurePayload,
+  round = payload.round,
+  measure: MeasurePayload["measure"] = payload.measure,
+): MeasurePayload {
   const instruments = payload.instruments.filter((instrument) => instrument.instrument_id === "INS-SAM");
   if (instruments.length !== 1) throw new Error("측정 fixture에 INS-SAM이 하나 있어야 한다");
-  return { ...payload, round, instruments, required_instrument_ids: ["INS-SAM"] };
+  return { ...payload, measure, round, instruments, required_instrument_ids: ["INS-SAM"] };
 }
 
 /** BE처럼 받은 도구 전부의 문항이 범위 안에 있어야 한다(app/api/sessions._check_measure). */

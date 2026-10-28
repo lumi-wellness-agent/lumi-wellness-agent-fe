@@ -9,7 +9,8 @@ import { ButtonLink, Heading, Screen } from "@/ui/controls";
 const HELP_LINES = [
   { name: "자살예방 상담전화", number: "109", note: "24시간" },
   { name: "정신건강 위기상담 전화", number: "1577-0199", note: "24시간" },
-  { name: "긴급 상황", number: "112 · 119", note: "" },
+  { name: "긴급 구조 · 구급", number: "119", note: "" },
+  { name: "경찰", number: "112", note: "" },
 ];
 
 export function SafetyScreen() {
@@ -24,7 +25,7 @@ export function SafetyScreen() {
         {HELP_LINES.map((line) => (
           <li key={line.name}>
             <a
-              href={`tel:${line.number.split(" ")[0]}`}
+              href={`tel:${line.number.replace(/[^0-9]/g, "")}`}
               className="flex min-h-12 items-center justify-between rounded-row border border-line-control bg-control px-4"
             >
               <span>{line.name}</span>

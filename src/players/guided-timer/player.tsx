@@ -10,7 +10,7 @@ import { canSpeak, cancelSpeech, speakScript } from "@/lib/speech";
 import { playTone } from "@/lib/tone";
 import { Button } from "@/ui/controls";
 import type { ContentSlot } from "@/lib/api/types";
-import type { PlayerProps } from "../types";
+import type { ActivityResult, PlayerProps } from "../types";
 
 type JsonObject = Record<string, unknown>;
 type Cue = { remaining_seconds: number; script_id: string };
@@ -56,12 +56,12 @@ export default function GuidedTimerPlayer({ content, step, onFinish }: PlayerPro
   onFinishRef.current = onFinish;
 
   const spec = content.content_spec;
-  const sessionUi = object(spec.session_ui);
-  const timerSpec = object(sessionUi.timer);
-  const slots = (spec.slots ?? []) as ContentSlot[];
-  const guide = object(slots.find((slot) => slot.slot === "GUIDE_AUDIO"));
-  const render = object(guide.render);
-  const policy = object(guide.source_policy);
+  const sessionUi = useMemo(() => object(spec.session_ui), [spec]);
+  const timerSpec = useMemo(() => object(sessionUi.timer), [sessionUi]);
+  const slots = useMemo(() => (spec.slots ?? []) as ContentSlot[], [spec]);
+  const guide = useMemo(() => object(slots.find((slot) => slot.slot === "GUIDE_AUDIO")), [slots]);
+  const render = useMemo(() => object(guide.render), [guide]);
+  const policy = useMemo(() => object(guide.source_policy), [guide]);
   const scriptList = Array.isArray(guide.scripts) ? guide.scripts : [];
   const scriptById = useMemo(() => {
     const result = new Map<string, string>();
@@ -133,7 +133,7 @@ export default function GuidedTimerPlayer({ content, step, onFinish }: PlayerPro
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [started, countdown, cueByTime, scriptById]);
 
-  function finishOnce(result: Parameters<typeof onFinishRef.current>[0]) {
+  function finishOnce(result: ActivityResult) {
     if (finishRef.current) return;
     finishRef.current = true;
     cancelSpeech();
@@ -195,7 +195,7 @@ export default function GuidedTimerPlayer({ content, step, onFinish }: PlayerPro
             role="timer"
             aria-label={"남은 시간 " + formatTime(timerLabel)}
           >
-            <time className="font-display text-hero tabular-nums text-ink" dateTime={"PT" + timerLabel + "S"}>
+            <time className="font-display text-title tabular-nums text-ink" dateTime={"PT" + timerLabel + "S"}>
               {formatTime(timerLabel)}
             </time>
           </div>

@@ -30,7 +30,9 @@ export function MeasureScreen({
   onSubmit: (answers: MeasureAnswers) => void;
 }) {
   const [answers, setAnswers] = useState<MeasureAnswers>({});
-  const instruments = payload.instruments.filter((i) => i.enabled !== false && i.status !== "TODO");
+  const instruments = payload.instruments.filter(
+    (i) => i.instrument_id === "INS-SAM" && i.enabled !== false && i.status !== "TODO" && i.items.every((item) => item.text !== null),
+  );
   const total = instruments.reduce((n, i) => n + i.items.length, 0);
   const answered = instruments.reduce(
     (n, i) => n + i.items.filter((item) => answers[i.instrument_id]?.[item.id] !== undefined).length,

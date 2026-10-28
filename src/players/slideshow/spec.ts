@@ -72,6 +72,10 @@ function reasonOf(asset: ActivityAsset): string | undefined {
   const scenery = str(asset.metadata.preferred_scenery);
   const name = scenery ? SCENERY_NAMES[scenery] : undefined;
   if (name) return `좋아하는 ${name} 풍경으로 골랐어요`;
+  // 선호 색 사진(BE mix_color_photos — 4장에 1장꼴)
+  const color = asset.metadata.preferred_color;
+  const colorName = color && typeof color === "object" ? str((color as Record<string, unknown>).label_ko) : undefined;
+  if (colorName) return `좋아하는 ${colorName} 색감으로 골랐어요`;
   // 사용자가 좋아한다고 한 것이 아니므로 "좋아하는"을 쓰지 않는다
   const factor = factorOf(asset);
   const noun = factor?.source === "LLM" ? FACTOR_NOUNS[factor.axis] : undefined;

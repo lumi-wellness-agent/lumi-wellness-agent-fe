@@ -98,18 +98,18 @@ SSE 진행 문구는 `src/session/labels.ts`, 오류 처리 표는 BE README 「
 
 ### 측정 화면 (B — BE measure_pre와 같은 사람)
 
-사전(measure_pre) · 사후 · 종료 측정이 같은 화면을 쓴다. 뼈대의 범용 렌더러가 동작하고, SAM 그림이 비어 있다.
+사전(measure_pre) · 사후 · 종료 측정이 같은 화면을 쓴다. 현재 MVP는 모든 목표·시점에서 SAM만 표시한다. SAM 그림 대신 단계 슬라이더를 쓰며, 원 그림 사용 권한은 확인 대상이다.
 
 | 파일 | 할 일 |
 | --- | --- |
-| `src/session/measure/`(새 파일) | SAM 그림 척도 — PICTORIAL 1~9, 쾌 · 각성 두 줄(그림 5개 + 사이 칸). 지금은 단계 슬라이더로 그린다 |
-| `src/session/measure/measure-screen.tsx` | 받은 `instruments[]`를 `scale.kind`로 그린다 — 도구 목록을 하드코딩하지 않는다. LIKERT(STAI-6 4점, 문항 원문이 오면 그대로) · SLIDER(BSRI 8문항 · MFVAS 3문항 — 건드린 문항만 답으로 센다) · 문항이 많을 때 진행 표시 · 시점별 제목 |
+| `src/session/measure/` | SAM 척도 — PICTORIAL 1~9, 쾌 · 각성 두 줄. 현재는 단계 슬라이더를 쓰며, 그림 표현은 사용 권한 확인 후 구현한다 |
+| `src/session/measure/measure-screen.tsx` | 받은 활성 `instruments[]`를 `scale.kind`로 그린다. MVP에서는 SAM만 표시하고 `TODO`·비활성 도구는 숨긴다. 응답은 `required_instrument_ids`에 맞춘다 |
 | 확인 | `/dev/screens/measure-*`, 목업 세션. 계약은 BE `app/instruments.py`의 `present()` · `app/agent/nodes/measure.py` · `data/instruments/*.json`. 응답은 받은 도구 전부를 `{instrument_id: {item_id: value}}`로 |
 
 ### 플레이어 담당 (A · B · C, 수 오후 ~ 목 오전)
 
 각자 표의 파일 본문을 채운다. 파일 머리말에 그 활동이 읽을 `content_spec` 칸을 적어 두었다. 시연 시나리오가
-지나가는 것을 먼저 한다 — "발표 앞두고 긴장돼요" → (질문) → SAM · STAI-6 → **PR-06** → SAM → 평가 → 종료.
+지나가는 것을 먼저 한다 — "발표 앞두고 긴장돼요" → (질문) → SAM → **PR-06** → SAM → 평가 → 종료 SAM.
 그다음 PR-01 · PR-02 · PR-09 · PR-21 · PR-11.
 
 | 담당 | 먼저 할 것 | 다음 |
@@ -138,7 +138,7 @@ SSE 진행 문구는 `src/session/labels.ts`, 오류 처리 표는 BE README 「
 | 응답 `{session_id, step, node, payload}` | `SessionView` (`src/lib/api/types.ts`) | `app/api/sessions.py` |
 | 시작 요청 | `CareRequest` — `text` + 환경 칩 + `profile` | `app/schemas/care.py` |
 | intake 질문 · 답 | `IntakeQuestion` ↔ `IntakeAnswer`(`answer` · `text` · `skip` 중 하나) | `app/schemas/intake.py` |
-| 측정 | `MeasurePayload` → `{instrument_id: {item_id: value}}` | `app/instruments.py` `present()` · `app/agent/nodes/measure.py` |
+| 측정 | `MeasurePayload`(활성 instruments + required_instrument_ids) → `{instrument_id: {item_id: value}}` | `app/instruments.py` `present()` · `app/agent/nodes/measure.py` |
 | 플레이어 props `{content, step, onFinish}` | `PlayerProps` (`src/players/types.ts`) | FE 계약 — 바꾸려면 통합 담당과 먼저 맞춘다 |
 | RUN payload `{plan, content}` | `RunPayload` · `ActivityContent` | `app/agent/state.py` · `app/agent/nodes/executor.py` |
 | 활동 실행 명세 | `content.content_spec` (형 없음) | `data/protocols/PR-*.json` |
@@ -199,7 +199,7 @@ npm run build
   `setting`을 남기는데, RUN payload(`plan` · `content`)에는 실리지 않아 FE가 "소리가 나와요"를 띄울 근거가 없다.
   지금은 환경을 풀었을 때(`plan.environment_gaps`)만 안내하고 "지금은 어려워요"는 늘 보인다. BE가 plan에 실을지
   통합 담당이 A와 정한다.
-- **STAI-6 · BSRI 문항 원문.** BE에서 채우기 전에는 측정 화면이 문항 ID를 보여 준다(`text: null`). 채우면 그대로 그린다(B).
+- **STAI-6 · BSRI 문항 원문.** 현재는 `TODO` 상태로 FE payload에 보내지 않고 사용자 화면에서도 숨긴다. 사용 가능한 원문·허가 자료를 확보하면 다시 연결한다.
 - **도움 안내 번호.** SAFETY 화면(`src/session/intake/safety-screen.tsx`)의 상담 전화 번호와 문구를 발표 전에 다시
   확인한다(A).
 - **원문 보관 동의 끄기 · 탈퇴 전 재인증.** 설정 화면에 아직 없다(BE README 「정하지 않은 것」).

@@ -85,8 +85,8 @@ test("음성 기본값은 유지하고 낮은 피치 설정과 실제 발화 시
     assert.deepEqual(events, [true, false, true, false]);
     assert.deepEqual(captions, ["첫 번째 안내입니다.", "두 번째 안내입니다."]);
     assert.equal(await speakScript("기본 안내입니다."), true);
-    assert.equal(spoken[1].rate, 0.9);
-    assert.equal(spoken[1].pitch, 1);
+    assert.equal(spoken[2].rate, 0.9);
+    assert.equal(spoken[2].pitch, 1);
   } finally {
     if (oldWindow === undefined) delete globalThis.window;
     else globalThis.window = oldWindow;

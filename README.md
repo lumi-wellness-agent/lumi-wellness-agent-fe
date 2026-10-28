@@ -12,16 +12,16 @@ React·Next.js App Router·TypeScript·Tailwind CSS v4를 사용하고 Vercel에
 ```text
 "오늘 상황이 어떠세요?" → (필요하면) 질문 최대 3회 → 사전 측정 → 활동 추천 · "왜 추천했나요?" Reference 카드
 → 활동 → 사후 측정 → 전후 비교 · 다음 단계 제안(종료 · 활동 변경 · 추가 세션) → 사용자 선택
-→ 활동 변경·추가 세션이면 다시 활동 추천으로, 종료면 종료 측정(S1·S2만) 뒤 끝
+→ 활동 변경·추가 세션이면 다시 활동 추천으로, 종료면 모든 목표에서 SAM 종료 측정 뒤 끝
 ```
 
 - 시작: 자유 텍스트(예: "발표 앞두고 긴장돼요")만 필수입니다. 지금 있는 곳 · 이어폰 · 쓸 수 있는 시간은 선택
   칩이고, 칩 값이 BE가 문장에서 읽은 값보다 우선합니다. 원하는 변화(S1 반복적 생각 완화 · S2 스트레스·긴장 완화 ·
   S3 주의력·인지 피로 회복)는 묻지 않고 BE intake가 문장과 대화로 추론합니다. 부족하면 세션 안에서 보기 칩으로
   다시 묻습니다(질문 합계 3회). 스트레스 수치(0~10)는 받지 않고, 상태 점수는 사전 측정이 잽니다.
-- 측정: 사전에 SAM(쾌·각성)과 목표 척도(S1 BSRI · S2 STAI-6 · S3 MFVAS 임시 도구), 활동이 끝날 때마다
-  SAM(S3는 + MFVAS), 종료에 S1·S2 목표 척도를 한 번 더 잽니다. 문항과 응답 척도는 BE가 보내고 FE는 그대로
-  그립니다.
+- 측정(MVP): 모든 목표에서 사전·활동 후·종료 시 SAM(쾌·각성)만 받습니다. STAI-6·BSRI는 BE 데이터에 `TODO`로
+  남기고 화면에 보내지 않습니다. SAM 변화는 기분 참고값이며 목표 증상의 직접 측정이나 임상 점수가 아닙니다.
+  문항과 응답 척도는 BE가 보내고 FE는 활성 척도만 그립니다.
 - 활동 추천: 한 번에 검수된 활동(프로토콜) 하나가 옵니다. 여러 매체를 함께 쓰는 활동도 검증된 프로토콜 하나로
   오고, BE가 활동을 임의로 묶지 않습니다. 플레이어는 받은 콘텐츠의 단계(ACTIVITY · NOTICE · CHOOSE)와
   이미지·영상·소리 자산을 실행합니다.
@@ -166,12 +166,12 @@ Supabase DB 접속 정보와 secret key, LLM 키, 콘텐츠 공급자 키(Pixaba
 | `POST /sessions/{id}/answer` (SSE) | `IntakeAnswer` — 고른 보기의 `set`을 합친 `answer`, 직접 쓴 `text`, 되묻기의 `skip` 중 하나 | `ASK` · `MEASURE`(사전) · `END` |
 | `POST /sessions/{id}/measure` | `{instrument_id: {item_id: value}}` — 사전(SSE) · 사후 · 종료 | `RUN` · `CONFIRM` · `END` |
 | `POST /sessions/{id}/report` | `SessionReport` — 완료 여부 · 중단 사유 · NOTICE 감정 단어 1~3개(점수는 보내지 않음) | `MEASURE`(사후 — SAM, S3는 + MFVAS) |
-| `POST /sessions/{id}/decision` (SSE) | `ReplanDecision` — 종료 · 활동 변경 · 추가 세션 | `RUN` · `MEASURE`(종료, S1·S2) · `END` |
+| `POST /sessions/{id}/decision` (SSE) | `ReplanDecision` — 종료 · 활동 변경 · 추가 세션 | `RUN` · `MEASURE`(종료 SAM, 모든 목표) · `END` |
 | `POST /sessions/{id}/retry` (SSE) | — | `STALLED`에서 멈춘 노드부터 다시 |
 | `GET /sessions/{id}` | — | 지금 멈춘 자리(새로고침 · 끊긴 스트림 복구) |
 
-- 측정 문항은 도구마다 응답 척도(`scale.kind` — PICTORIAL · LIKERT · SLIDER)와 문항·양끝 라벨이 함께 옵니다.
-  받은 도구 전부에 답해야 하고, 슬라이더는 사용자가 건드린 문항만 답으로 셉니다.
+- 측정 payload에는 `instruments[]`와 `required_instrument_ids`가 옵니다. FE는 `enabled !== false`이고 `status !== TODO`인
+  도구만 표시하고 필수 응답을 `{instrument_id: {item_id: value}}`로 보냅니다. 현재 MVP의 필수 도구는 SAM 하나입니다.
 - 안전 신호가 있으면(`SAFETY`) 세션 대신 도움 안내로 끝납니다.
 - 오류는 `{"detail": {code, message, …}}`이고 BE README 「오류」 표대로 다룹니다 — 동의가 없으면 동의 화면,
   `retryable`이면 `retry`, 스트림이 끊기거나 단계가 어긋나면 `GET`으로 멈춘 자리를 다시 봅니다.

@@ -31,7 +31,22 @@ export function assetsOf(content: ActivityContent, ...slots: string[]): Activity
   return content.assets.filter((a) => slots.includes(a.slot));
 }
 
-/** 화면에 보일 장면 하나. credit은 사진 아래 작은 글씨(작가 · 출처), reason은 고른 이유(좋아하는 풍경)다. */
+/**
+ * BE 자산 metadata.content_factor(app/content/factors.tag) — 이 콘텐츠를 무엇으로 골랐는지.
+ * source: USER(사용자 칩) · LLM(plan이 고른 값) · DEFAULT. reason은 LLM이 고른 이유 한 문장(LLM일 때만).
+ */
+export type ContentFactor = { axis: string; value: string; label: string; source: string; reason?: string };
+
+export function factorOf(asset: ActivityAsset): ContentFactor | undefined {
+  const raw = asset.metadata.content_factor;
+  if (!raw || typeof raw !== "object") return undefined;
+  const tag = raw as Record<string, unknown>;
+  const [axis, value, label, source] = [str(tag.axis), str(tag.value), str(tag.label_ko), str(tag.source)];
+  if (!axis || !value || !label || !source) return undefined;
+  return { axis, value, label, source, reason: str(tag.reason) };
+}
+
+/** 화면에 보일 장면 하나. credit은 사진 아래 작은 글씨(작가 · 출처), reason은 고른 이유(좋아하는 풍경 · LUMI가 고른 풍경)다. */
 export type Slide = {
   url: string;
   alt: string;
@@ -50,10 +65,17 @@ const SCENERY_NAMES: Record<string, string> = {
   sky: "하늘",
 };
 
+/** LLM이 고른 Factor의 화면 이름 — 사진 · 영상은 풍경, PR-20은 작품. */
+const FACTOR_NOUNS: Record<string, string> = { scenery: "풍경", art_subject: "작품" };
+
 function reasonOf(asset: ActivityAsset): string | undefined {
   const scenery = str(asset.metadata.preferred_scenery);
   const name = scenery ? SCENERY_NAMES[scenery] : undefined;
-  return name ? `좋아하는 ${name} 풍경으로 골랐어요` : undefined;
+  if (name) return `좋아하는 ${name} 풍경으로 골랐어요`;
+  // 사용자가 좋아한다고 한 것이 아니므로 "좋아하는"을 쓰지 않는다
+  const factor = factorOf(asset);
+  const noun = factor?.source === "LLM" ? FACTOR_NOUNS[factor.axis] : undefined;
+  return factor && noun ? `LUMI가 고른 ${factor.label} ${noun}이에요` : undefined;
 }
 
 export function slidesFrom(content: ActivityContent, ...slots: string[]): Slide[] {

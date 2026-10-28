@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * END — 세션 끝. reason이 DONE이면 라운드 요약과 목표 척도의 세션 변화(끝 − 사전)를 보인다.
+ * END — 세션 끝. reason이 DONE이면 라운드 요약과 시작·종료 SAM 기분 변화를 보인다.
  * SAFETY(intake가 안전 신호로 세션을 끝냄)면 도움 안내(intake/safety-screen.tsx, 담당 A)를 띄운다.
  */
 
@@ -14,24 +14,27 @@ import { activityNames } from "./use-session";
 export function EndScreen({ payload }: { payload: EndPayload }) {
   if (payload.reason === "SAFETY") return <SafetyScreen />;
 
-  const { goal_scale: scale } = payload;
+  const { sam_change: change } = payload;
   const names = activityNames();
   return (
     <Screen footer={<ButtonLink href="/">처음으로</ButtonLink>}>
       <Heading eyebrow={GOAL_LABELS[payload.goal]}>오늘 세션을 마쳤어요</Heading>
-      {scale && (
+      {change && (
         <Card className="mb-4">
           <p className="mb-2 text-caption font-bold text-ink-muted">시작할 때와 비교</p>
           <ul className="flex flex-col gap-1">
-            {Object.entries(scale.delta).map(([key, delta]) => (
+            {Object.entries(change.delta).map(([key, delta]) => (
               <li key={key} className="flex justify-between">
                 <span>{DELTA_LABELS[key] ?? key}</span>
                 <strong className="tabular-nums">
-                  {scale.pre[key]} → {scale.end[key]} ({delta > 0 ? `+${delta}` : delta})
+                  {change.pre[key]} → {change.end[key]} ({delta > 0 ? `+${delta}` : delta})
                 </strong>
               </li>
             ))}
           </ul>
+          <p className="mt-3 text-caption text-ink-muted">
+            SAM 기분 변화 참고값이며, 목표 증상의 개선을 직접 측정한 점수는 아니에요.
+          </p>
         </Card>
       )}
       <Card>

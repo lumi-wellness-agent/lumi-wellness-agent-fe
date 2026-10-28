@@ -54,6 +54,7 @@ test("음성 기본값은 유지하고 낮은 피치 설정과 실제 발화 시
   const oldUtterance = globalThis.SpeechSynthesisUtterance;
   const spoken = [];
   const events = [];
+  const captions = [];
   globalThis.SpeechSynthesisUtterance = class {
     constructor(text) { this.text = text; }
   };
@@ -73,14 +74,16 @@ test("음성 기본값은 유지하고 낮은 피치 설정과 실제 발화 시
     },
   };
   try {
-    assert.equal(await speakScript("안내입니다.", {
+    assert.equal(await speakScript("첫 번째 안내입니다. 두 번째 안내입니다.", {
       rate: 0.85,
       pitch: 0.85,
       onSpeakingChange: (active) => events.push(active),
+      onTextChange: (text) => captions.push(text),
     }), true);
     assert.equal(spoken[0].rate, 0.85);
     assert.equal(spoken[0].pitch, 0.85);
-    assert.deepEqual(events, [true, false]);
+    assert.deepEqual(events, [true, false, true, false]);
+    assert.deepEqual(captions, ["첫 번째 안내입니다.", "두 번째 안내입니다."]);
     assert.equal(await speakScript("기본 안내입니다."), true);
     assert.equal(spoken[1].rate, 0.9);
     assert.equal(spoken[1].pitch, 1);

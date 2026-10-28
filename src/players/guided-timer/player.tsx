@@ -50,6 +50,7 @@ export default function GuidedTimerPlayer({ content, step, onFinish }: PlayerPro
   const speechAvailable = useBrowserValue(canSpeak, false);
   const finishRef = useRef(false);
   const mountedRef = useRef(true);
+  const speechRunRef = useRef(0);
   const endAtRef = useRef(0);
   const handledCuesRef = useRef(new Set<string>());
   const beepedRef = useRef(new Set<number>());
@@ -103,11 +104,18 @@ export default function GuidedTimerPlayer({ content, step, onFinish }: PlayerPro
 
   const read = useCallback(async (text: string | undefined): Promise<void> => {
     if (!text || !ttsAllowed || !speechAvailable) return;
-    setSpeaking(true);
+    const run = ++speechRunRef.current;
+    setSpeaking(false);
     try {
-      await speakScript(text);
+      await speakScript(text, {
+        rate: 0.85,
+        pitch: 0.85,
+        onSpeakingChange: (active) => {
+          if (mountedRef.current && run === speechRunRef.current) setSpeaking(active);
+        },
+      });
     } finally {
-      if (mountedRef.current) setSpeaking(false);
+      if (mountedRef.current && run === speechRunRef.current) setSpeaking(false);
     }
   }, [ttsAllowed, speechAvailable]);
 
@@ -181,12 +189,41 @@ export default function GuidedTimerPlayer({ content, step, onFinish }: PlayerPro
     <main className="mx-auto flex min-h-dvh w-full max-w-[480px] flex-1 flex-col items-center bg-page px-5 py-6 text-center">
       <p className="text-caption font-bold text-ink-muted">{title}</p>
       {timerVisible && (
-        <div className="relative my-8 flex h-56 w-56 items-center justify-center">
+        <div className="relative my-6 flex h-64 w-64 shrink-0 items-center justify-center">
+          {/* 발화 이벤트에 맞춘 장식 파형. 실제 음성 신호의 진폭 분석은 아니다. */}
           {speaking && (
-            <div
+            <svg
               aria-hidden="true"
-              className="absolute inset-0 animate-ping rounded-full border-2 border-indicator motion-reduce:animate-none"
-            />
+              viewBox="0 0 280 280"
+              className="pointer-events-none absolute inset-0 h-full w-full stroke-indicator motion-reduce:hidden"
+              fill="none"
+            >
+              {Array.from({ length: 72 }, (_, index) => {
+                const length = 9 + ((index * 17) % 23);
+                const middle = 5 + ((index * 11) % 14);
+                return (
+                  <line
+                    key={index}
+                    x1="140"
+                    y1="32"
+                    x2="140"
+                    y2={32 - length}
+                    transform={"rotate(" + index * 5 + " 140 140)"}
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    opacity={0.45 + (index % 4) * 0.15}
+                  >
+                    <animate
+                      attributeName="y2"
+                      values={[29, 32 - length, 32 - middle, 27, 32 - middle, 29].join(";")}
+                      dur={0.65 + (index % 7) * 0.09 + "s"}
+                      begin={-(index % 9) * 0.13 + "s"}
+                      repeatCount="indefinite"
+                    />
+                  </line>
+                );
+              })}
+            </svg>
           )}
           <div
             className="flex h-48 w-48 items-center justify-center rounded-full border border-indicator bg-primary-soft shadow-card"

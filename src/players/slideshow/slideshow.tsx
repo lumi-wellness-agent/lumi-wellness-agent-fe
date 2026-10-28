@@ -10,11 +10,12 @@
  *   <Slideshow slides={slides} index={slideIndex(elapsed, 15, slides.length)} transitionMs={800} />
  *
  * - 장면이 없으면(자산을 못 받았을 때) 은은한 배경과 안내를 보여 준다 — 활동은 끝까지 돈다.
+ *   이미지 서버가 막혀 불러오지 못한 장면(onError)도 같은 배경으로 바꾼다(깨진 그림 아이콘을 보이지 않는다).
  * - panZoom은 장면마다 아주 천천히 확대한다. 사용자가 '동작 줄이기'를 켰으면 하지 않는다.
  * - 다음 장면을 미리 불러 둔다(겹쳐 둔 img가 모두 로드된다).
  */
 
-import { useSyncExternalStore } from "react";
+import { useState, useSyncExternalStore } from "react";
 import type { Slide } from "./spec";
 
 export type { Slide } from "./spec";
@@ -33,6 +34,8 @@ type Props = {
   showCredit?: boolean;
   /** 장면이 없을 때 안내. */
   emptyText?: string;
+  /** 장면을 불러오지 못했을 때 안내. */
+  failedText?: string;
 };
 
 export function Slideshow({
@@ -44,19 +47,22 @@ export function Slideshow({
   fit = "cover",
   showCredit = true,
   emptyText = "사진을 준비하지 못했어요. 이 화면을 바라보며 천천히 쉬어 가세요.",
+  failedText = "이미지를 불러오지 못했어요. 이 화면을 바라보며 천천히 쉬어 가세요.",
 }: Props) {
   const reduceMotion = useReducedMotion();
+  const [failed, setFailed] = useState<ReadonlySet<string>>(new Set());
   const current = slides.length ? ((index % slides.length) + slides.length) % slides.length : -1;
   const zoom = panZoom && !reduceMotion;
 
   return (
     <figure className="flex flex-1 flex-col">
       <div className="relative min-h-[50dvh] flex-1 overflow-hidden rounded-card bg-surface-muted">
-        {current < 0 ? (
+        {current < 0 || failed.has(slides[current].url) ? (
           <div className="bg-progress absolute inset-0 flex items-center justify-center p-6">
-            <p className="max-w-[18rem] text-center break-keep text-ink">{emptyText}</p>
+            <p className="max-w-[18rem] text-center break-keep text-ink">{current < 0 ? emptyText : failedText}</p>
           </div>
-        ) : (
+        ) : null}
+        {current >= 0 && (
           slides.map((slide, i) => {
             const active = i === current;
             return (
@@ -67,6 +73,8 @@ export function Slideshow({
                 alt={active ? slide.alt : ""}
                 aria-hidden={!active}
                 loading={Math.abs(i - current) <= 1 ? "eager" : "lazy"}
+                onError={() => setFailed((prev) => new Set(prev).add(slide.url))}
+                hidden={failed.has(slide.url)}
                 className={`absolute inset-0 h-full w-full ${fit === "cover" ? "object-cover" : "object-contain"}`}
                 style={{
                   opacity: active ? 1 : 0,

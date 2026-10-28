@@ -231,7 +231,7 @@ export default function GuidedTimerPlayer({ content, step, onFinish }: PlayerPro
   const timerProgress = started && activitySeconds > 0
     ? Math.max(0, Math.min(1, remaining / activitySeconds))
     : 1;
-  const timerCircumference = 2 * Math.PI * 111;
+  const timerVisualScale = timerProgress === 0 ? 0 : 0.35 + timerProgress * 0.65;
   const instructions = caption ?? content.guide_text;
   const title = step.label || content.name;
   const timerVisible = timerSpec.visible_during_instruction !== false;
@@ -276,45 +276,21 @@ export default function GuidedTimerPlayer({ content, step, onFinish }: PlayerPro
               })}
             </svg>
           )}
-          <svg
-            aria-hidden="true"
-            viewBox="0 0 256 256"
-            className="pointer-events-none absolute inset-0 h-full w-full"
-            fill="none"
-          >
-            <defs>
-              <linearGradient id="timer-progress-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="var(--lumi-accent)" />
-                <stop offset="100%" stopColor="var(--lumi-indicator)" />
-              </linearGradient>
-            </defs>
-            <circle
-              cx="128"
-              cy="128"
-              r="111"
-              stroke="currentColor"
-              className="text-line"
-              strokeWidth="5"
-            />
-            <circle
-              cx="128"
-              cy="128"
-              r="111"
-              stroke="url(#timer-progress-gradient)"
-              strokeWidth="6"
-              strokeLinecap="round"
-              strokeDasharray={timerCircumference}
-              strokeDashoffset={timerCircumference * (1 - timerProgress)}
-              transform="rotate(-90 128 128)"
-              className="transition-[stroke-dashoffset] duration-1000 ease-linear motion-reduce:transition-none"
-            />
-          </svg>
           <div
-            className="flex h-48 w-48 items-center justify-center rounded-full border border-indicator bg-primary-soft shadow-card"
+            className="relative flex h-48 w-48 items-center justify-center overflow-hidden rounded-full border border-indicator bg-primary-soft shadow-card"
             role="timer"
             aria-label={"남은 시간 " + formatTime(timerLabel)}
           >
-            <time className="inline-flex items-center" dateTime={"PT" + timerLabel + "S"}>
+            <div
+              aria-hidden="true"
+              className="absolute inset-0 rounded-full bg-primary transition-transform duration-1000 ease-linear motion-reduce:transition-none"
+              style={{ transform: "scale(" + timerVisualScale + ")" }}
+            />
+            <time
+              className="relative inline-flex items-center text-on-primary transition-transform duration-1000 ease-linear motion-reduce:transition-none"
+              dateTime={"PT" + timerLabel + "S"}
+              style={{ transform: "scale(" + timerVisualScale + ")" }}
+            >
               <span className="sr-only">{formatTime(timerLabel)}</span>
               <DigitalClock value={formatTime(timerLabel)} />
             </time>

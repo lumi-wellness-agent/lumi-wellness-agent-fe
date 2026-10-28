@@ -53,9 +53,12 @@ def offline() -> None:
     settings = Settings(_env_file=None)
     blocked = httpx.MockTransport(lambda request: httpx.Response(503))
 
-    def resolve(protocol, request):
+    def resolve(protocol, request, **kwargs):
+        # prepare가 콘텐츠 Factor · 무작위 생성기(factors · rng)를 넘긴다 — 그대로 전달한다
         with httpx.Client(transport=blocked) as client:
-            return resolve_activity_assets(protocol, request, settings=settings, client=client)
+            return resolve_activity_assets(
+                protocol, request, settings=settings, client=client, **kwargs
+            )
 
     executor.resolve_activity_assets = resolve
 

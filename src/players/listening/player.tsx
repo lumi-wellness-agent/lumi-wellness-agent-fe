@@ -10,6 +10,8 @@
  * 시간: 계획한 시간(step.minutes)만큼 돈다. 소리가 그보다 짧으면 반복하고(무봉제 루프는 BE 선택 조건),
  *   끝나면 천천히 소리를 줄이고 "다음으로"를 누르면 onFinish({ completed: true }).
  * PR-05는 음악 후보가 여럿이면 먼저 한 곡을 고른다(단계 이름 "검수된 음악 후보 중 한 곡 선택해 듣기").
+ *   BE가 추천곡을 맨 앞에 두고 metadata.recommended · content_factor.reason을 단다 — "LUMI 추천" 배지와 이유를
+ *   보이되 고르는 것은 사용자다(E08: 목록에서 사용자가 고른 음악).
  * 소리를 불러오지 못하면 안내하고 시간은 그대로 돈다 — 그만두려면 호스트의 "그만하기".
  * 출처(CC BY 계열은 표기가 조건)를 아래에 보인다.
  */
@@ -18,7 +20,7 @@ import { useEffect, useRef, useState, type RefObject } from "react";
 import type { ActivityAsset } from "@/lib/api/types";
 import { assetUrl } from "@/lib/api/client";
 import { Button, Card } from "@/ui/controls";
-import { assetsOf, findSlot, num, renderOf, str } from "../slideshow/spec";
+import { assetsOf, factorOf, findSlot, num, renderOf, str } from "../slideshow/spec";
 import { formatClock, useActivityTimer } from "../slideshow/use-activity-timer";
 import type { PlayerProps } from "../types";
 import { DEFAULT_VOLUME, MAX_VOLUME, canSetVolume, creditOf, durationOf, fadeVolume } from "./media";
@@ -54,15 +56,25 @@ function MusicChoice({ tracks, onPick }: { tracks: ActivityAsset[]; onPick: (tra
         {tracks.map((track) => {
           const year = track.metadata.recording_year;
           const sub = [str(track.metadata.composer), typeof year === "number" ? `${year}년 녹음` : null].filter(Boolean).join(" · ");
+          const recommended = track.metadata.recommended === true;
+          const why = recommended ? factorOf(track)?.reason : undefined;
           return (
             <li key={track.url}>
               <button
                 type="button"
                 onClick={() => onPick(track)}
-                className="flex min-h-12 w-full flex-col items-start rounded-row border border-line-control bg-control px-4 py-3 text-left"
+                className={`flex min-h-12 w-full flex-col items-start rounded-row border bg-control px-4 py-3 text-left ${
+                  recommended ? "border-line-strong" : "border-line-control"
+                }`}
               >
+                {recommended && (
+                  <span className="mb-1 rounded-chip bg-primary-soft px-2 py-0.5 text-caption font-bold text-on-primary-soft">
+                    LUMI 추천
+                  </span>
+                )}
                 <span className="text-body break-keep text-ink">{track.title}</span>
                 {sub && <span className="text-caption break-keep text-ink-muted">{sub}</span>}
+                {why && <span className="mt-1 text-caption break-keep text-ink-muted">{why}</span>}
               </button>
             </li>
           );

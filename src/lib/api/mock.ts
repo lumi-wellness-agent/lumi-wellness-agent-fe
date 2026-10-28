@@ -2,8 +2,8 @@
  * 목업 BE: 세션 API와 같은 모양으로 src/fixtures 견본을 돌려준다. 로그인 · LLM · BE 없이 화면 흐름을 본다(/dev).
  *
  * 흐름은 BE 그래프와 같다 — 시작 → 시점 질문 → 사전 측정 → RUN → 사후 측정 → 평가·선택 →
- * 활동 변경·추가 세션이면 다음 활동, 종료면 종료 측정(S1 · S2, S3는 바로 끝). 측정 응답은 BE처럼
- * 빠진 도구·문항과 범위 밖 값을 422로 막는다. 상태는 sessionStorage에 둬서 새로고침해도 이어진다.
+ * 활동 변경·추가 세션이면 다음 활동, 종료면 모든 목표에서 SAM 종료 측정을 한다. 측정 응답은 BE처럼
+ * 필수 도구·문항과 범위 밖 값을 422로 막는다. 상태는 sessionStorage에 둬서 새로고침해도 이어진다.
  */
 
 import { intakeFixtures, loadConfirm, measureFixtures, runFixtures } from "@/fixtures";
@@ -22,8 +22,22 @@ const ROTATION: Record<Goal, string[]> = {
 };
 
 type MockConfig = { goal: Goal; protocolId?: string };
-type MockRound = { protocolId: string; minutes: number; completed: boolean; nextStep?: NextStep };
-type MockState = { config: MockConfig; queue: string[]; rounds: MockRound[]; view: SessionView };
+type MockRound = {
+  protocolId: string;
+  minutes: number;
+  completed: boolean;
+  nextStep?: NextStep;
+  deltas?: Record<string, number>;
+  improved?: boolean | null;
+};
+type MockState = {
+  config: MockConfig;
+  queue: string[];
+  rounds: MockRound[];
+  view: SessionView;
+  samStart?: Record<string, number>;
+  samLast?: Record<string, number>;
+};
 
 /** 목업 세션을 켠다. 다음 세션 시작부터 목업 BE를 쓴다(이 탭에서만). */
 export function enableMock(config: MockConfig): void {
@@ -64,7 +78,7 @@ export const mockApi: SessionApi = {
   async answer(sessionId, _body, handlers) {
     const state = expect(sessionId, "ASK");
     await emit(handlers, [{ node: "intake_ask" }, { node: "intake_read" }, { node: "intake_goal" }, { node: "intake_context" }, { node: "intake_finish" }]);
-    const payload = await measureFixtures[`pre-${state.config.goal}`]();
+    const payload = samOnly(await measureFixtures[`pre-${state.config.goal}`]());
     return save({ ...state, view: { session_id: sessionId, step: "MEASURE", node: "measure_pre", payload } });
   },
 
@@ -73,6 +87,8 @@ export const mockApi: SessionApi = {
     const payload = state.view.payload as MeasurePayload;
     check(payload, body);
     if (payload.measure === "PRE") {
+      const sam = body["INS-SAM"];
+      const started = { ...state, samStart: sam, samLast: sam };
       await emit(handlers, [
         { node: "measure_pre" },
         { node: "plan", step: "choose_activity" },
@@ -82,26 +98,43 @@ export const mockApi: SessionApi = {
         { node: "plan" },
         { node: "prepare" },
       ]);
-      return save(await runView(state));
+      return save(await runView(started));
     }
     if (payload.measure === "POST") {
       const confirm = await loadConfirm();
       const options: NextStep[] = state.rounds.length >= MAX_ROUNDS ? ["END"] : confirm.options;
       const completed = state.rounds[state.rounds.length - 1]?.completed ?? true;
+      const sam = body["INS-SAM"];
+      const before = state.samLast ?? sam;
+      const deltas = Object.fromEntries(
+        Object.entries(sam).filter(([key]) => before[key] !== undefined).map(([key, value]) => [key, value - before[key]]),
+      );
+      const improved =
+        state.config.goal === "S1" ? (deltas.valence ?? 0) > 0 :
+        state.config.goal === "S2" ? (deltas.arousal ?? 0) < 0 : null;
+      const rounds = state.rounds.map((round, i) =>
+        i === state.rounds.length - 1 ? { ...round, deltas, improved } : round,
+      );
+      const updated = { ...state, rounds, samLast: sam };
       const view: SessionView = {
         session_id: sessionId,
         step: "CONFIRM",
         node: "confirm",
         payload: {
-          evaluation: { ...confirm.evaluation, goal: state.config.goal, round: state.rounds.length, completed, improved: completed },
-          // replanner: 끝까지 못 하면 활동 변경, 나아지면 종료를 권한다
-          proposal: { ...confirm.proposal, recommended: completed ? "END" : "CHANGE_ACTIVITY", reason: completed ? "사전보다 나아졌다" : "활동을 끝까지 하지 못했다", options },
+          evaluation: { goal: state.config.goal, round: state.rounds.length, deltas, completed, improved },
+          // 실서비스와 같은 탐색 규칙: 미완료·변화 없음은 활동 변경, 개선 또는 기준 없음은 종료를 권한다.
+          proposal: {
+            ...confirm.proposal,
+            recommended: !completed ? "CHANGE_ACTIVITY" : improved === false ? "CHANGE_ACTIVITY" : "END",
+            reason: !completed ? "활동을 끝까지 하지 못했다" : improved === false ? "SAM 기분 지표가 개선 방향을 보이지 않았다(탐색 지표)" : improved === null ? "이 목표는 세션 내 판정 기준이 없다(목표 지표 —)" : "SAM 기분 지표가 개선 방향으로 변했다(탐색 지표)",
+            options,
+          },
           options,
         },
       };
-      return save({ ...state, view });
+      return save({ ...updated, view });
     }
-    return save({ ...state, view: endView(state) });
+    return save({ ...state, view: endView(state, body["INS-SAM"]) });
   },
 
   async report(sessionId, body) {
@@ -109,7 +142,7 @@ export const mockApi: SessionApi = {
     const run = state.view.payload as { plan: { activity: { protocol_id: string; minutes: number } } };
     const round = { protocolId: run.plan.activity.protocol_id, minutes: run.plan.activity.minutes, completed: body.completed };
     const key = state.config.goal === "S3" ? "post-S3" : "post-S1-S2";
-    const payload = { ...(await measureFixtures[key]()), round: state.rounds.length + 1 };
+    const payload = samOnly(await measureFixtures[key](), state.rounds.length + 1);
     return save({ ...state, rounds: [...state.rounds, round], view: { session_id: sessionId, step: "MEASURE", node: "measure_post", payload } });
   },
 
@@ -121,8 +154,7 @@ export const mockApi: SessionApi = {
       await emit(handlers, [{ node: "confirm" }, { node: "plan", step: "choose_activity" }, { node: "plan", step: "write_rationale" }, { node: "prepare" }]);
       return save(await runView(next, body.next_step === "CHANGE_ACTIVITY"));
     }
-    if (state.config.goal === "S3") return save({ ...next, view: endView(next) });
-    const payload = { ...(await measureFixtures[`final-${state.config.goal}`]()), round: rounds.length };
+    const payload = samOnly(await measureFixtures["final-S1"](), rounds.length);
     return save({ ...next, view: { session_id: sessionId, step: "MEASURE", node: "measure_final", payload } });
   },
 
@@ -137,9 +169,12 @@ async function runView(state: MockState, change = false): Promise<MockState> {
   return { ...state, queue, view: { session_id: state.view.session_id, step: "RUN", node: "run_session", payload } };
 }
 
-function endView(state: MockState): SessionView {
-  const scale = { S1: ["INS-BSRI", "mean", 62, 48], S2: ["INS-STAI6", "total", 53.33, 43.33], S3: ["INS-MFVAS", "fatigue", 70, 52] } as const;
-  const [instrument, key, pre, end] = scale[state.config.goal];
+function endView(state: MockState, finalSam?: Record<string, number>): SessionView {
+  const pre = state.samStart ?? { valence: 5, arousal: 5 };
+  const end = finalSam ?? state.samLast ?? pre;
+  const delta = Object.fromEntries(
+    Object.keys(pre).filter((key) => end[key] !== undefined).map((key) => [key, end[key] - pre[key]]),
+  );
   const payload: EndPayload = {
     reason: "DONE",
     goal: state.config.goal,
@@ -152,9 +187,16 @@ function endView(state: MockState): SessionView {
       improved: r.completed,
       next_step: r.nextStep ?? "END",
     })),
-    goal_scale: { instrument_id: instrument, pre: { [key]: pre }, end: { [key]: end }, delta: { [key]: end - pre } },
+    sam_change: { instrument_id: "INS-SAM", pre, end, delta },
   };
   return { session_id: state.view.session_id, step: "END", node: null, payload };
+}
+
+/** BE의 instrument filter와 같은 계약으로, 목업은 SAM 하나만 응답 대상으로 둔다. */
+function samOnly(payload: MeasurePayload, round = payload.round): MeasurePayload {
+  const instruments = payload.instruments.filter((instrument) => instrument.instrument_id === "INS-SAM");
+  if (instruments.length !== 1) throw new Error("측정 fixture에 INS-SAM이 하나 있어야 한다");
+  return { ...payload, round, instruments, required_instrument_ids: ["INS-SAM"] };
 }
 
 /** BE처럼 받은 도구 전부의 문항이 범위 안에 있어야 한다(app/api/sessions._check_measure). */

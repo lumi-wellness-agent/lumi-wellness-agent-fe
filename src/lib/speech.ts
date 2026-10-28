@@ -106,11 +106,13 @@ export type SpeechOptions = {
   pitch?: number;
   /** 실제 utterance 시작·종료. 문장 사이 무음에는 false다. 음량 분석 값은 아니다. */
   onSpeakingChange?: (speaking: boolean) => void;
+  /** 현재 음성으로 읽을 문장. TTS 자막에 사용한다. */
+  onTextChange?: (text: string) => void;
 };
 
 export async function speakScript(
   script: string,
-  { rate = 0.9, pitch = 1, onSpeakingChange }: SpeechOptions = {},
+  { rate = 0.9, pitch = 1, onSpeakingChange, onTextChange }: SpeechOptions = {},
 ): Promise<boolean> {
   if (!canSpeak()) return false;
   const synth = window.speechSynthesis;
@@ -123,6 +125,7 @@ export async function speakScript(
   for (const chunk of splitScript(script)) {
     for (;;) {
       if (mine !== generation || v >= voices.length) return false;
+      if (mine === generation) onTextChange?.(chunk.text);
       const result = await speakChunk(synth, chunk.text, voices[v], rate, pitch, (active) => {
         if (mine === generation) onSpeakingChange?.(active);
       });

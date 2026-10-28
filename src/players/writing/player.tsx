@@ -1,6 +1,6 @@
 "use client";
 /* eslint-disable react-hooks/set-state-in-effect */
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button, Card, Heading, Screen } from "@/ui/controls";
 import type { PlayerProps } from "../types";
 
@@ -15,7 +15,7 @@ function normalizedLength(text: string) { return text.replace(/\s+/g, " ").trim(
 export default function WritingPlayer({ onFinish }: PlayerProps) {
   const [draft, setDraft] = useState<Draft>({ status: "READY", text: "", elapsedSeconds: 0, startedAt: null, activityCompleted: false, refreshCount: 0 });
   const [now, setNow] = useState(() => Date.now());
-  const restored = useRef(false);
+  const [restored, setRestored] = useState(false);
   const length = useMemo(() => normalizedLength(draft.text), [draft.text]);
   const canComplete = length >= MINIMUM && !draft.activityCompleted;
 
@@ -23,7 +23,7 @@ export default function WritingPlayer({ onFinish }: PlayerProps) {
     try {
       const saved = JSON.parse(localStorage.getItem(KEY) ?? "null") as Partial<Draft> | null;
       if (saved) {
-        restored.current = true;
+        setRestored(true);
         setDraft({ status: saved.status === "WRITING" ? "PAUSED" : saved.status ?? "READY", text: saved.text ?? "", elapsedSeconds: saved.elapsedSeconds ?? 0, startedAt: saved.startedAt ?? null, activityCompleted: saved.activityCompleted ?? false, refreshCount: (saved.refreshCount ?? 0) + 1 });
       }
     } catch { localStorage.removeItem(KEY); }
@@ -66,7 +66,7 @@ export default function WritingPlayer({ onFinish }: PlayerProps) {
   return <Screen footer={<div className="flex gap-2"><Button variant="quiet" onClick={stop}>그만하기</Button><Button onClick={complete} disabled={!canComplete}>완료</Button></div>}>
     <Heading eyebrow="PR-18">마음 기록하기</Heading>
     <p className="text-ink-muted">떠오르는 생각과 느낌을 자유롭게 적어 보세요. 글의 내용이나 질을 평가하지 않습니다.</p>
-    {restored.current && <p className="mt-4 text-caption text-ink-muted">이전에 작성하던 내용을 복구했습니다. 글을 다시 입력하면 활동을 이어갑니다.</p>}
+    {restored && <p className="mt-4 text-caption text-ink-muted">이전에 작성하던 내용을 복구했습니다. 글을 다시 입력하면 활동을 이어갑니다.</p>}
     <Card className="mt-6"><label htmlFor="writing-text" className="font-semibold">기록 내용</label><textarea id="writing-text" className="mt-3 min-h-64 w-full resize-y rounded-button border border-line bg-page p-3" value={draft.text} maxLength={MAXIMUM} onChange={(event) => updateText(event.target.value)} placeholder="지금 떠오르는 생각이나 경험을 적어 보세요." /><div className="mt-2 flex justify-between text-caption text-ink-muted"><span>{length}/{MINIMUM}자</span><span>최대 {MAXIMUM}자</span></div>{length < MINIMUM && <p className="mt-2 text-caption text-ink-muted">300자 이상 작성하면 완료할 수 있습니다.</p>}</Card>
     <p className="mt-5 text-caption text-ink-muted">권장 시간은 약 15분이며, 시간은 완료 조건이 아닙니다.</p>
   </Screen>;

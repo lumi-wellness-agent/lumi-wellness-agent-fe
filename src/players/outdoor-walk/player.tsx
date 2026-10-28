@@ -1,12 +1,13 @@
 "use client";
+/* eslint-disable react-hooks/set-state-in-effect */
 import { useEffect,useState } from "react";
 import { Button,Card,Heading,Screen } from "@/ui/controls";
 import type { PlayerProps } from "../types";
 const T={title:"\uC57C\uC678 \uC790\uC5F0 \uBCF4\uD589",intro:"\uC548\uC804\uD55C \uC7A5\uC18C\uC5D0\uC11C \uBCF8\uC778\uC758 \uC0C1\uD0DC\uC5D0 \uB9DE\uAC8C \uAC78\uC5B4\uBCF4\uC138\uC694. GPS\uC640 \uAC78\uC74C \uC218\uB294 \uCE21\uC815\uD558\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4.",location:"GPS: \uC0AC\uC6A9 \uC548 \uD568 · \uAC78\uC74C \uC218: \uCE21\uC815\uD558\uC9C0 \uC54A\uC74C",safety:"\uD65C\uB3D9 \uC804 \uC548\uC804 \uD655\uC778",env:"\uD604\uC7AC \uC8FC\uBCC0 \uD658\uACBD\uACFC \uC774\uB3D9 \uACBD\uB85C\uAC00 \uC548\uC804\uD569\uB2C8\uB2E4.",body:"\uD604\uC7AC \uBAB8 \uC0C1\uD0DC\uB85C \uD65C\uB3D9\uC744 \uC9C4\uD589\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4.",start:"\uD65C\uB3D9 \uC2DC\uC791",pause:"\uC77C\uC2DC\uC815\uC9C0",resume:"\uC7AC\uAC1C",stop:"\uC548\uC804\uC0C1 \uC911\uB2E8",done:"\uC644\uB8CC",elapsed:"\uACBD\uACFC \uC2DC\uAC04",remaining:"\uB0A8\uC740 \uC2DC\uAC04",recommended:"\uAD8C\uC7A5 \uC2DC\uAC04"};
 type S={status:"READY"|"RUNNING"|"PAUSED";elapsed:number;checks:{env:boolean;body:boolean}}; const KEY="lumi.pr11.outdoor.v1";
 export default function OutdoorWalkPlayer({onFinish,step}:PlayerProps){
- const [s,setS]=useState<S>({status:"READY",elapsed:0,checks:{env:false,body:false}}); const [startedAt,setStartedAt]=useState<number|null>(null); const [now,setNow]=useState(Date.now()); const valid=s.checks.env&&s.checks.body; const targetSeconds=Math.max(60,Math.round(step.minutes*60)); const progress=Math.min(100,Math.round(s.elapsed/targetSeconds*100)); const fmt=(v:number)=>String(Math.floor(v/60)).padStart(2,"0")+":"+String(v%60).padStart(2,"0");
- useEffect(()=>{try{const r=localStorage.getItem(KEY);if(r){const x=JSON.parse(r) as S;setS({...x,status:x.status==="RUNNING"?"PAUSED":x.status});}}catch{localStorage.removeItem(KEY);}},[]);
+ const [s,setS]=useState<S>({status:"READY",elapsed:0,checks:{env:false,body:false}}); const [startedAt,setStartedAt]=useState<number|null>(null); const [now,setNow]=useState(()=>Date.now()); const valid=s.checks.env&&s.checks.body; const targetSeconds=Math.max(60,Math.round(step.minutes*60)); const progress=Math.min(100,Math.round(s.elapsed/targetSeconds*100)); const fmt=(v:number)=>String(Math.floor(v/60)).padStart(2,"0")+":"+String(v%60).padStart(2,"0");
+ useEffect(()=>{try{const r=localStorage.getItem(KEY);if(r){const x=JSON.parse(r) as S;setS({...x,status:x.status==="RUNNING"?"PAUSED":x.status});}}catch{localStorage.removeItem(KEY);}},[targetSeconds]);
  useEffect(()=>{if(s.status!=="RUNNING")return;const t=window.setInterval(()=>setNow(Date.now()),1000);return()=>window.clearInterval(t);},[s.status]);
  useEffect(()=>{if(s.status==="RUNNING"&&startedAt)setS(x=>({...x,elapsed:Math.min(targetSeconds,Math.floor((now-startedAt)/1000))}));},[now,s.status,startedAt]);
  useEffect(()=>{localStorage.setItem(KEY,JSON.stringify(s));},[s]);

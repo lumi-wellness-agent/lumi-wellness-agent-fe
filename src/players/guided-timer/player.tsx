@@ -90,6 +90,7 @@ export default function GuidedTimerPlayer({ content, step, onFinish }: PlayerPro
   const [started, setStarted] = useState(false);
   const [preparing, setPreparing] = useState(false);
   const [speaking, setSpeaking] = useState(false);
+  const [caption, setCaption] = useState<string | null>(null);
   const speechAvailable = useBrowserValue(canSpeak, false);
   const finishRef = useRef(false);
   const mountedRef = useRef(true);
@@ -155,6 +156,9 @@ export default function GuidedTimerPlayer({ content, step, onFinish }: PlayerPro
         pitch: 0.85,
         onSpeakingChange: (active) => {
           if (mountedRef.current && run === speechRunRef.current) setSpeaking(active);
+        },
+        onTextChange: (text) => {
+          if (mountedRef.current && run === speechRunRef.current) setCaption(text);
         },
       });
     } finally {
@@ -224,7 +228,7 @@ export default function GuidedTimerPlayer({ content, step, onFinish }: PlayerPro
   }
 
   const timerLabel = remaining === 0 && !started ? activitySeconds : remaining;
-  const instructions = content.guide_text;
+  const instructions = caption ?? content.guide_text;
   const title = step.label || content.name;
   const timerVisible = timerSpec.visible_during_instruction !== false;
 
@@ -281,7 +285,7 @@ export default function GuidedTimerPlayer({ content, step, onFinish }: PlayerPro
         </div>
       )}
       {instructions && (
-        <p className="max-w-prose whitespace-pre-line break-keep text-body leading-relaxed text-ink">
+        <p aria-live="polite" className="max-w-prose whitespace-pre-line break-keep text-body leading-relaxed text-ink">
           {instructions}
         </p>
       )}

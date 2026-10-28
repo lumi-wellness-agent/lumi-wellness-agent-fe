@@ -89,8 +89,10 @@ export type InstrumentItem = {
 };
 
 export type Instrument = {
-  instrument_id: string; // INS-SAM · INS-STAI6 · INS-BSRI · INS-MFVAS
+  instrument_id: string;
   name: string;
+  status?: "READY" | "PROVISIONAL" | "TODO";
+  enabled?: boolean;
   instruction: string | null;
   scale: { min: number; max: number; step: number; kind: ScaleKind };
   items: InstrumentItem[];
@@ -100,9 +102,10 @@ export type MeasurePayload = {
   measure: "PRE" | "POST" | "FINAL";
   round: number;
   instruments: Instrument[];
+  required_instrument_ids: string[];
 };
 
-/** 받은 도구 전부를 {instrument_id: {item_id: value}}로. 빠진 문항이나 범위 밖 값은 422다. */
+/** 필수 도구의 응답을 {instrument_id: {item_id: value}}로 보낸다. 빠진 문항이나 범위 밖 값은 422다. */
 export type MeasureAnswers = Record<string, Record<string, number>>;
 
 // ── RUN: 계획 · 콘텐츠 ──────────────────────────────────────────────────────────────────
@@ -297,8 +300,8 @@ export type EndPayload =
         improved: boolean | null;
         next_step: NextStep;
       }[];
-      goal_scale: {
-        instrument_id: string;
+      sam_change: {
+        instrument_id: "INS-SAM";
         pre: Record<string, number>;
         end: Record<string, number>;
         delta: Record<string, number>;

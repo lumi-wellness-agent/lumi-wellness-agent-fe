@@ -234,10 +234,9 @@ export default function GuidedTimerPlayer({ content, step, onFinish }: PlayerPro
   const visualIndex = started && visualUrls.length > 0 && visualSecondsEach > 0
     ? Math.min(visualUrls.length - 1, Math.floor((activitySeconds - remaining) / visualSecondsEach))
     : 0;
-  const visualBackground = visualUrls.length > 0 && started
-    ? "linear-gradient(color-mix(in srgb, var(--lumi-page) 72%, transparent), color-mix(in srgb, var(--lumi-page) 72%, transparent)), url("
-      + JSON.stringify(visualUrls[visualIndex])
-      + ")"
+  const photoMode = started && visual.slot === "VISUAL_STILL";
+  const visualBackground = visualUrls.length > 0
+    ? "url(" + JSON.stringify(visualUrls[visualIndex]) + ")"
     : undefined;
   const instructions = caption ?? content.guide_text;
   const title = step.label || content.name;
@@ -246,10 +245,30 @@ export default function GuidedTimerPlayer({ content, step, onFinish }: PlayerPro
   return (
     <main
       className="mx-auto flex min-h-dvh w-full max-w-[480px] flex-1 flex-col items-center bg-page px-5 py-6 text-center"
-      style={visualBackground ? { backgroundImage: visualBackground, backgroundSize: "cover", backgroundPosition: "center" } : undefined}
     >
       <p className="text-caption font-bold text-ink-muted">{title}</p>
-      {timerVisible && (
+      {photoMode ? (
+        <div
+          className="relative my-6 flex aspect-[4/3] w-full shrink-0 items-center justify-center overflow-hidden rounded-card bg-surface-muted bg-cover bg-center"
+          style={visualBackground ? { backgroundImage: visualBackground } : undefined}
+          role="img"
+          aria-label={visualBackground ? "자연 풍경 사진 " + (visualIndex + 1) : "자연 사진 준비 영역"}
+        >
+          {!visualBackground && (
+            <p className="px-5 text-caption text-ink-muted">자연 사진을 불러오지 못했어요.</p>
+          )}
+          <div
+            role="timer"
+            aria-label={"남은 시간 " + formatTime(timerLabel)}
+            className="absolute top-3 right-3 flex h-16 w-16 items-center justify-center rounded-full border border-indicator/50 bg-page/80 opacity-70"
+          >
+            <time className="absolute inline-flex scale-[0.45] items-center" dateTime={"PT" + timerLabel + "S"}>
+              <span className="sr-only">{formatTime(timerLabel)}</span>
+              <DigitalClock value={formatTime(timerLabel)} />
+            </time>
+          </div>
+        </div>
+      ) : timerVisible && (
         <div className="relative my-6 flex h-64 w-64 shrink-0 items-center justify-center">
           {/* 발화 이벤트에 맞춘 장식 파형. 실제 음성 신호의 진폭 분석은 아니다. */}
           {speaking && (

@@ -4,11 +4,10 @@
  * MEASURE — 받은 도구를 scale.kind(PICTORIAL · LIKERT · SLIDER)대로 그리고 {instrument_id: {item_id: value}}로 보낸다.
  * 담당 B(TEAM.md). 사전(measure_pre) · 사후 · 종료 측정이 이 화면 하나를 쓴다.
  *
- * - 목표별 도구 목록을 하드코딩하지 않는다. 사전은 SAM + 목표 척도, 라운드 사이는 SAM(S3는 + MFVAS),
- *   종료는 STAI-6 · BSRI이고, 도구가 늘어도 이 화면은 바뀌지 않는다.
- * - 슬라이더는 사용자가 건드린 문항만 답으로 센다. 처음 위치(가운데)를 그대로 보내지 않는다.
- * - PICTORIAL(SAM)은 아직 그림 없이 단계 슬라이더로 그린다. SAM 그림 컴포넌트는 이 폴더에 만든다.
- * - 문항 원문이 아직 없는 도구(text: null — STAI-6 · BSRI)는 문항 ID를 보여 준다.
+ * - 서버가 보낸 활성 도구만 그린다. 현재 MVP payload는 모든 목표·시점에서 SAM 하나다.
+ * - TODO 또는 비활성 도구는 payload에 실수로 포함돼도 표시하지 않고 응답도 요구하지 않는다.
+ * - 점수는 FE에서 계산하지 않는다. 필수 답을 {instrument_id: {item_id: value}}로 보낸다.
+ * - PICTORIAL(SAM)은 현재 1–9 단계 슬라이더로 표시한다. 그림 UI와 사용 권한은 후속 확인 대상이다.
  */
 
 import { useState } from "react";
@@ -31,8 +30,9 @@ export function MeasureScreen({
   onSubmit: (answers: MeasureAnswers) => void;
 }) {
   const [answers, setAnswers] = useState<MeasureAnswers>({});
-  const total = payload.instruments.reduce((n, i) => n + i.items.length, 0);
-  const answered = payload.instruments.reduce(
+  const instruments = payload.instruments.filter((i) => i.enabled !== false && i.status !== "TODO");
+  const total = instruments.reduce((n, i) => n + i.items.length, 0);
+  const answered = instruments.reduce(
     (n, i) => n + i.items.filter((item) => answers[i.instrument_id]?.[item.id] !== undefined).length,
     0,
   );
@@ -42,7 +42,7 @@ export function MeasureScreen({
   return (
     <Screen
       footer={
-        <Button onClick={() => onSubmit(answers)} disabled={busy || answered < total}>
+        <Button onClick={() => onSubmit(answers)} disabled={busy || total === 0 || answered < total}>
           다음 ({answered}/{total})
         </Button>
       }
@@ -51,7 +51,7 @@ export function MeasureScreen({
         {TITLES[payload.measure]}
       </Heading>
       <div className="flex flex-col gap-4">
-        {payload.instruments.map((instrument) => (
+        {instruments.map((instrument) => (
           <Card key={instrument.instrument_id}>
             <p className="text-caption text-ink-muted">{instrument.name}</p>
             {instrument.instruction && <p className="mt-1 mb-2 break-keep">{instrument.instruction}</p>}

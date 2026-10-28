@@ -10,11 +10,11 @@ import { canSpeak, cancelSpeech, speakScript } from "@/lib/speech";
 import { playTone } from "@/lib/tone";
 import { useBrowserValue } from "@/lib/use-browser-value";
 import { Button } from "@/ui/controls";
+import { normalizeCues } from "./schedule";
 import type { ContentSlot } from "@/lib/api/types";
 import type { ActivityResult, PlayerProps } from "../types";
 
 type JsonObject = Record<string, unknown>;
-type Cue = { remaining_seconds: number; script_id: string };
 
 function object(value: unknown): JsonObject {
   return value && typeof value === "object" && !Array.isArray(value) ? (value as JsonObject) : {};
@@ -26,16 +26,6 @@ function number(value: unknown, fallback: number): number {
 
 function strings(value: unknown): string[] {
   return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
-}
-
-function cues(value: unknown): Cue[] {
-  if (!Array.isArray(value)) return [];
-  return value.flatMap((item) => {
-    const cue = object(item);
-    return typeof cue.remaining_seconds === "number" && typeof cue.script_id === "string"
-      ? [{ remaining_seconds: cue.remaining_seconds, script_id: cue.script_id }]
-      : [];
-  });
 }
 
 function formatTime(seconds: number): string {
@@ -117,18 +107,13 @@ export default function GuidedTimerPlayer({ content, step, onFinish }: PlayerPro
     }
     return result;
   }, [scriptList]);
-  const beforeTimer = strings(render.before_timer);
-  const selectedScripts = object(guide.selection);
-  const introOrder =
-    beforeTimer.length > 0
-      ? beforeTimer
-      : strings(selectedScripts.script_ids).filter((id) => id === "guide.intro_text" || scriptById.has(id));
+  const introOrder = strings(render.before_timer);
   const activitySeconds = Math.max(
     0,
     Math.floor(number(timerSpec.initial_seconds, number(render.activity_seconds, step.minutes * 60))),
   );
-  const cueList = useMemo(() => cues(render.cues), [render]);
-  const cueByTime = useMemo(() => new Map(cueList.map((cue) => [cue.remaining_seconds, cue])), [cueList]);
+  const cueList = useMemo(() => normalizeCues(render.cues, activitySeconds), [render, activitySeconds]);
+  const cueByTime = useMemo(() => new Map(cueList.map((cue) => [cue.elapsed_seconds, cue])), [cueList]);
   const countdown = useMemo(() => {
     const config = object(render.countdown_sound);
     return new Set(
@@ -185,23 +170,24 @@ export default function GuidedTimerPlayer({ content, step, onFinish }: PlayerPro
         playTone();
       }
 
-      const cue = cueByTime.get(next);
+      const elapsed = activitySeconds - next;
+      const cue = cueByTime.get(elapsed);
       if (cue && !handledCuesRef.current.has(cue.script_id)) {
         handledCuesRef.current.add(cue.script_id);
         const text = scriptById.get(cue.script_id);
-        if (next === 0) {
+        if (elapsed === activitySeconds) {
           void read(text).finally(() => finishOnce({ completed: true }));
         } else if (text) {
           void read(text);
         }
       }
 
-      if (next === 0 && !cueByTime.has(0)) finishOnce({ completed: true });
+      if (elapsed === activitySeconds && !cueByTime.has(activitySeconds)) finishOnce({ completed: true });
     };
 
     const timer = window.setInterval(tick, 250);
     return () => window.clearInterval(timer);
-  }, [started, countdown, cueByTime, scriptById, read, finishOnce]);
+  }, [started, activitySeconds, countdown, cueByTime, scriptById, read, finishOnce]);
 
   async function start() {
     if (preparing || started || finishRef.current) return;

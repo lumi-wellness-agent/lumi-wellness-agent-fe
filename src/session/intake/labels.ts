@@ -10,8 +10,8 @@ export const SETTING_LABELS: Record<Setting, string> = {
   OUTDOOR: "밖에 나갈 수 있어요",
 };
 
-/** 쓸 수 있는 시간. 추천이 바뀌는 경계(BE intake.MINUTES_CHOICES) — 20은 20분 이상이다. */
-export const MINUTE_CHOICES = [5, 10, 20];
+/** 쓸 수 있는 시간. BE intake.MINUTES_CHOICES와 같다 — 3은 짧은 활동(미술 감상 1–2분 · 마음챙김 3분), 20은 20분 이상이다. */
+export const MINUTE_CHOICES = [3, 5, 10, 20];
 
 /** 질문 묶음의 머리말. 시점 질문(state · state_followup)은 질문 문장으로 충분해 비운다. */
 export const GROUP_LABELS: Record<string, string> = {

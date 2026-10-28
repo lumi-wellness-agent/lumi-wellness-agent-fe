@@ -6,6 +6,7 @@
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { assetUrl } from "@/lib/api/client";
 import { canSpeak, cancelSpeech, speakScript } from "@/lib/speech";
 import { playTone } from "@/lib/tone";
 import { useBrowserValue } from "@/lib/use-browser-value";
@@ -96,7 +97,15 @@ export default function GuidedTimerPlayer({ content, step, onFinish }: PlayerPro
   const timerSpec = useMemo(() => object(sessionUi.timer), [sessionUi]);
   const slots = useMemo(() => (spec.slots ?? []) as ContentSlot[], [spec]);
   const guide = useMemo(() => object(slots.find((slot) => slot.slot === "GUIDE_AUDIO")), [slots]);
+  const visual = useMemo(() => object(slots.find((slot) => slot.slot === "VISUAL_STILL")), [slots]);
   const render = useMemo(() => object(guide.render), [guide]);
+  const visualRender = useMemo(() => object(visual.render), [visual]);
+  const visualUrls = useMemo(() => {
+    const fromAssets = content.assets
+      .filter((asset) => asset.slot === "VISUAL_STILL")
+      .map((asset) => assetUrl(asset.url));
+    return fromAssets.length > 0 ? fromAssets : content.image_urls.map(assetUrl);
+  }, [content.assets, content.image_urls]);
   const policy = useMemo(() => object(guide.source_policy), [guide]);
   const scriptList = useMemo(() => Array.isArray(guide.scripts) ? guide.scripts : [], [guide]);
   const scriptById = useMemo(() => {
@@ -218,12 +227,27 @@ export default function GuidedTimerPlayer({ content, step, onFinish }: PlayerPro
     ? Math.max(0, Math.min(1, remaining / activitySeconds))
     : 1;
   const timerCircumference = 2 * Math.PI * 84;
+  const visualSecondsEach = number(
+    visual.seconds_each,
+    number(visualRender.seconds_each, activitySeconds / Math.max(1, visualUrls.length)),
+  );
+  const visualIndex = started && visualUrls.length > 0 && visualSecondsEach > 0
+    ? Math.min(visualUrls.length - 1, Math.floor((activitySeconds - remaining) / visualSecondsEach))
+    : 0;
+  const visualBackground = visualUrls.length > 0 && started
+    ? "linear-gradient(color-mix(in srgb, var(--lumi-page) 72%, transparent), color-mix(in srgb, var(--lumi-page) 72%, transparent)), url("
+      + JSON.stringify(visualUrls[visualIndex])
+      + ")"
+    : undefined;
   const instructions = caption ?? content.guide_text;
   const title = step.label || content.name;
   const timerVisible = timerSpec.visible_during_instruction !== false;
 
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-[480px] flex-1 flex-col items-center bg-page px-5 py-6 text-center">
+    <main
+      className="mx-auto flex min-h-dvh w-full max-w-[480px] flex-1 flex-col items-center bg-page px-5 py-6 text-center"
+      style={visualBackground ? { backgroundImage: visualBackground, backgroundSize: "cover", backgroundPosition: "center" } : undefined}
+    >
       <p className="text-caption font-bold text-ink-muted">{title}</p>
       {timerVisible && (
         <div className="relative my-6 flex h-64 w-64 shrink-0 items-center justify-center">

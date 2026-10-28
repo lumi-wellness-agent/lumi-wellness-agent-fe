@@ -19,8 +19,10 @@ export const PLAYERS = {
   pmr: { owner: "B", title: "점진적 근육 이완", protocols: ["PR-07"] },
   grounding: { owner: "B", title: "오감 그라운딩", protocols: ["PR-17"] },
   coloring: { owner: "C", title: "컬러링", protocols: ["PR-14", "PR-15"] },
-  writing: { owner: "C", title: "글쓰기", protocols: ["PR-18", "PR-19"] },
-  "outdoor-walk": { owner: "C", title: "야외 걷기", protocols: ["PR-11", "PR-12"] },
+  writing: { owner: "C", title: "글쓰기", protocols: ["PR-18"] },
+  "daily-journal": { owner: "C", title: "좋은 일 기록", protocols: ["PR-19"] },
+  "outdoor-walk": { owner: "C", title: "야외 걷기", protocols: ["PR-11"] },
+  "outdoor-walk-noticing": { owner: "C", title: "자연 속 걷기 + 알아차림", protocols: ["PR-12"] },
 } as const satisfies Record<string, { owner: Owner; title: string; protocols: readonly string[] }>;
 
 export type PlayerKey = keyof typeof PLAYERS;

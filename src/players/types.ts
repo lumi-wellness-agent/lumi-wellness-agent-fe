@@ -13,7 +13,7 @@ export type PlayerProps = {
   onFinish: (result: ActivityResult) => void;
 };
 
-export type ActivityResult = { completed: true } | { completed: false; stoppedReason: string };
+export type ActivityResult = { completed: true; noticeWords?: string[] } | { completed: false; stoppedReason: string };
 
 /** 활동 노드 묶음 담당(TEAM.md). BE 활동 노드 JSON과 같은 사람이 맡는다. */
 export type Owner = "A" | "B" | "C";

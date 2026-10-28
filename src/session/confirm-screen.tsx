@@ -24,10 +24,10 @@ export function ConfirmScreen({
   const headline = !evaluation.completed
     ? "이번 활동은 여기까지 했어요"
     : evaluation.improved
-      ? "활동 전보다 나아졌어요"
+      ? "SAM 기분 지표가 개선 방향으로 바뀌었어요"
       : evaluation.improved === false
-        ? "이번에는 큰 변화가 없었어요"
-        : "활동을 마쳤어요";
+        ? "SAM 기분 지표가 개선 방향을 보이지 않았어요"
+        : "SAM으로는 목표 변화를 판정할 수 없어요";
 
   return (
     <Screen
@@ -49,6 +49,9 @@ export function ConfirmScreen({
           ))}
         </ul>
       </Card>
+      <p className="mt-3 break-keep text-caption text-ink-muted">
+        SAM 기분 변화 참고값이에요. 목표 증상이나 임상 효과를 직접 측정한 결과는 아니에요.
+      </p>
       <p className="mt-4 break-keep text-ink-muted">LUMI의 제안: {NEXT_STEP_LABELS[proposal.recommended]}</p>
     </Screen>
   );

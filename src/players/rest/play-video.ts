@@ -11,7 +11,6 @@ export function playVideo(
   attempts.set(video, attempt);
   return new Promise((resolve, reject) => {
     let settled = false;
-    let timer: ReturnType<typeof setTimeout> | undefined;
     const finish = (error?: Error) => {
       if (settled) return;
       settled = true;
@@ -23,9 +22,9 @@ export function playVideo(
       } else resolve();
     };
     const abort = () => finish(new Error("VIDEO_START_CANCELLED"));
+    const timer = setTimeout(() => finish(new Error("VIDEO_START_TIMEOUT")), timeoutMs);
     if (signal.aborted) { abort(); return; }
     signal.addEventListener("abort", abort, { once: true });
-    timer = setTimeout(() => finish(new Error("VIDEO_START_TIMEOUT")), timeoutMs);
     video.muted = true;
     try {
       // 버튼을 누른 호출 스택에서 바로 실행해 모바일의 사용자 동작 조건을 지킨다.

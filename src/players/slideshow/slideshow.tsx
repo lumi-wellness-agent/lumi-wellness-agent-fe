@@ -28,7 +28,11 @@ type Props = {
   /** 장면마다 천천히 확대할지와 한 장면의 길이(초) — 확대 속도에 쓴다. */
   panZoom?: boolean;
   secondsEach?: number;
-  /** cover = 화면을 채운다(풍경 사진), contain = 잘리지 않게 다 보인다(미술 작품). */
+  /**
+   * cover = 풍경 사진 — 사진은 잘리지 않게 전체를 보이고, 남는 위아래는 같은 사진을 흐리게 깔아 칸을 채운다
+   *   (세로 화면에서 가로 사진을 꽉 채우면 양옆이 잘려 명세의 "열린 조망"이 사라진다 — P03).
+   * contain = 미술 작품 — 전체를 보이고 배경은 비운다(작품 주변에 다른 색을 깔지 않는다).
+   */
   fit?: "cover" | "contain";
   /** 아래 작은 글씨로 작가 · 출처를 보일지. */
   showCredit?: boolean;
@@ -71,28 +75,39 @@ export function Slideshow({
         {current >= 0 && (
           slides.map((slide, i) => {
             const active = i === current;
+            const near = Math.abs(i - current) <= 1;
             return (
-              // eslint-disable-next-line @next/next/no-img-element -- 외부 공급자 주소라 next/image 최적화를 쓰지 않는다
-              <img
+              <div
                 key={`${slide.url}-${i}`}
-                src={slide.url}
-                alt={active ? slide.alt : ""}
                 aria-hidden={!active}
-                loading={Math.abs(i - current) <= 1 ? "eager" : "lazy"}
-                onError={() => setFailed((prev) => new Set(prev).add(slide.url))}
                 hidden={failed.has(slide.url)}
-                className={`absolute inset-0 h-full w-full ${fit === "cover" ? "object-cover" : "object-contain"}`}
-                style={{
-                  opacity: active ? 1 : 0,
-                  transform: zoom && active ? "scale(1.08)" : "scale(1)",
-                  transition: [
-                    `opacity ${reduceMotion ? 0 : transitionMs}ms ease-in-out`,
-                    zoom ? `transform ${active ? secondsEach : 0}s linear` : "",
-                  ]
-                    .filter(Boolean)
-                    .join(", "),
-                }}
-              />
+                className="absolute inset-0"
+                style={{ opacity: active ? 1 : 0, transition: `opacity ${reduceMotion ? 0 : transitionMs}ms ease-in-out` }}
+              >
+                {fit === "cover" && near && (
+                  // 칸을 채우는 흐린 배경 — 같은 사진을 크게 흐린다. 장식이라 읽지 않는다
+                  // eslint-disable-next-line @next/next/no-img-element -- 외부 공급자 주소라 next/image 최적화를 쓰지 않는다
+                  <img
+                    src={slide.url}
+                    alt=""
+                    aria-hidden
+                    className="absolute inset-0 h-full w-full scale-110 object-cover opacity-60"
+                    style={{ filter: "blur(24px)" }}
+                  />
+                )}
+                {/* eslint-disable-next-line @next/next/no-img-element -- 외부 공급자 주소라 next/image 최적화를 쓰지 않는다 */}
+                <img
+                  src={slide.url}
+                  alt={active ? slide.alt : ""}
+                  loading={near ? "eager" : "lazy"}
+                  onError={() => setFailed((prev) => new Set(prev).add(slide.url))}
+                  className="absolute inset-0 h-full w-full object-contain"
+                  style={{
+                    transform: zoom && active ? "scale(1.08)" : "scale(1)",
+                    transition: zoom ? `transform ${active ? secondsEach : 0}s linear` : undefined,
+                  }}
+                />
+              </div>
             );
           })
         )}

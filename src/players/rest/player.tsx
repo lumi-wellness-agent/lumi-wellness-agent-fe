@@ -5,9 +5,9 @@ import { assetUrl } from "@/lib/api/client";
 import { cancelSpeech, canSpeak, loadVoices, speakScript, splitScript, unlockSpeech } from "@/lib/speech";
 import { Button } from "@/ui/controls";
 import type { PlayerProps } from "../types";
-import { clock, cueAt, parseRest } from "./spec";
+import { cueAt, parseRest } from "./spec";
 import { playVideo } from "./play-video";
-import { NatureTimer } from "./nature-timer";
+import { NatureTimer, VideoTimer } from "./nature-timer";
 
 export default function RestPlayer({ content, onFinish }: PlayerProps) {
   const spec = useMemo(() => parseRest(content.content_spec), [content.content_spec]);
@@ -180,11 +180,7 @@ export default function RestPlayer({ content, onFinish }: PlayerProps) {
         {!mode?.video && (
           <NatureTimer remaining={spec.seconds - elapsed} total={spec.seconds} speaking={speaking} />
         )}
-        {mode?.video && (
-          <div className="absolute top-3 right-3 rounded-chip bg-page/80 px-3 py-2 opacity-70">
-            <span className="text-caption text-ink tabular-nums" aria-label="남은 시간">{clock(spec.seconds - elapsed)}</span>
-          </div>
-        )}
+        {mode?.video && <VideoTimer remaining={spec.seconds - elapsed} />}
       </div>
       <div className="min-h-24 rounded-card bg-surface p-4">
         <p className="text-body break-keep whitespace-pre-line text-ink">{caption || content.guide_text}</p>

@@ -101,7 +101,19 @@ export function cancelSpeech(): void {
  * 대본 하나를 끝까지 읽는다. 읽던 대본이 있으면 멈추고 새로 읽는다 — 대본끼리 겹치지 않는다.
  * 다 읽으면 true, 중간에 멈췄거나 읽을 음성이 없으면 false.
  */
-export async function speakScript(script: string, { rate = 0.9 } = {}): Promise<boolean> {
+export type SpeechOptions = {
+  rate?: number;
+  pitch?: number;
+  /** 실제 utterance 시작·종료. 문장 사이 무음에는 false다. 음량 분석 값은 아니다. */
+  onSpeakingChange?: (speaking: boolean) => void;
+  /** 현재 음성으로 읽을 문장. TTS 자막에 사용한다. */
+  onTextChange?: (text: string) => void;
+};
+
+export async function speakScript(
+  script: string,
+  { rate = 0.9, pitch = 1, onSpeakingChange, onTextChange }: SpeechOptions = {},
+): Promise<boolean> {
   if (!canSpeak()) return false;
   const synth = window.speechSynthesis;
   const busy = synth.speaking || synth.pending;
@@ -113,7 +125,10 @@ export async function speakScript(script: string, { rate = 0.9 } = {}): Promise<
   for (const chunk of splitScript(script)) {
     for (;;) {
       if (mine !== generation || v >= voices.length) return false;
-      const result = await speakChunk(synth, chunk.text, voices[v], rate);
+      if (mine === generation) onTextChange?.(chunk.text);
+      const result = await speakChunk(synth, chunk.text, voices[v], rate, pitch, (active) => {
+        if (mine === generation) onSpeakingChange?.(active);
+      });
       if (result === "end") break;
       if (result === "stopped") return false;
       v += 1; // 오류 — 다음 음성으로 같은 문장을 다시 읽는다
@@ -130,22 +145,27 @@ function speakChunk(
   text: string,
   voice: SpeechSynthesisVoice,
   rate: number,
+  pitch: number,
+  onSpeakingChange: (speaking: boolean) => void,
 ): Promise<ChunkResult> {
   return new Promise((resolve) => {
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.voice = voice;
     utterance.lang = voice.lang;
     utterance.rate = rate;
+    utterance.pitch = pitch;
     let settled = false;
     const finish = (result: ChunkResult) => {
       if (settled) return;
       settled = true;
       clearTimeout(watchdog);
       speaking.delete(utterance);
+      onSpeakingChange(false);
       resolve(result);
     };
     // onend가 오지 않는 브라우저 버그에 대비한 상한. 한국어는 1초에 6~7자쯤 읽는다
     const watchdog = setTimeout(() => finish("end"), 5000 + (text.length * 300) / rate);
+    utterance.onstart = () => onSpeakingChange(true);
     utterance.onend = () => finish("end");
     utterance.onerror = (event) =>
       finish(event.error === "interrupted" || event.error === "canceled" ? "stopped" : "error");

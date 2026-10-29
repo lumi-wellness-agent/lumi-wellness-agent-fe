@@ -2,7 +2,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { PARAGRAPH_PAUSE_MS, SENTENCE_PAUSE_MS, rankKoreanVoices, splitScript } from "./speech.ts";
+import { PARAGRAPH_PAUSE_MS, SENTENCE_PAUSE_MS, rankKoreanVoices, speakScript, splitScript } from "./speech.ts";
 
 const voice = (name, lang = "ko-KR") => ({ name, lang });
 const names = (voices) => voices.map((v) => v.name);
@@ -46,4 +46,51 @@ test("문단 안의 줄바꿈은 공백으로 보고 0.5초 같은 숫자에서�
     ["코로 들이쉬세요.", "입으로 0.5초 내쉬세요."],
   );
   assert.equal(chunks.at(-1).pauseMs, 0);
+});
+
+
+test("음성 기본값은 유지하고 낮은 피치 설정과 실제 발화 시작·종료를 전달한다", async () => {
+  const oldWindow = globalThis.window;
+  const oldUtterance = globalThis.SpeechSynthesisUtterance;
+  const spoken = [];
+  const events = [];
+  const captions = [];
+  globalThis.SpeechSynthesisUtterance = class {
+    constructor(text) { this.text = text; }
+  };
+  globalThis.window = {
+    speechSynthesis: {
+      speaking: false,
+      pending: false,
+      cancel() {},
+      getVoices: () => [voice("Google 한국의")],
+      speak(utterance) {
+        spoken.push(utterance);
+        queueMicrotask(() => {
+          utterance.onstart?.();
+          utterance.onend?.();
+        });
+      },
+    },
+  };
+  try {
+    assert.equal(await speakScript("첫 번째 안내입니다. 두 번째 안내입니다.", {
+      rate: 0.85,
+      pitch: 0.85,
+      onSpeakingChange: (active) => events.push(active),
+      onTextChange: (text) => captions.push(text),
+    }), true);
+    assert.equal(spoken[0].rate, 0.85);
+    assert.equal(spoken[0].pitch, 0.85);
+    assert.deepEqual(events, [true, false, true, false]);
+    assert.deepEqual(captions, ["첫 번째 안내입니다.", "두 번째 안내입니다."]);
+    assert.equal(await speakScript("기본 안내입니다."), true);
+    assert.equal(spoken[2].rate, 0.9);
+    assert.equal(spoken[2].pitch, 1);
+  } finally {
+    if (oldWindow === undefined) delete globalThis.window;
+    else globalThis.window = oldWindow;
+    if (oldUtterance === undefined) delete globalThis.SpeechSynthesisUtterance;
+    else globalThis.SpeechSynthesisUtterance = oldUtterance;
+  }
 });

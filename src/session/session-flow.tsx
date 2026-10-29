@@ -87,6 +87,7 @@ function StepScreen({ session }: { session: Session }) {
       return (
         <RunScreen
           key={`${view.payload.content.protocol_id}-${view.payload.plan.activity.evidence_record_ids.join(",")}`}
+          sessionId={view.session_id}
           payload={view.payload}
           busy={busy}
           onReport={session.report}

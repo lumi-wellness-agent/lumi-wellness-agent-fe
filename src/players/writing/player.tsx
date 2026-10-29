@@ -64,10 +64,10 @@ export default function WritingPlayer({ onFinish }: PlayerProps) {
   const stop = () => { localStorage.removeItem(KEY); setDraft((current) => ({ ...current, status: "STOPPED" })); onFinish({ completed: false, stoppedReason: "WRITING_STOPPED" }); };
 
   return <Screen footer={<div className="flex gap-2"><Button variant="quiet" onClick={stop}>그만하기</Button><Button onClick={complete} disabled={!canComplete}>완료</Button></div>}>
-    <Heading eyebrow="PR-18">마음 기록하기</Heading>
-    <p className="text-ink-muted">떠오르는 생각과 느낌을 자유롭게 적어 보세요. 글의 내용이나 질을 평가하지 않습니다.</p>
+    <Heading eyebrow="PR-18">강렬한 긍정 경험 글쓰기</Heading>
+    <p className="text-ink-muted">살면서 가장 멋졌던 경험이나 가장 행복했던 순간을 하나 골라 보세요. 그 순간의 느낌과 생각, 감정을 떠올리며 경험을 되도록 자세히 적어 보세요.</p>
     {restored && <p className="mt-4 text-caption text-ink-muted">이전에 작성하던 내용을 복구했습니다. 글을 다시 입력하면 활동을 이어갑니다.</p>}
-    <Card className="mt-6"><label htmlFor="writing-text" className="font-semibold">기록 내용</label><textarea id="writing-text" className="mt-3 min-h-64 w-full resize-y rounded-button border border-line bg-page p-3" value={draft.text} maxLength={MAXIMUM} onChange={(event) => updateText(event.target.value)} placeholder="지금 떠오르는 생각이나 경험을 적어 보세요." /><div className="mt-2 flex justify-between text-caption text-ink-muted"><span>{length}/{MINIMUM}자</span><span>최대 {MAXIMUM}자</span></div>{length < MINIMUM && <p className="mt-2 text-caption text-ink-muted">300자 이상 작성하면 완료할 수 있습니다.</p>}</Card>
+    <Card className="mt-6"><label htmlFor="writing-text" className="font-semibold">경험 기록</label><textarea id="writing-text" className="mt-3 min-h-64 w-full resize-y rounded-button border border-line bg-page p-3" value={draft.text} maxLength={MAXIMUM} onChange={(event) => updateText(event.target.value)} placeholder="그때 들었던 느낌과 생각, 감정을 담아 자세히 적어 보세요." /><div className="mt-2 flex justify-between text-caption text-ink-muted"><span>현재 {length}자</span><span>최대 {MAXIMUM}자</span></div><p className="mt-2 text-caption text-ink-muted">{length >= MINIMUM ? "최소 300자 충족 · 완료할 수 있어요." : "최소 300자 이상 작성하면 완료할 수 있어요."}</p></Card>
     <p className="mt-5 text-caption text-ink-muted">권장 시간은 약 15분이며, 시간은 완료 조건이 아닙니다.</p>
   </Screen>;
 }

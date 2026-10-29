@@ -4,7 +4,6 @@ import argparse
 import json
 import os
 from pathlib import Path
-import random
 import shutil
 import subprocess
 import sys
@@ -34,8 +33,7 @@ source = subprocess.run(
 ).stdout
 protocol = json.loads(source)
 slot = next(s for s in protocol["content_spec"]["slots"] if s["slot"] == "VISUAL_VIDEO")
-ids = list(slot["selection"]["candidate_video_ids"])
-random.SystemRandom().shuffle(ids)
+ids = [int(slot["selection"]["fixed_video_id"])]
 asset = None
 with httpx.Client(timeout=30) as client:
     for video_id in ids:

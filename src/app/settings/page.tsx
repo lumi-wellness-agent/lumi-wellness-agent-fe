@@ -11,7 +11,7 @@ import { meApi } from "@/lib/api/client";
 import { signOut, viewer, type Viewer } from "@/lib/auth";
 import { LIGHT_KEYS, pickLight, type Light } from "@/lib/light";
 import { useBrowserValue } from "@/lib/use-browser-value";
-import { Button, ButtonLink, Card, Chip, Heading, Screen } from "@/ui/controls";
+import { Button, Card, Chip, Heading, Screen } from "@/ui/controls";
 
 const LIGHT_CHOICES: { value: Light | null; label: string }[] = [
   { value: null, label: "시간대 따라" },
@@ -45,13 +45,7 @@ export default function SettingsPage() {
   };
 
   return (
-    <Screen
-      footer={
-        <ButtonLink href="/" variant="secondary">
-          처음으로
-        </ButtonLink>
-      }
-    >
+    <Screen tabBar>
       <Heading>설정</Heading>
       <Card>
         <p className="mb-2 font-bold">화면 색</p>

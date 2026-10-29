@@ -68,16 +68,15 @@ export default function GroundingPlayer({ content, onFinish }: PlayerProps) {
   }, [spec]);
 
   useEffect(() => {
-    if (!spec || state.phase === "ready") return;
+    if (!spec) return;
     const mine = ++run.current;
     cancelSpeech();
     const stage = spec.stages[state.index];
-    const text = state.phase === "intro" ? spec.intro : state.phase === "end" ? spec.end
+    const text = state.phase === "end" ? spec.end
       : [stage.text, stage.exampleText].filter(Boolean).join("\n\n");
     void read(text, mine).then((ok) => {
       if (!mounted.current || mine !== run.current) return;
-      if (state.phase === "intro") dispatch({ type: "INTRO_DONE" });
-      else if (state.phase === "end" && ok) finish();
+      if (state.phase === "end" && ok) finish();
     });
     return () => { run.current++; cancelSpeech(); };
   }, [spec, state.phase, state.index, read, replay, finish]);
@@ -92,16 +91,7 @@ export default function GroundingPlayer({ content, onFinish }: PlayerProps) {
   return (
     <div className="mx-auto flex w-full max-w-[480px] flex-1 flex-col gap-4 px-5 py-5">
       <h2 className="font-display text-title break-keep text-ink">{content.name}</h2>
-      {state.phase === "ready" ? (
-        <>
-          <p className="text-body break-keep whitespace-pre-line text-ink">{spec.intro}</p>
-          <div className="flex justify-center gap-3 py-8" aria-label="감각 순서">
-            {spec.stages.map((s) => <span key={s.id} className="flex h-12 w-12 items-center justify-center rounded-full bg-primary-soft text-body text-on-primary-soft">{s.count}</span>)}
-          </div>
-          <Button onClick={() => { unlockSpeech(); dispatch({ type: "START" }); }}>시작하기</Button>
-        </>
-      ) : (
-        <>
+      <>
           {state.phase === "active" && (
             <>
               <ol className="flex justify-center gap-3" aria-label="감각 단계 진행">
@@ -122,11 +112,10 @@ export default function GroundingPlayer({ content, onFinish }: PlayerProps) {
             </>
           )}
           <p className="min-h-24 text-body break-keep whitespace-pre-line text-ink">
-            {caption || (state.phase === "end" ? spec.end : spec.intro)}
+            {caption || (state.phase === "end" ? spec.end : stage.text)}
           </p>
           {silent && <p className="text-caption text-ink-muted">음성을 사용할 수 없어 글로 안내하고 있어요. 자신의 속도로 진행해 주세요.</p>}
           <div className="mt-auto flex flex-col gap-2 pt-4 pb-[env(safe-area-inset-bottom)]">
-            {state.phase === "intro" && <Button onClick={() => dispatch({ type: "INTRO_DONE" })}>첫 감각으로</Button>}
             {state.phase === "active" && (
               <>
                 <Button onClick={() => dispatch({ type: "NEXT", total: spec.stages.length })}>
@@ -143,8 +132,7 @@ export default function GroundingPlayer({ content, onFinish }: PlayerProps) {
               </>
             )}
           </div>
-        </>
-      )}
+      </>
     </div>
   );
 }

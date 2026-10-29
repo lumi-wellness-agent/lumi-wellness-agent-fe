@@ -53,6 +53,7 @@
 ## 구조
 
 ```text
+/ · /records · /settings   탭 화면 — 아래 탭 바(src/ui/tab-bar.tsx)로 오간다. 세션 · 동의 · 로그인 화면에는 탭 바가 없다
 /            시작 화면 — 입력 칸 · 환경 칩(intake/start-input.tsx, A) + 로그인 · 시작(start-form.tsx, 통합)
   ↓ POST /sessions (SSE)                       로그인하지 않으면 게스트(익명 로그인), 회원은 처음 한 번 /consent
 /session     응답의 step으로 화면을 고른다 — src/session/session-flow.tsx
@@ -63,6 +64,7 @@
   CONFIRM    confirm-screen.tsx           전후 비교 · 다음 단계(종료 · 활동 변경 · 추가 세션)      → POST decision (SSE)
   END        end-screen.tsx               세션 요약. SAFETY면 intake/safety-screen.tsx(A)의 도움 안내
   STALLED    session-flow.tsx             "이어서 하기"                                         → POST retry (SSE)
+/records     회원 활동 기록 — 세션별 활동 · 시간 · 끝까지 했는지 · 나아졌는지                → GET /me/sessions
 /settings    화면 색 · 로그아웃 · 탈퇴
 /dev         목업 세션 · 화면 미리보기(/dev/screens) · 플레이어 미리보기(/dev/players) — 개발용, 운영 배포는 404
 ```

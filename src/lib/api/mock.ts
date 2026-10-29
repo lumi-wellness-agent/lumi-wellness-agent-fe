@@ -4,14 +4,28 @@
  * 흐름은 BE 그래프와 같다 — 시작 → 시점 질문 → 사전 측정 → RUN → 사후 측정 → 평가·선택 →
  * 활동 변경·추가 세션이면 다음 활동, 종료면 종료 측정(S1 · S2, S3는 바로 끝). 측정 응답은 BE처럼
  * 빠진 도구·문항과 범위 밖 값을 422로 막는다. 상태는 sessionStorage에 둬서 새로고침해도 이어진다.
+ * 끝낸 세션은 활동 기록(GET /me/sessions)의 목업으로 남아 기록 탭에 보인다.
  */
 
 import { intakeFixtures, loadConfirm, measureFixtures, runFixtures } from "@/fixtures";
 import { ApiError, type SessionApi, type StreamHandlers } from "./client";
-import type { EndPayload, Goal, MeasureAnswers, MeasurePayload, NextStep, ProgressEvent, SessionView } from "./types";
+import type {
+  EndPayload,
+  Goal,
+  GoalScaleChange,
+  MeasureAnswers,
+  MeasurePayload,
+  NextStep,
+  ProgressEvent,
+  RoundSummary,
+  RunPayload,
+  SessionHistory,
+  SessionView,
+} from "./types";
 
 const CONFIG_KEY = "lumi:mock";
 const STATE_KEY = "lumi:mock-state";
+const HISTORY_KEY = "lumi:mock-history";
 const MAX_ROUNDS = 3;
 
 /** 목표마다 도는 활동 순서 — 첫 활동은 실제 plan 실측(S1 PR-09 · S2 PR-06 · S3 PR-01)과 같다. */
@@ -22,8 +36,8 @@ const ROTATION: Record<Goal, string[]> = {
 };
 
 type MockConfig = { goal: Goal; protocolId?: string };
-type MockRound = { protocolId: string; minutes: number; completed: boolean; nextStep?: NextStep };
-type MockState = { config: MockConfig; queue: string[]; rounds: MockRound[]; view: SessionView };
+type MockRound = { protocolId: string; name: string; minutes: number; completed: boolean; nextStep?: NextStep };
+type MockState = { config: MockConfig; queue: string[]; rounds: MockRound[]; startedAt: string; view: SessionView };
 
 /** 목업 세션을 켠다. 다음 세션 시작부터 목업 BE를 쓴다(이 탭에서만). */
 export function enableMock(config: MockConfig): void {
@@ -34,6 +48,7 @@ export function enableMock(config: MockConfig): void {
 export function disableMock(): void {
   sessionStorage.removeItem(CONFIG_KEY);
   sessionStorage.removeItem(STATE_KEY);
+  sessionStorage.removeItem(HISTORY_KEY);
 }
 
 export function mockEnabled(): boolean {
@@ -41,6 +56,16 @@ export function mockEnabled(): boolean {
     return sessionStorage.getItem(CONFIG_KEY) !== null;
   } catch {
     return false;
+  }
+}
+
+/** 이 탭에서 끝낸 목업 세션 — 활동 기록(GET /me/sessions)의 목업이고, 최근 것부터다. */
+export function mockHistory(): SessionHistory[] {
+  try {
+    const raw = sessionStorage.getItem(HISTORY_KEY);
+    return raw ? (JSON.parse(raw) as SessionHistory[]) : [];
+  } catch {
+    return [];
   }
 }
 
@@ -54,7 +79,8 @@ export const mockApi: SessionApi = {
     const first = config.protocolId ?? rotation[0];
     const queue = [first, ...rotation.filter((id) => id !== first)];
     const payload = await intakeFixtures.state();
-    return save({ config, queue, rounds: [], view: { session_id: sessionId, step: "ASK", node: "intake_ask", payload } });
+    const view: SessionView = { session_id: sessionId, step: "ASK", node: "intake_ask", payload };
+    return save({ config, queue, rounds: [], startedAt: new Date().toISOString(), view });
   },
 
   async get(sessionId) {
@@ -101,13 +127,13 @@ export const mockApi: SessionApi = {
       };
       return save({ ...state, view });
     }
-    return save({ ...state, view: endView(state) });
+    return save(finish(state));
   },
 
   async report(sessionId, body) {
     const state = expect(sessionId, "RUN");
-    const run = state.view.payload as { plan: { activity: { protocol_id: string; minutes: number } } };
-    const round = { protocolId: run.plan.activity.protocol_id, minutes: run.plan.activity.minutes, completed: body.completed };
+    const { plan, content } = state.view.payload as RunPayload;
+    const round = { protocolId: plan.activity.protocol_id, name: content.name, minutes: plan.activity.minutes, completed: body.completed };
     const key = state.config.goal === "S3" ? "post-S3" : "post-S1-S2";
     const payload = { ...(await measureFixtures[key]()), round: state.rounds.length + 1 };
     return save({ ...state, rounds: [...state.rounds, round], view: { session_id: sessionId, step: "MEASURE", node: "measure_post", payload } });
@@ -121,7 +147,7 @@ export const mockApi: SessionApi = {
       await emit(handlers, [{ node: "confirm" }, { node: "plan", step: "choose_activity" }, { node: "plan", step: "write_rationale" }, { node: "prepare" }]);
       return save(await runView(next, body.next_step === "CHANGE_ACTIVITY"));
     }
-    if (state.config.goal === "S3") return save({ ...next, view: endView(next) });
+    if (state.config.goal === "S3") return save(finish(next));
     const payload = { ...(await measureFixtures[`final-${state.config.goal}`]()), round: rounds.length };
     return save({ ...next, view: { session_id: sessionId, step: "MEASURE", node: "measure_final", payload } });
   },
@@ -137,24 +163,31 @@ async function runView(state: MockState, change = false): Promise<MockState> {
   return { ...state, queue, view: { session_id: state.view.session_id, step: "RUN", node: "run_session", payload } };
 }
 
-function endView(state: MockState): SessionView {
+/** 세션 끝(END). BE가 라운드 행을 남기듯 끝낸 세션을 활동 기록 목업에도 남긴다. */
+function finish(state: MockState): MockState {
   const scale = { S1: ["INS-BSRI", "mean", 62, 48], S2: ["INS-STAI6", "total", 53.33, 43.33], S3: ["INS-MFVAS", "fatigue", 70, 52] } as const;
   const [instrument, key, pre, end] = scale[state.config.goal];
-  const payload: EndPayload = {
-    reason: "DONE",
+  const rounds: RoundSummary[] = state.rounds.map((r, i) => ({
+    round: i + 1,
+    protocol_id: r.protocolId,
+    minutes: r.minutes,
+    completed: r.completed,
+    deltas: { valence: 1, arousal: -2 },
+    improved: r.completed,
+    next_step: r.nextStep ?? "END",
+  }));
+  const goalScale: GoalScaleChange = { instrument_id: instrument, pre: { [key]: pre }, end: { [key]: end }, delta: { [key]: end - pre } };
+  const session: SessionHistory = {
+    session_id: state.view.session_id,
+    started_at: state.startedAt,
+    ended_at: new Date().toISOString(),
     goal: state.config.goal,
-    rounds: state.rounds.map((r, i) => ({
-      round: i + 1,
-      protocol_id: r.protocolId,
-      minutes: r.minutes,
-      completed: r.completed,
-      deltas: { valence: 1, arousal: -2 },
-      improved: r.completed,
-      next_step: r.nextStep ?? "END",
-    })),
-    goal_scale: { instrument_id: instrument, pre: { [key]: pre }, end: { [key]: end }, delta: { [key]: end - pre } },
+    rounds: rounds.map((round, i) => ({ ...round, name: state.rounds[i].name })),
+    goal_scale: goalScale,
   };
-  return { session_id: state.view.session_id, step: "END", node: null, payload };
+  sessionStorage.setItem(HISTORY_KEY, JSON.stringify([session, ...mockHistory()]));
+  const payload: EndPayload = { reason: "DONE", goal: state.config.goal, rounds, goal_scale: goalScale };
+  return { ...state, view: { session_id: state.view.session_id, step: "END", node: null, payload } };
 }
 
 /** BE처럼 받은 도구 전부의 문항이 범위 안에 있어야 한다(app/api/sessions._check_measure). */

@@ -61,12 +61,7 @@ export function StartForm() {
             목업 세션이 켜져 있어요(BE · 로그인 없이 견본으로 돕니다). <Link href="/dev" className="underline">/dev</Link>
           </p>
         ) : member ? (
-          <p>
-            {who.provider === "kakao" ? "카카오" : "Google"} 계정으로 로그인했어요 ·{" "}
-            <Link href="/settings" className="underline">
-              설정
-            </Link>
-          </p>
+          <p>{who.provider === "kakao" ? "카카오" : "Google"} 계정으로 로그인했어요</p>
         ) : (
           <>
             <p className="break-keep">

@@ -4,6 +4,7 @@
  * - 요청·응답 모양: app/api/sessions.py, 질문·답: app/schemas/intake.py, 요청: app/schemas/care.py
  * - 측정: app/agent/nodes/measure.py · app/instruments.py의 present(), RUN: app/agent/state.py
  * - Reference 카드: app/schemas/card.py
+ * - 기록 동의 · 활동 기록: app/api/me.py · app/records.py의 history_row()
  *
  * 응답 견본은 src/fixtures에 있다(scripts/fixtures.py가 BE 코드로 만든다).
  */
@@ -290,27 +291,41 @@ export type ConfirmPayload = {
 /** POST /sessions/{id}/decision. options에 없는 값이면 422다. */
 export type ReplanDecision = { next_step: NextStep };
 
+/** 끝난 라운드 하나 — END payload와 활동 기록의 rounds. */
+export type RoundSummary = {
+  round: number;
+  protocol_id: string;
+  minutes: number;
+  completed: boolean;
+  deltas: Record<string, number>;
+  improved: boolean | null;
+  next_step: NextStep;
+};
+
+/** 목표 척도의 세션 변화(끝 − 사전). S3는 마지막 사후값이 끝값이다. */
+export type GoalScaleChange = {
+  instrument_id: string;
+  pre: Record<string, number>;
+  end: Record<string, number>;
+  delta: Record<string, number>;
+};
+
 export type EndPayload =
   | { reason: "SAFETY" }
-  | {
-      reason: "DONE";
-      goal: Goal;
-      rounds: {
-        round: number;
-        protocol_id: string;
-        minutes: number;
-        completed: boolean;
-        deltas: Record<string, number>;
-        improved: boolean | null;
-        next_step: NextStep;
-      }[];
-      goal_scale: {
-        instrument_id: string;
-        pre: Record<string, number>;
-        end: Record<string, number>;
-        delta: Record<string, number>;
-      } | null;
-    };
+  | { reason: "DONE"; goal: Goal; rounds: RoundSummary[]; goal_scale: GoalScaleChange | null };
+
+// ── 활동 기록 (GET /me/sessions, 회원만) ──────────────────────────────────────────────────
+
+/** 활동을 한 세션 하나. 최근 것부터 오고, 활동 전에 멈췄거나 SAFETY로 끝난 세션은 없다. */
+export type SessionHistory = {
+  session_id: string;
+  started_at: string; // ISO 8601
+  ended_at: string | null; // null = 마치지 않은 세션(진행 중이거나 쉬다가 만료)
+  goal: Goal | null;
+  // END payload의 rounds에 활동 이름을 붙인 것. name이 null이면 활동 노드에서 빠진 활동이다
+  rounds: (RoundSummary & { name: string | null })[];
+  goal_scale: GoalScaleChange | null; // DONE으로 끝난 세션만
+};
 
 // ── 기록 동의 (GET · PUT /me/consent) ───────────────────────────────────────────────────
 

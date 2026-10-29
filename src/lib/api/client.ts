@@ -15,6 +15,7 @@ import type {
   MeasureAnswers,
   ProgressEvent,
   ReplanDecision,
+  SessionHistory,
   SessionReport,
   SessionView,
 } from "./types";
@@ -73,11 +74,12 @@ export const sessionApi: SessionApi = {
   retry: (id, handlers) => call(`/sessions/${id}/retry`, { method: "POST", handlers }),
 };
 
-/** 기록 동의(회원만)와 탈퇴. */
+/** 기록 동의 · 활동 기록(회원만)과 탈퇴. */
 export const meApi = {
   consent: () => call<ConsentView>("/me/consent"),
   agree: (rawText: boolean) =>
     call<ConsentView>("/me/consent", { method: "PUT", body: { records: true, raw_text: rawText } }),
+  sessions: async () => (await call<{ sessions: SessionHistory[] }>("/me/sessions")).sessions,
   withdraw: () => call<null>("/me", { method: "DELETE" }),
 };
 

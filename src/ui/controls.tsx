@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ButtonHTMLAttributes, ReactNode } from "react";
+import { TabBar } from "./tab-bar";
 
 /*
  * 공통 컨트롤. 터치 영역은 48px 이상이고(min-h-12) 색은 토큰 클래스만 쓴다(AGENTS.md).
@@ -61,20 +62,28 @@ export function Chip({ selected, className = "", ...props }: ButtonHTMLAttribute
   );
 }
 
+/** 아래 탭 바(src/ui/tab-bar.tsx, 높이 64px)에 가리지 않게 화면 아래를 비운다 — 탭 바 위로 24px과 안전 영역. */
+export const TAB_BAR_SPACE = "pb-[calc(88px+env(safe-area-inset-bottom))]";
+
 /**
  * 화면 틀 — 360px에서 먼저 맞추고 넓은 화면에서는 가운데 480px. footer는 아래에 붙는 버튼 줄이다.
  * 하단 바는 sticky라 내용을 가리지 않고, env(safe-area-inset-bottom)만큼 아래를 비운다.
+ * tabBar면 footer 대신 아래 탭 바(메인 · 기록 · 설정)를 붙인다 — 탭 화면만 쓴다.
  */
-export function Screen({ children, footer }: { children: ReactNode; footer?: ReactNode }) {
+export function Screen({ children, footer, tabBar = false }: { children: ReactNode; footer?: ReactNode; tabBar?: boolean }) {
+  const space = footer ? "pb-28" : tabBar ? TAB_BAR_SPACE : "pb-6";
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-[480px] flex-col px-4 pt-6">
-      <div className={footer ? "flex flex-1 flex-col pb-28" : "flex flex-1 flex-col pb-6"}>{children}</div>
-      {footer && (
-        <div className="fixed bottom-0 left-1/2 z-20 flex w-full max-w-[480px] -translate-x-1/2 flex-col gap-2 border-t border-line bg-page px-4 pt-3 pb-[calc(12px+env(safe-area-inset-bottom))]">
-          {footer}
-        </div>
-      )}
-    </main>
+    <>
+      <main className="mx-auto flex min-h-dvh w-full max-w-[480px] flex-col px-4 pt-6">
+        <div className={`flex flex-1 flex-col ${space}`}>{children}</div>
+        {footer && (
+          <div className="fixed bottom-0 left-1/2 z-20 flex w-full max-w-[480px] -translate-x-1/2 flex-col gap-2 border-t border-line bg-page px-4 pt-3 pb-[calc(12px+env(safe-area-inset-bottom))]">
+            {footer}
+          </div>
+        )}
+      </main>
+      {tabBar && <TabBar />}
+    </>
   );
 }
 

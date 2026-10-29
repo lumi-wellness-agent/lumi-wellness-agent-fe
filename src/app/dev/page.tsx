@@ -22,7 +22,8 @@ export default function DevPage() {
       <section>
         <h2 className="mb-1 font-bold">목업 세션</h2>
         <p className="mb-3 text-caption break-keep text-ink-muted">
-          BE · 로그인 · LLM 없이 견본으로 질문 → 측정 → 활동 → 평가 → 종료를 돈다. 이 탭에서만 켜진다.
+          BE · 로그인 · LLM 없이 견본으로 질문 → 측정 → 활동 → 평가 → 종료를 돈다. 이 탭에서만 켜지고, 끝낸 세션은
+          기록 탭에 남는다.
         </p>
         <MockStart protocols={PROTOCOLS.map(({ id, name, goal }) => ({ id, name, goal }))} />
       </section>

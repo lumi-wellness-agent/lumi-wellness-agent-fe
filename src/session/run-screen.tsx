@@ -20,26 +20,73 @@ import { ReferenceCardView } from "./reference-card";
 
 export function RunScreen({
   payload,
+  sessionId,
   busy,
   onReport,
 }: {
   payload: RunPayload;
+  sessionId?: string;
   busy: boolean;
   onReport: (report: SessionReport) => void;
 }) {
   const { plan, content } = payload;
-  const [playing, setPlaying] = useState(false);
+  const isOutdoorWalk = plan.activity.protocol_id === "PR-11";
+  const restoresActivityScreen = isOutdoorWalk || plan.activity.protocol_id === "PR-12";
+  const playingKey = `lumi:run-playing:${sessionId ?? "current"}:${plan.activity.protocol_id}`;
+  const [playing, setPlaying] = useState(() => {
+    if (!restoresActivityScreen || typeof window === "undefined") return false;
+    return window.sessionStorage.getItem(playingKey) === "true";
+  });
   const [why, setWhy] = useState(false);
+  const durationOptions = [20, 50, 90] as const;
+  const durationDescriptions: Record<(typeof durationOptions)[number], string> = {
+    20: "시간이 제한적일 때",
+    50: "기본 권장 시간",
+    90: "시간과 상태에 여유가 있을 때",
+  };
+  const [selectedMinutes, setSelectedMinutes] = useState<number>(
+    (() => {
+      const fallback = isOutdoorWalk && durationOptions.includes(plan.activity.minutes as (typeof durationOptions)[number]) ? plan.activity.minutes : 50;
+      if (!isOutdoorWalk || typeof window === "undefined") return fallback;
+      const saved = Number(window.sessionStorage.getItem(`${playingKey}:minutes`));
+      return durationOptions.includes(saved as (typeof durationOptions)[number]) ? saved : fallback;
+    })(),
+  );
 
   useEffect(() => {
     void loadVoices(); // 첫 대본부터 좋은 음성으로 읽도록 미리 불러 둔다
   }, []);
 
-  if (playing) return <PlayerHost content={content} onReport={onReport} />;
+  const handleReport = (report: SessionReport) => {
+    if (restoresActivityScreen) {
+      window.sessionStorage.removeItem(playingKey);
+      if (isOutdoorWalk) window.sessionStorage.removeItem(`${playingKey}:minutes`);
+    }
+    onReport(report);
+  };
+
+  if (playing) {
+    const runtimeContent = isOutdoorWalk
+      ? {
+          ...content,
+          guide_text: content.guide_text?.replace(/약 50분/g, `약 ${selectedMinutes}분`),
+          steps: content.steps.map((step) => (step.type === "ACTIVITY" ? { ...step, minutes: selectedMinutes } : step)),
+        }
+      : content;
+    return <PlayerHost content={runtimeContent} onReport={handleReport} />;
+  }
+
+  const displayGuideText = isOutdoorWalk
+    ? content.guide_text?.replace(/약\s*50분/g, `약 ${selectedMinutes}분`)
+    : content.guide_text;
 
   const start = () => {
     unlockSpeech();
     unlockTone();
+      if (restoresActivityScreen) {
+        window.sessionStorage.setItem(playingKey, "true");
+        if (isOutdoorWalk) window.sessionStorage.setItem(`${playingKey}:minutes`, String(selectedMinutes));
+    }
     setPlaying(true);
   };
 
@@ -60,7 +107,7 @@ export function RunScreen({
         </>
       }
     >
-      <Heading eyebrow={`추천 활동 · 약 ${plan.activity.minutes}분`}>{content.name}</Heading>
+      <Heading eyebrow={`추천 활동 · 약 ${isOutdoorWalk ? selectedMinutes : plan.activity.minutes}분`}>{content.name}</Heading>
       <p className="break-keep">{plan.rationale}</p>
 
       {plan.environment_gaps.length > 0 && (
@@ -73,10 +120,35 @@ export function RunScreen({
         </ul>
       )}
 
-      {content.guide_text && (
+      {displayGuideText && (
         <Card className="mt-5">
           <p className="mb-1 text-caption font-bold text-ink-muted">시작 안내</p>
-          <p className="break-keep">{content.guide_text}</p>
+          <p className="break-keep">{displayGuideText}</p>
+        </Card>
+      )}
+
+      {isOutdoorWalk && (
+        <Card className="mt-5">
+          <p className="mb-2 text-caption font-bold text-ink-muted">활동 시간 선택</p>
+          <div className="flex flex-nowrap gap-2 overflow-x-auto" role="group" aria-label="야외 자연 보행 활동 시간">
+            {durationOptions.map((minutes) => (
+              <button
+                key={minutes}
+                type="button"
+                aria-pressed={selectedMinutes === minutes}
+                className={`shrink-0 rounded-button border px-3 py-3 text-sm ${selectedMinutes === minutes ? "border-ink bg-primary text-white" : "border-line bg-surface"}`}
+                onClick={() => {
+                  setSelectedMinutes(minutes);
+                  window.sessionStorage.setItem(`${playingKey}:minutes`, String(minutes));
+                }}
+              >
+                <span className="flex flex-col items-start gap-0.5">
+                  <span className="text-base font-bold leading-tight">{minutes}분</span>
+                  <span className="text-[11px] font-normal leading-tight">{durationDescriptions[minutes]}</span>
+                </span>
+              </button>
+            ))}
+          </div>
         </Card>
       )}
 

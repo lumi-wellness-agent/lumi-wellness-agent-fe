@@ -85,12 +85,15 @@ export const NEXT_STEP_LABELS: Record<NextStep, string> = {
   ADDITIONAL_SESSION: "한 번 더 할래요",
 };
 
-/** 평가 deltas의 키 — SAM valence · arousal, S3는 MFVAS fatigue · concentration · energy. */
+/**
+ * 평가 deltas의 키 — SAM valence · arousal, S3는 MFVAS fatigue · concentration · energy.
+ * concentration은 "집중하기가 얼마나 어려운가요?"라 높을수록 어렵다 — '집중'이라 쓰면 줄었을 때(좋아짐) 거꾸로 읽힌다.
+ */
 export const DELTA_LABELS: Record<string, string> = {
   valence: "기분(쾌)",
   arousal: "긴장(각성)",
   fatigue: "피로",
-  concentration: "집중",
+  concentration: "집중 어려움",
   energy: "기운",
   total: "점수",
   mean: "점수",

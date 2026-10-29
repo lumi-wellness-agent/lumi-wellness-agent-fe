@@ -3,7 +3,7 @@
 /**
  * CONFIRM — 평가(전후 비교)와 다음 단계 제안. options에 있는 것만 고를 수 있고 권한 것을 먼저 보인다.
  * deltas는 사후 − 사전이다(SAM valence · arousal, S3는 MFVAS도). 판정(improved)은 임시 규칙이다
- * — S1 쾌↑ · S2 각성↓ · S3 피로↓.
+ * — S1 쾌↑ · S2 각성↓ · S3 피로 10점 이상↓.
  */
 
 import type { ConfirmPayload, NextStep } from "@/lib/api/types";

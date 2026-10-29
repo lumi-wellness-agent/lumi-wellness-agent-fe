@@ -16,7 +16,6 @@ test("only user actions move the sequence; skips are retained at the end", () =>
   assert.equal(state.phase, "intro");
   assert.equal(state.index, 0);
   assert.deepEqual(groundReducer(state, { type: "NEXT", total: 5 }), state);
-  assert.deepEqual(groundReducer(state, { type: "INTRO_DONE" }), state);
   assert.deepEqual(groundReducer(state, { type: "SKIP", total: 5 }), state);
   state = groundReducer(state, { type: "INTRO_DONE" });
   assert.equal(state.phase, "active");

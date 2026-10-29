@@ -12,9 +12,7 @@ test("BE order is five senses with no timer or answer requirement", () => {
   assert.ok(spec.end);
 });
 test("only user actions move the sequence; skips are retained at the end", () => {
-  let state = groundReducer(initialGroundState, { type: "START" });
-  assert.equal(state.phase, "intro");
-  state = groundReducer(state, { type: "INTRO_DONE" });
+  let state = initialGroundState;
   assert.equal(state.phase, "active");
   assert.equal(state.index, 0);
   state = groundReducer(state, { type: "NEXT", total: 5 });

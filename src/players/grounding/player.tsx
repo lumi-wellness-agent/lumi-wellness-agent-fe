@@ -119,7 +119,7 @@ export default function GroundingPlayer({ content, onFinish }: PlayerProps) {
             </>
           )}
           {state.phase !== "active" && (
-            <div className="flex flex-1 flex-col justify-center gap-3">
+            <div className="flex flex-1 flex-col justify-start gap-3 pt-8">
               <h3 className="font-display text-title text-ink">
                 {state.phase === "intro" ? "시작 안내" : "마무리 안내"}
               </h3>

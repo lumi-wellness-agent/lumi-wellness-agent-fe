@@ -276,7 +276,15 @@ export type ConfirmPayload = {
     improved: boolean | null; // null = 세션 내 판정 기준 없음
     completed: boolean;
   };
-  proposal: { recommended: NextStep; reason: string; options: NextStep[] };
+  // reason은 by_llm이면 LLM이 쓴 사용자용 문장, 아니면 규칙의 내부 이유다(화면에 보이지 않는다).
+  // rule_recommended · by_llm은 BE #95부터 온다 — 그 전 응답에는 없다
+  proposal: {
+    recommended: NextStep;
+    reason: string;
+    options: NextStep[];
+    rule_recommended?: NextStep | null;
+    by_llm?: boolean;
+  };
   options: NextStep[];
 };
 

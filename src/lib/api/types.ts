@@ -248,7 +248,6 @@ export type CardEvidence = {
   flags: string[];
   limits: string[];
   excerpts: { evidence_record_id: number; section: string; text: string }[];
-  checks: { check: string; passed: boolean | null; reason: string; related_record_ids: number[] }[];
   evidence_record_ids: number[];
 };
 

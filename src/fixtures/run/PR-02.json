@@ -147,44 +147,6 @@
               "text": "[fixture] N24 · RESULTS — 원문 적재 전 자리표시자. 시트 요약: 디지털 자연 = 실제 자연(SMD −0.01); 둘 다 스트레스 감소."
             }
           ],
-          "checks": [
-            {
-              "check": "SOURCE_EXISTS",
-              "passed": true,
-              "reason": "N24 10.1016/j.invent.2024.100772 · FULL_TEXT",
-              "related_record_ids": []
-            },
-            {
-              "check": "INTERVENTION_MATCH",
-              "passed": true,
-              "reason": "제공 ['VIDEO', 'NATURE_SOUND'] vs 연구 ['STATIC_IMAGE', 'VIDEO', 'VR'] → PARTIAL; 연구 조건 미상",
-              "related_record_ids": []
-            },
-            {
-              "check": "POPULATION_FIT",
-              "passed": true,
-              "reason": "임상 여부 미상",
-              "related_record_ids": []
-            },
-            {
-              "check": "OUTCOME_MEASURED",
-              "passed": true,
-              "reason": "S2 1차 지표 측정: ['SUBJECTIVE_STRESS']",
-              "related_record_ids": []
-            },
-            {
-              "check": "CONFLICT_SCAN",
-              "passed": true,
-              "reason": "상충 후보 없음",
-              "related_record_ids": []
-            },
-            {
-              "check": "STIMULUS_FIDELITY",
-              "passed": false,
-              "reason": "제공 구성 ['VIDEO', 'NATURE_SOUND']이 연구 자극 ['STATIC_IMAGE', 'VIDEO', 'VR']과 다르다",
-              "related_record_ids": []
-            }
-          ],
           "evidence_record_ids": [
             151,
             152

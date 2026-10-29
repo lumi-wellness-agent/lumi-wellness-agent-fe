@@ -71,6 +71,17 @@ export const ORDER_LABELS: Record<string, string> = {
   POST_FATIGUE: "피로 뒤",
 };
 
+/** 원문 구간의 논문 섹션. 원문은 영어 그대로 두고 섹션 이름만 옮긴다. */
+export const SECTION_LABELS: Record<string, string> = {
+  ABSTRACT: "초록",
+  INTRODUCTION: "서론",
+  METHODS: "방법",
+  RESULTS: "결과",
+  DISCUSSION: "논의",
+  TABLE: "표",
+  OTHER: "기타",
+};
+
 /** 계획의 environment_gaps — 지금 환경에서 어려울 수 있는 이유. 활동 시작 화면에 띄운다. */
 export const GAP_NOTICES: Record<EnvironmentGap, string> = {
   AUDIO: "소리가 나와요. 이어폰을 쓰거나 소리를 켤 수 있는 곳에서 해 주세요.",

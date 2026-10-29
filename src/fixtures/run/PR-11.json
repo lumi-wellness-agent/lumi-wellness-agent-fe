@@ -156,44 +156,6 @@
               "text": "[fixture] P01 · RESULTS — 원문 적재 전 자리표시자. 시트 요약: 자연 노출 후 주의 수행 향상이 다수 연구에서 지지."
             }
           ],
-          "checks": [
-            {
-              "check": "SOURCE_EXISTS",
-              "passed": true,
-              "reason": "P01 10.1080/10937404.2016.1196155 · FULL_TEXT",
-              "related_record_ids": []
-            },
-            {
-              "check": "INTERVENTION_MATCH",
-              "passed": true,
-              "reason": "제공 ['OUTDOOR_WALK'] vs 연구 ['STATIC_IMAGE', 'VIDEO', 'OUTDOOR_WALK'] → PARTIAL; 연구 조건 미상",
-              "related_record_ids": []
-            },
-            {
-              "check": "POPULATION_FIT",
-              "passed": true,
-              "reason": "임상 여부 미상",
-              "related_record_ids": []
-            },
-            {
-              "check": "OUTCOME_MEASURED",
-              "passed": true,
-              "reason": "S3 1차 지표 측정: ['ATTENTION']",
-              "related_record_ids": []
-            },
-            {
-              "check": "CONFLICT_SCAN",
-              "passed": true,
-              "reason": "상충 후보 없음",
-              "related_record_ids": []
-            },
-            {
-              "check": "STIMULUS_FIDELITY",
-              "passed": false,
-              "reason": "제공 구성 ['OUTDOOR_WALK']이 연구 자극 ['STATIC_IMAGE', 'VIDEO', 'OUTDOOR_WALK']과 다르다",
-              "related_record_ids": []
-            }
-          ],
           "evidence_record_ids": [
             161,
             162
@@ -249,44 +211,6 @@
               "evidence_record_id": 172,
               "section": "RESULTS",
               "text": "[fixture] P04 · RESULTS — 원문 적재 전 자리표시자. 시트 요약: 자연 노출의 주의 효과 유의; 노출 시간이 비선형 조절."
-            }
-          ],
-          "checks": [
-            {
-              "check": "SOURCE_EXISTS",
-              "passed": true,
-              "reason": "P04 10.1016/j.jenvp.2025.102632 · FULL_TEXT",
-              "related_record_ids": []
-            },
-            {
-              "check": "INTERVENTION_MATCH",
-              "passed": true,
-              "reason": "제공 ['OUTDOOR_WALK'] vs 연구 ['STATIC_IMAGE', 'VIDEO', 'OUTDOOR_WALK'] → PARTIAL; 연구 조건 미상",
-              "related_record_ids": []
-            },
-            {
-              "check": "POPULATION_FIT",
-              "passed": true,
-              "reason": "임상 여부 미상",
-              "related_record_ids": []
-            },
-            {
-              "check": "OUTCOME_MEASURED",
-              "passed": true,
-              "reason": "S3 1차 지표 측정: ['ATTENTION']",
-              "related_record_ids": []
-            },
-            {
-              "check": "CONFLICT_SCAN",
-              "passed": true,
-              "reason": "상충 후보 없음",
-              "related_record_ids": []
-            },
-            {
-              "check": "STIMULUS_FIDELITY",
-              "passed": false,
-              "reason": "제공 구성 ['OUTDOOR_WALK']이 연구 자극 ['STATIC_IMAGE', 'VIDEO', 'OUTDOOR_WALK']과 다르다",
-              "related_record_ids": []
             }
           ],
           "evidence_record_ids": [

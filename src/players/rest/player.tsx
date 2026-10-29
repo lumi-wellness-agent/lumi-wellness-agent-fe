@@ -128,7 +128,7 @@ export default function RestPlayer({ content, onFinish }: PlayerProps) {
   const failedVideo = () => {
     setError("영상을 불러오지 못했어요. 다시 불러오거나 실제 자연환경 모드를 선택해 주세요.");
     setReady(false);
-    if (running && !finished.current) {
+    if (running && mode?.video && !finished.current) {
       finished.current = true;
       generation.current += 1;
       cancelSpeech();

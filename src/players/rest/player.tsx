@@ -169,7 +169,7 @@ export default function RestPlayer({ content, onFinish }: PlayerProps) {
           {!video && <p className="text-caption text-ink-muted">준비된 영상이 없어요. 영상 모드는 BE에서 영상 자산을 받은 뒤 사용할 수 있어요.</p>}
         </div>
       )}
-      <div className={mode?.video ? "relative min-h-[42dvh] overflow-hidden rounded-card bg-surface-muted" : "relative"}>
+      <div className={!mode ? "hidden" : mode.video ? "relative min-h-[42dvh] overflow-hidden rounded-card bg-surface-muted" : "relative"}>
         {/* 소스를 고정하므로 타이머나 자막 변경 때 영상을 다시 선택하지 않는다. */}
         {video && (
           <video ref={videoRef} src={assetUrl(video.url)} muted playsInline loop={spec.loop}
@@ -177,14 +177,20 @@ export default function RestPlayer({ content, onFinish }: PlayerProps) {
             aria-label="바람에 흔들리는 나무와 잎의 자연 영상"
             className={mode?.video ? "absolute inset-0 h-full w-full object-cover" : "hidden"} />
         )}
-        {!mode?.video && (
+        {mode && !mode.video && (
           <NatureTimer remaining={spec.seconds - elapsed} total={spec.seconds} speaking={speaking} />
         )}
         {mode?.video && <VideoTimer remaining={spec.seconds - elapsed} />}
       </div>
-      <div className="min-h-24 rounded-card bg-surface p-4">
-        <p className="text-body break-keep whitespace-pre-line text-ink">{caption || content.guide_text}</p>
-      </div>
+      {mode?.video && video?.source_url && (
+        <a href={video.source_url} target="_blank" rel="noreferrer"
+          className="-mt-3 flex min-h-12 items-center text-caption text-ink-muted underline">
+          <span className="origin-left scale-90 break-words">
+            Pixabay · {video.creator || "영상 출처"} · {video.license}
+          </span>
+        </a>
+      )}
+      <p className="text-body break-keep whitespace-pre-line text-ink">{caption || content.guide_text}</p>
       {silent && <p className="text-caption text-ink-muted">음성 안내를 사용할 수 없어 화면에 대본을 표시하고 있어요.</p>}
       {error && <p role="alert" className="text-caption text-ink">{error}</p>}
       {!running && mode && (
@@ -194,11 +200,7 @@ export default function RestPlayer({ content, onFinish }: PlayerProps) {
           <Button disabled={starting} onClick={start}>{starting ? "영상 연결 중…" : `시작하기 · ${Math.round(spec.seconds / 60)}분`}</Button>
         </div>
       )}
-      {mode?.video && video?.source_url && (
-        <a href={video.source_url} target="_blank" rel="noreferrer" className="min-h-12 py-3 text-caption text-ink-muted underline">
-          Pixabay · {video.creator || "영상 출처"} · {video.license}
-        </a>
-      )}
+
     </div>
   );
 }

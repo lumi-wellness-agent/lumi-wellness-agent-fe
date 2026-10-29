@@ -45,7 +45,7 @@ npm run dev
 | `npm run dev` | 개발 서버 |
 | `npm run lint` | ESLint |
 | `npm run typecheck` | Next.js 타입 생성 및 TypeScript 검사 |
-| `npm test` | ship 게이트·폴링 스크립트, 안내 음성, SSE 파서 테스트 (`node --test`) |
+| `npm test` | ship 게이트·폴링 스크립트, 안내 음성, SSE 파서, 하루의 빛 테스트 (`node --test`) |
 | `npm run build` | 프로덕션 빌드 |
 | `npm start` | 빌드한 서버 실행 |
 
@@ -60,7 +60,7 @@ src/app/
 ├─ auth/callback/    소셜 로그인에서 돌아오는 곳
 ├─ settings/         화면 색 · 로그아웃 · 탈퇴
 ├─ dev/              개발용 — 목업 세션 · 화면 · 플레이어 미리보기 (운영 배포에서는 404)
-├─ light-sync.tsx    앱으로 돌아오면 빛을 다시 정하고 브라우저 상단 색을 맞춤
+├─ light-sync.tsx    화면을 옮길 때 · 앱으로 돌아올 때 · 1분마다 빛을 다시 정하고 브라우저 상단 색을 맞춤
 └─ globals.css       Tailwind v4와 디자인 토큰 (하루의 빛)
 src/session/         세션 상태 기계(use-session.ts)와 화면들 · Reference 카드 · 진행 표시 · 문구(labels.ts)
 ├─ intake/           시작 입력 · 질문(ASK) · SAFETY 도움 안내 — 담당 A
@@ -71,7 +71,7 @@ src/fixtures/        BE 응답 견본 — scripts/fixtures.py가 BE 코드로 �
 src/lib/
 ├─ api/              BE 세션 API — 계약 타입 · JSON/SSE 클라이언트 · SSE 파서(테스트 sse.test.mjs) · 목업 BE
 ├─ auth.ts           Supabase 로그인 — 게스트(익명) · Google · 카카오
-├─ light.ts          시간대·세션·설정에 따라 빛을 정하는 규칙
+├─ light.ts          시간대·세션·설정에 따라 빛을 정하는 규칙 (테스트 light.test.mjs)
 ├─ speech.ts         안내 음성 — 대본을 speechSynthesis로 읽고 음성을 고르는 규칙 (테스트 speech.test.mjs)
 └─ tone.ts           종료 알림음 — Web Audio
 scripts/fixtures.py  견본 만들기 (BE .venv로 실행, TEAM.md 「개발 방법」)
@@ -120,10 +120,13 @@ automation/                ship 하네스 (준비 문서 README.md + 하네스 �
 - 휴대폰이 다크 모드면 A와 B는 어두운 짝으로 바뀌고 C는 늘 어둡습니다. 색 세트는 A · A 다크 · B · B 다크 · C
   다섯 개이고, 모두 WCAG AA 대비(글자 4.5:1, 표시선과 컨트롤 테두리 3:1)를 넘습니다. 새 화면은 다섯 세트에서 모두 확인합니다.
 - 서버는 사용자의 시각을 모르므로 `layout.tsx`의 `<head>` 스크립트가 첫 화면 전에 `data-light`를 정합니다.
-  앱으로 돌아오면 다시 정하고, 브라우저 상단 색(`theme-color`)을 화면 배경에 맞춥니다.
+  그 뒤로는 화면을 옮길 때, 앱으로 돌아올 때, 켜 둔 동안 1분마다 다시 정하므로 켜 둔 채로 시간대가 바뀌어도
+  따라갑니다. 브라우저 상단 색(`theme-color`)은 화면 배경에 맞춥니다.
 - 아래 규칙은 `src/lib/light.ts`의 함수로 지킵니다.
   - 세션 중에는 색을 바꾸지 않습니다. 감상 전후 측정을 같은 화면에서 하기 위해서입니다. 세션을 시작할 때
-    `lockLight()`, 마칠 때 `unlockLight()`를 부릅니다.
+    `lockLight()`, 마칠 때 `unlockLight()`를 부릅니다. 고정한 빛은 세션 화면(`/session`)에서만 씁니다. 세션을
+    마치지 않고 나가면 다른 화면은 시간대를 따르고, 세션으로 돌아오면 고정한 빛을 다시 씁니다. 새 세션은 앞 세션의
+    빛을 물려받지 않습니다.
   - 설정에서 화면 색을 고정하면 `pickLight("mist" | "sunlit" | "moonlight")`, 시간대 따라로 되돌리면
     `pickLight(null)`을 부릅니다.
   - 프로필 `avoided_colors`에 검정이나 진한 보라가 있으면 `setAvoidDark(true)`를 부릅니다. 저녁·밤에도 C 대신

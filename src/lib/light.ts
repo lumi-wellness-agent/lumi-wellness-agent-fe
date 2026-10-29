@@ -5,7 +5,9 @@
  * - 기기 시각으로는 5시 mist(A 물안개), 12시 sunlit(B 볕), 18시 moonlight(C 달빛)이다.
  *   0~5시는 밝은 화면이 켜지지 않도록 moonlight다.
  * - 프로필의 피하고 싶은 색에 검정이나 진한 보라가 있으면 moonlight 대신 sunlit을 쓴다.
- * - 세션 중에는 바꾸지 않는다. 감상 전후 측정을 같은 화면에서 하기 위해서다.
+ * - 세션 중에는 바꾸지 않는다. 감상 전후 측정을 같은 화면에서 하기 위해서다. 세션의 빛은 세션 화면에서만 쓰므로
+ *   세션을 마치지 않고 나가도 다른 화면은 시간대를 따른다.
+ * - 켜 둔 채로 시간대가 바뀌어도 따라간다(src/app/light-sync.tsx).
  */
 
 export const LIGHTS = ["mist", "sunlit", "moonlight"] as const;
@@ -25,7 +27,8 @@ export function applyLight(keys: typeof LIGHT_KEYS): Light {
   let stored: string | null = null;
   let avoidDark = false;
   try {
-    stored = sessionStorage.getItem(keys.session) || localStorage.getItem(keys.pick);
+    const session = location.pathname === "/session" ? sessionStorage.getItem(keys.session) : null;
+    stored = session || localStorage.getItem(keys.pick);
     avoidDark = localStorage.getItem(keys.avoidDark) === "1";
   } catch {
     // 저장소를 막은 브라우저에서는 시각으로만 정한다.
@@ -62,8 +65,9 @@ export function refreshLight(): Light {
   return light;
 }
 
-/** 세션을 시작할 때 부른다. 마칠 때까지 지금 빛을 유지한다. */
+/** 세션을 시작할 때 부른다. 마치지 않고 남은 앞 세션의 빛은 버리고, 마칠 때까지 지금 빛을 유지한다. */
 export function lockLight(): Light {
+  write("session", LIGHT_KEYS.session, null);
   const light = refreshLight();
   write("session", LIGHT_KEYS.session, light);
   return light;

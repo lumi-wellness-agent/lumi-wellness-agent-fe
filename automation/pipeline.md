@@ -86,7 +86,7 @@ CI 폴링: **`node automation/bin/run-wait.mjs ci.yml main "<MERGE_SHA>" 600`** 
 
 각 명령이 실패해도 **중단하지 않고 계속 진행**한다(실패 내역만 기록):
 1. `git branch -D "<브랜치명>"`
-2. `git push origin --delete "<브랜치명>"` (이 레포는 머지 시 자동 삭제 설정이 꺼져 있어 보통 실제로 지워진다. 이미 삭제됐으면 무시)
+2. `git push origin --delete "<브랜치명>"` (이 레포는 머지 시 브랜치 자동 삭제(`delete_branch_on_merge`)가 켜져 있어 보통 이미 지워져 있다 — 2026-10-29 확인. `remote ref does not exist`로 끝나면 정리 실패로 세지 않고 무시한다. 설정을 끄면 이 명령이 실제로 지운다)
 3. 최종 보고:
    - main 머지 커밋(`MERGE_SHA`)·main CI 결과, 닫힌 이슈 번호
    - 프로덕션 배포 결과 — 또는 **"프로덕션 배포 없음(Vercel 미연결)"**. 배포됐다고 오해하지 않도록 명시한다.

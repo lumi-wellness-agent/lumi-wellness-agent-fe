@@ -12,6 +12,7 @@ import { playTone } from "@/lib/tone";
 import { useBrowserValue } from "@/lib/use-browser-value";
 import { Button } from "@/ui/controls";
 import { normalizeCues } from "./schedule";
+import { PhotoStage } from "./photo-stage";
 import type { ContentSlot } from "@/lib/api/types";
 import type { ActivityResult, PlayerProps } from "../types";
 
@@ -235,9 +236,9 @@ export default function GuidedTimerPlayer({ content, step, onFinish }: PlayerPro
     ? Math.min(visualUrls.length - 1, Math.floor((activitySeconds - remaining) / visualSecondsEach))
     : 0;
   const photoMode = started && visual.slot === "VISUAL_STILL";
-  const visualBackground = visualUrls.length > 0
-    ? "url(" + JSON.stringify(visualUrls[visualIndex]) + ")"
-    : undefined;
+  const visualTransitionMs = visualRender.transition === "NONE"
+    ? 0
+    : Math.max(0, number(visualRender.transition_ms, 0));
   const instructions = caption ?? content.guide_text;
   const title = step.label || content.name;
   const timerVisible = timerSpec.visible_during_instruction !== false;
@@ -248,15 +249,7 @@ export default function GuidedTimerPlayer({ content, step, onFinish }: PlayerPro
     >
       <p className="text-caption font-bold text-ink-muted">{title}</p>
       {photoMode ? (
-        <div
-          className="relative my-6 flex aspect-[4/3] w-full shrink-0 items-center justify-center overflow-hidden rounded-card bg-surface-muted bg-cover bg-center"
-          style={visualBackground ? { backgroundImage: visualBackground } : undefined}
-          role="region"
-          aria-label={visualBackground ? "자연 풍경 사진 " + (visualIndex + 1) : "자연 사진 준비 영역"}
-        >
-          {!visualBackground && (
-            <p className="px-5 text-caption text-ink-muted">자연 사진을 불러오지 못했어요.</p>
-          )}
+        <PhotoStage urls={visualUrls} index={visualIndex} transitionMs={visualTransitionMs}>
           <div
             role="timer"
             aria-label={"남은 시간 " + formatTime(timerLabel)}
@@ -267,7 +260,7 @@ export default function GuidedTimerPlayer({ content, step, onFinish }: PlayerPro
               <DigitalClock value={formatTime(timerLabel)} />
             </time>
           </div>
-        </div>
+        </PhotoStage>
       ) : timerVisible && (
         <div className="relative my-6 flex h-64 w-64 shrink-0 items-center justify-center">
           {/* 발화 이벤트에 맞춘 장식 파형. 실제 음성 신호의 진폭 분석은 아니다. */}

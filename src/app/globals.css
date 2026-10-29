@@ -5,6 +5,7 @@
  * <html data-light>는 layout의 <head> 스크립트가 첫 화면 전에 정한다(src/lib/light.ts).
  * 기본값은 sunlit(B 볕)이다. 휴대폰이 다크 모드면 sunlit과 mist는 어두운 짝을 쓰고, moonlight는 늘 어둡다.
  * 각 세트의 대비는 WCAG AA(글자 4.5:1, 표시선과 컨트롤 테두리 3:1)를 넘는다.
+ * --lumi-google*는 Google 로그인 버튼 가이드의 테마 색이다. 밝은 세트는 라이트, 어두운 세트는 다크 테마를 쓴다.
  */
 :root {
   color-scheme: light;
@@ -26,6 +27,8 @@
   --lumi-goal-s1: #8f77c0;
   --lumi-goal-s2: #4f8db8;
   --lumi-goal-s3: #6b9057;
+  --lumi-google: #ffffff;
+  --lumi-google-line: #747775;
   --lumi-progress: linear-gradient(90deg, #f5e3a6, #eac85a);
   --lumi-shadow-card: 0 1px 0 rgb(74 57 43 / 0.04), 0 8px 20px rgb(74 57 43 / 0.05);
   --lumi-shadow-selected: none;
@@ -52,6 +55,8 @@
     --lumi-goal-s1: #b6a2e2;
     --lumi-goal-s2: #86b7dc;
     --lumi-goal-s3: #a6c78c;
+    --lumi-google: #131314;
+    --lumi-google-line: #8e918f;
     --lumi-progress: linear-gradient(90deg, #7a6530, #eac85a);
     --lumi-shadow-card: none;
     --lumi-shadow-selected: none;
@@ -78,6 +83,8 @@
   --lumi-goal-s1: #6e78c8;
   --lumi-goal-s2: #3b87b3;
   --lumi-goal-s3: #4c9382;
+  --lumi-google: #ffffff;
+  --lumi-google-line: #747775;
   --lumi-progress: linear-gradient(90deg, #b4cae0, #2e5c8a);
   --lumi-shadow-card: 0 1px 0 rgb(29 42 57 / 0.04), 0 8px 20px rgb(46 92 138 / 0.06);
   --lumi-shadow-selected: none;
@@ -104,6 +111,8 @@
     --lumi-goal-s1: #a4abe8;
     --lumi-goal-s2: #7db8dd;
     --lumi-goal-s3: #84c4b1;
+    --lumi-google: #131314;
+    --lumi-google-line: #8e918f;
     --lumi-progress: linear-gradient(90deg, #3b5878, #8db4de);
     --lumi-shadow-card: none;
     --lumi-shadow-selected: none;
@@ -130,6 +139,8 @@
   --lumi-goal-s1: #b4adf4;
   --lumi-goal-s2: #8cc3e6;
   --lumi-goal-s3: #9ad3bd;
+  --lumi-google: #131314;
+  --lumi-google-line: #8e918f;
   --lumi-progress: linear-gradient(90deg, #7f79d6, #b4adf4 65%, #eadfb0);
   --lumi-shadow-card: none;
   --lumi-shadow-selected: 0 0 0 1px rgb(180 173 244 / 0.22), 0 0 18px rgb(180 173 244 / 0.22);
@@ -137,12 +148,13 @@
 
 /*
  * 기본 팔레트를 지워 토큰만 쓰게 한다. bg-gray-100 같은 고정 색은 시간대가 바뀌어도 그대로 남는다.
- * white·black은 사진 위 오버레이용으로 남긴다.
+ * white·black은 사진 위 오버레이용으로 남긴다. kakao는 카카오 로그인 버튼 가이드의 색이라 다크 짝 없이 늘 같다.
  */
 @theme {
   --color-*: initial;
   --color-white: #fff;
   --color-black: #000;
+  --color-kakao: #fee500;
 
   --radius-card: 18px;
   --radius-button: 14px;
@@ -177,6 +189,8 @@
   --color-goal-s1: var(--lumi-goal-s1);
   --color-goal-s2: var(--lumi-goal-s2);
   --color-goal-s3: var(--lumi-goal-s3);
+  --color-google: var(--lumi-google);
+  --color-google-line: var(--lumi-google-line);
 
   --shadow-card: var(--lumi-shadow-card);
   --shadow-selected: var(--lumi-shadow-selected);

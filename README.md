@@ -110,13 +110,18 @@ automation/                ship 하네스 (준비 문서 README.md + 하네스 �
 | 선택한 칩과 행 | `bg-primary-soft` · `text-on-primary-soft` · `border-indicator` · `shadow-selected` |
 | 강조 · 진행 막대 | `bg-accent` · `bg-progress` |
 | 세션 목표 색 (아이콘·점) | `bg-goal-s1` · `bg-goal-s2` · `bg-goal-s3` |
+| 소셜 로그인 버튼 (`src/ui/social-login.tsx`) | `bg-google` · `border-google-line` · `bg-kakao` |
 | 카드 그림자 | `shadow-card` |
 | 반경 | `rounded-card` 18 · `rounded-button` 14 · `rounded-chip` 12 · `rounded-row` 12 (px) |
 | 글자 크기 | `text-title` 26 · `text-body` 15 · `text-caption` 13 (px) |
 | 제목 글꼴 | `font-display` (본문은 기본 `font-sans`) |
 
 - Tailwind 기본 팔레트(`bg-gray-100` 등)는 지웠습니다. 고정 색은 시간대가 바뀌어도 그대로 남기 때문입니다.
-  사진 위 오버레이용으로 `white` · `black`만 남겼습니다.
+  사진 위 오버레이용 `white` · `black`과 카카오 로그인 색만 남겼습니다.
+- 소셜 로그인 버튼은 마크만 둔 원형 아이콘 버튼이고, 각 사 로그인 버튼 가이드의 색과 마크를 그대로 씁니다. Google은
+  밝은 세트에서 라이트, 어두운 세트에서 다크 테마이고, 카카오는 다크 짝이 없어 늘 바탕 `#FEE500` · 심볼 검정입니다.
+  카카오 바탕은 밝은 세트의 페이지와 대비가 1.2:1이지만 검은 심볼이 버튼임을 알리고, 가이드가 다른 색을 금해 테두리를
+  더하지 않습니다.
 - 휴대폰이 다크 모드면 A와 B는 어두운 짝으로 바뀌고 C는 늘 어둡습니다. 색 세트는 A · A 다크 · B · B 다크 · C
   다섯 개이고, 모두 WCAG AA 대비(글자 4.5:1, 표시선과 컨트롤 테두리 3:1)를 넘습니다. 새 화면은 다섯 세트에서 모두 확인합니다.
 - 서버는 사용자의 시각을 모르므로 `layout.tsx`의 `<head>` 스크립트가 첫 화면 전에 `data-light`를 정합니다.

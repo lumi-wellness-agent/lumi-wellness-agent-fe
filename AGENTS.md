@@ -22,7 +22,8 @@ Codex·Claude Code 같은 AI 에이전트가 이 저장소에서 작업할 때 �
 토큰과 클래스 표는 README 「디자인 시스템: 하루의 빛」에 있다.
 
 - 색은 토큰 클래스(`bg-surface`, `text-ink`, `border-line` 등)만 쓴다. `bg-[#…]` 같은 임의 색 값이나 `style` 속성으로 색을 넣지 않는다. 그런 색은 시간대가 바뀌어도 그대로 남는다.
-- Tailwind 기본 팔레트는 지웠다. `bg-gray-100` 같은 클래스는 에러 없이 무시되고 색이 칠해지지 않는다. 사진 위 오버레이용 `white`·`black`만 남아 있다.
+- Tailwind 기본 팔레트는 지웠다. `bg-gray-100` 같은 클래스는 에러 없이 무시되고 색이 칠해지지 않는다. 사진 위 오버레이용 `white`·`black`과 카카오 로그인 색만 남아 있다.
+- 소셜 로그인 버튼(`src/ui/social-login.tsx`)은 예외로 각 사 가이드의 색과 마크를 쓴다. Google은 다섯 색 세트에 라이트 · 다크 테마 값(`google` · `google-line`)이 있고, 카카오(`kakao`)는 다크 짝이 없어 고정이다. 마크의 색 · 비율과 버튼 이름(`aria-label`)의 카카오 문구 '카카오 로그인'은 바꾸지 않는다.
 - 반경·글자 크기·글꼴도 README 표의 토큰(`rounded-card`, `text-body`, `font-display` 등)을 먼저 쓴다.
 - 색 토큰을 추가하면 `src/app/globals.css`의 다섯 색 세트(A · A 다크 · B · B 다크 · C)에 모두 값을 넣는다. 글자는 4.5:1, 표시선과 컨트롤 테두리는 3:1 대비를 넘겨야 한다.
 - 새 화면은 다섯 색 세트에서 모두 확인한다. 시간대는 개발자 도구 콘솔에서 `localStorage.setItem("lumi:light-pick", "moonlight")`(`mist`·`sunlit`도 같다)를 실행하고 새로고침해 바꾸고, `localStorage.removeItem("lumi:light-pick")`로 되돌린다. 다크 짝은 개발자 도구 Rendering 패널에서 `prefers-color-scheme: dark`를 켜서 본다.

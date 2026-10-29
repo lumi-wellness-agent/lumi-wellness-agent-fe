@@ -16,6 +16,7 @@ import { useBrowserValue } from "@/lib/use-browser-value";
 import { StartInput } from "@/session/intake/start-input";
 import { saveDraft } from "@/session/use-session";
 import { Button } from "@/ui/controls";
+import { SocialLoginButton } from "@/ui/social-login";
 
 export function StartForm() {
   const router = useRouter();
@@ -72,13 +73,13 @@ export function StartForm() {
               로그인하지 않으면 체험 내용은 기록으로 남기지 않으며, 진행에 쓴 데이터는 1~2일 안에 지워집니다.
             </p>
             {authConfigured && (
-              <div className="mt-2 flex gap-2">
-                <Button variant="secondary" className="flex-1" onClick={() => login("google")}>
-                  Google로 로그인
-                </Button>
-                <Button variant="secondary" className="flex-1" onClick={() => login("kakao")}>
-                  카카오로 로그인
-                </Button>
+              // 버튼에 글자가 없어 무엇을 하는 버튼인지 위에 적는다.
+              <div className="mt-4 flex flex-col items-center gap-2">
+                <p>간편 로그인</p>
+                <div className="flex gap-5">
+                  <SocialLoginButton provider="google" onClick={() => login("google")} />
+                  <SocialLoginButton provider="kakao" onClick={() => login("kakao")} />
+                </div>
               </div>
             )}
           </>

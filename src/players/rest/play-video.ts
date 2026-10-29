@@ -1,4 +1,5 @@
 type Video = Pick<HTMLVideoElement, "play" | "pause" | "muted">;
+const attempts = new WeakMap<Video, symbol>();
 
 /** play()가 로딩을 시작하게 한다. preload/canplay는 시작 버튼의 선행 조건이 아니다. */
 export function playVideo(
@@ -6,6 +7,8 @@ export function playVideo(
   signal: AbortSignal,
   timeoutMs = 15000,
 ): Promise<void> {
+  const attempt = Symbol();
+  attempts.set(video, attempt);
   return new Promise((resolve, reject) => {
     let settled = false;
     let timer: ReturnType<typeof setTimeout> | undefined;
@@ -28,7 +31,9 @@ export function playVideo(
       // 버튼을 누른 호출 스택에서 바로 실행해 모바일의 사용자 동작 조건을 지킨다.
       void video.play().then(() => {
         // 취소·시간 초과 뒤 늦게 재생돼도 화면 밖에서 돌지 않게 멈춘다.
-        if (settled) video.pause();
+        if (settled) {
+          if (attempts.get(video) === attempt) video.pause();
+        }
         else finish();
       }, () => finish(new Error("VIDEO_START_FAILED")));
     } catch {

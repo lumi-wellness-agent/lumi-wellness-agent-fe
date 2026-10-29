@@ -29,11 +29,14 @@ export function parseGrounding(value: unknown): GroundSpec | null {
   }
   return { intro, end, stages, tts: obj(guide?.source_policy).tts !== "FORBIDDEN" };
 }
-export type GroundState = { phase: "active" | "end"; index: number; skipped: number[] };
-export const initialGroundState: GroundState = { phase: "active", index: 0, skipped: [] };
-export type GroundAction = { type: "NEXT" | "SKIP"; total: number };
+export type GroundState = { phase: "intro" | "active" | "end"; index: number; skipped: number[] };
+export const initialGroundState: GroundState = { phase: "intro", index: 0, skipped: [] };
+export type GroundAction = { type: "INTRO_DONE" } | { type: "NEXT" | "SKIP"; total: number };
 export function groundReducer(state: GroundState, action: GroundAction): GroundState {
-  if (state.phase !== "active") return state;
+  if (state.phase === "intro") {
+    return action.type === "INTRO_DONE" ? { ...state, phase: "active" } : state;
+  }
+  if (state.phase !== "active" || action.type === "INTRO_DONE") return state;
   const skipped = action.type === "SKIP" ? [...state.skipped, state.index] : state.skipped;
   return state.index + 1 >= action.total ? { ...state, phase: "end", skipped }
     : { phase: "active", index: state.index + 1, skipped };

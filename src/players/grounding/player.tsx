@@ -72,10 +72,14 @@ export default function GroundingPlayer({ content, onFinish }: PlayerProps) {
     const mine = ++run.current;
     cancelSpeech();
     const stage = spec.stages[state.index];
-    const text = state.phase === "end" ? spec.end
+    const text = state.phase === "intro" ? spec.intro : state.phase === "end" ? spec.end
       : [stage.text, stage.exampleText].filter(Boolean).join("\n\n");
     void read(text, mine).then((ok) => {
       if (!mounted.current || mine !== run.current) return;
+      if (state.phase === "intro") {
+        if (ok) dispatch({ type: "INTRO_DONE" });
+        return;
+      }
       if (state.phase === "end" && ok) finish();
     });
     return () => { run.current++; cancelSpeech(); };
@@ -109,13 +113,26 @@ export default function GroundingPlayer({ content, onFinish }: PlayerProps) {
               {stage.examples.length > 0 && (
                 <p className="text-center text-caption break-keep text-ink-muted">예: {stage.examples.join(" · ")}</p>
               )}
+              <p className="min-h-24 text-body break-keep whitespace-pre-line text-ink">
+                {caption || stage.text}
+              </p>
             </>
           )}
-          <p className="min-h-24 text-body break-keep whitespace-pre-line text-ink">
-            {caption || (state.phase === "end" ? spec.end : stage.text)}
-          </p>
+          {state.phase !== "active" && (
+            <div className="flex flex-1 flex-col justify-center gap-3">
+              <h3 className="font-display text-title text-ink">
+                {state.phase === "intro" ? "시작 안내" : "마무리 안내"}
+              </h3>
+              <p className="min-h-24 text-body break-keep whitespace-pre-line text-ink">
+                {caption || (state.phase === "intro" ? spec.intro : spec.end)}
+              </p>
+            </div>
+          )}
           {silent && <p className="text-caption text-ink-muted">음성을 사용할 수 없어 글로 안내하고 있어요. 자신의 속도로 진행해 주세요.</p>}
           <div className="mt-auto flex flex-col gap-2 pt-4 pb-[env(safe-area-inset-bottom)]">
+            {state.phase === "intro" && silent && !reading && (
+              <Button onClick={() => dispatch({ type: "INTRO_DONE" })}>음성 없이 첫 단계로</Button>
+            )}
             {state.phase === "active" && (
               <>
                 <Button onClick={() => dispatch({ type: "NEXT", total: spec.stages.length })}>

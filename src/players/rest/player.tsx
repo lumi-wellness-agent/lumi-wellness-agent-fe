@@ -7,6 +7,7 @@ import { Button } from "@/ui/controls";
 import type { PlayerProps } from "../types";
 import { clock, cueAt, parseRest } from "./spec";
 import { playVideo } from "./play-video";
+import { NatureTimer } from "./nature-timer";
 
 export default function RestPlayer({ content, onFinish }: PlayerProps) {
   const spec = useMemo(() => parseRest(content.content_spec), [content.content_spec]);
@@ -20,6 +21,7 @@ export default function RestPlayer({ content, onFinish }: PlayerProps) {
   const startRequest = useRef<AbortController | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [silent, setSilent] = useState(false);
+  const [speaking, setSpeaking] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const origin = useRef(0);
   const finished = useRef(false);
@@ -49,6 +51,7 @@ export default function RestPlayer({ content, onFinish }: PlayerProps) {
   const say = (text: string) => {
     const mine = ++generation.current;
     cancelSpeech();
+    setSpeaking(false);
     if (!ttsAllowed || !canSpeak()) {
       setCaption(text);
       setSilent(true);
@@ -58,8 +61,10 @@ export default function RestPlayer({ content, onFinish }: PlayerProps) {
       for (const chunk of splitScript(text)) {
         if (!mounted.current || mine !== generation.current) return;
         setCaption(chunk.text);
+        setSpeaking(true);
         const ok = await speakScript(chunk.text, { rate: 0.85 });
         if (!mounted.current || mine !== generation.current) return;
+        setSpeaking(false);
         if (!ok) {
           setSilent(true);
           setCaption(text);
@@ -69,6 +74,7 @@ export default function RestPlayer({ content, onFinish }: PlayerProps) {
       }
     })().catch(() => {
       if (mounted.current && mine === generation.current) {
+        setSpeaking(false);
         setCaption(text);
         setSilent(true);
       }
@@ -163,7 +169,7 @@ export default function RestPlayer({ content, onFinish }: PlayerProps) {
           {!video && <p className="text-caption text-ink-muted">준비된 영상이 없어요. 영상 모드는 BE에서 영상 자산을 받은 뒤 사용할 수 있어요.</p>}
         </div>
       )}
-      <div className="relative min-h-[42dvh] overflow-hidden rounded-card bg-surface-muted">
+      <div className={mode?.video ? "relative min-h-[42dvh] overflow-hidden rounded-card bg-surface-muted" : "relative"}>
         {/* 소스를 고정하므로 타이머나 자막 변경 때 영상을 다시 선택하지 않는다. */}
         {video && (
           <video ref={videoRef} src={assetUrl(video.url)} muted playsInline loop={spec.loop}
@@ -172,15 +178,13 @@ export default function RestPlayer({ content, onFinish }: PlayerProps) {
             className={mode?.video ? "absolute inset-0 h-full w-full object-cover" : "hidden"} />
         )}
         {!mode?.video && (
-          <div className="absolute inset-0 flex items-center justify-center p-6 text-center">
-            <p className="text-body break-keep text-ink-muted">
-              {mode ? "안전한 곳에 앉아 주변의 자연을 편안하게 살펴보세요." : "편안하게 머물 환경을 선택해 주세요."}
-            </p>
+          <NatureTimer remaining={spec.seconds - elapsed} total={spec.seconds} speaking={speaking} />
+        )}
+        {mode?.video && (
+          <div className="absolute top-3 right-3 rounded-chip bg-page/80 px-3 py-2 opacity-70">
+            <span className="text-caption text-ink tabular-nums" aria-label="남은 시간">{clock(spec.seconds - elapsed)}</span>
           </div>
         )}
-        <div className="absolute top-3 right-3 rounded-chip bg-page/80 px-3 py-2 opacity-70">
-          <span className="text-caption text-ink tabular-nums" aria-label="남은 시간">{clock(spec.seconds - elapsed)}</span>
-        </div>
       </div>
       <div className="min-h-24 rounded-card bg-surface p-4">
         <p className="text-body break-keep whitespace-pre-line text-ink">{caption || content.guide_text}</p>

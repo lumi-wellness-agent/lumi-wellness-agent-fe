@@ -189,7 +189,7 @@ SSE 진행 문구는 `src/session/labels.ts`, 오류 처리 표는 BE README 「
 npm run dev         # 개발 서버 — http://localhost:3000/dev
 npm run lint
 npm run typecheck
-npm test            # ship 게이트 · 안내 음성 · SSE 파서
+npm test            # ship 게이트 · 안내 음성 · SSE 파서 · 하루의 빛
 npm run build
 ```
 

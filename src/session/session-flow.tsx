@@ -38,8 +38,7 @@ export function SessionFlow() {
       lockLight();
       void session.start(draft);
     } else if (saved) {
-      lockLight();
-      void session.resume(saved);
+      void session.resume(saved); // 빛은 시작할 때 고정한 것을 그대로 쓴다(세션 화면에서 applyLight가 읽는다)
     } else {
       router.replace("/");
     }

@@ -95,3 +95,17 @@ export function NatureTimer({ remaining, total, speaking }: { remaining: number;
     </div>
   );
 }
+
+/** PR-22와 같은 크기·투명도의 영상 위 타이머. */
+export function VideoTimer({ remaining }: { remaining: number }) {
+  const seconds = Math.max(0, Math.ceil(remaining));
+  return (
+    <div role="timer" aria-label={"남은 시간 " + clock(seconds)}
+      className="pointer-events-none absolute top-3 right-3 flex h-16 w-16 items-center justify-center rounded-full border border-indicator/50 bg-page/80 opacity-70">
+      <time className="absolute inline-flex scale-[0.45] items-center" dateTime={"PT" + seconds + "S"}>
+        <span className="sr-only">{clock(seconds)}</span>
+        <DigitalClock value={clock(seconds)} />
+      </time>
+    </div>
+  );
+}

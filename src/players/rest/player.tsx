@@ -6,6 +6,7 @@ import { cancelSpeech, canSpeak, loadVoices, speakScript, splitScript, unlockSpe
 import { Button } from "@/ui/controls";
 import type { PlayerProps } from "../types";
 import { clock, cueAt, parseRest } from "./spec";
+import { playVideo } from "./play-video";
 
 export default function RestPlayer({ content, onFinish }: PlayerProps) {
   const spec = useMemo(() => parseRest(content.content_spec), [content.content_spec]);
@@ -15,7 +16,8 @@ export default function RestPlayer({ content, onFinish }: PlayerProps) {
   const [running, setRunning] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const [caption, setCaption] = useState("");
-  const [ready, setReady] = useState(false);
+  const [starting, setStarting] = useState(false);
+  const startRequest = useRef<AbortController | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [silent, setSilent] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -37,6 +39,7 @@ export default function RestPlayer({ content, onFinish }: PlayerProps) {
     const media = videoRef.current;
     return () => {
       mounted.current = false;
+      startRequest.current?.abort();
       generation.current += 1;
       cancelSpeech();
       media?.pause();
@@ -108,7 +111,7 @@ export default function RestPlayer({ content, onFinish }: PlayerProps) {
   );
 
   const start = () => {
-    if (!mode || running) return;
+    if (!mode || running || startRequest.current) return;
     unlockSpeech();
     setError(null);
     const begin = () => {
@@ -116,18 +119,27 @@ export default function RestPlayer({ content, onFinish }: PlayerProps) {
       origin.current = Date.now();
       setRunning(true);
     };
-    if (mode.video) {
-      const media = videoRef.current;
-      if (!media || !ready) return;
-      media.muted = true;
-      void media.play().then(begin).catch(() => {
-        if (mounted.current) setError("영상을 재생하지 못했어요. 시작 버튼을 다시 눌러 주세요.");
-      });
-    } else begin();
+    if (!mode.video) { begin(); return; }
+    const media = videoRef.current;
+    if (!media) return;
+    const request = new AbortController();
+    startRequest.current = request;
+    setStarting(true);
+    void playVideo(media, request.signal).then(begin).catch((reason: unknown) => {
+      if (!mounted.current || request.signal.aborted) return;
+      const timeout = reason instanceof Error && reason.message === "VIDEO_START_TIMEOUT";
+      setError(timeout
+        ? "영상 로딩이 오래 걸려요. 영상 다시 불러오기를 누른 뒤 재시도해 주세요."
+        : "영상을 재생하지 못했어요. 영상 다시 불러오기를 누른 뒤 재시도해 주세요.");
+    }).finally(() => {
+      if (startRequest.current === request) {
+        startRequest.current = null;
+        if (mounted.current) setStarting(false);
+      }
+    });
   };
   const failedVideo = () => {
     setError("영상을 불러오지 못했어요. 다시 불러오거나 실제 자연환경 모드를 선택해 주세요.");
-    setReady(false);
     if (running && mode?.video && !finished.current) {
       finished.current = true;
       generation.current += 1;
@@ -144,7 +156,7 @@ export default function RestPlayer({ content, onFinish }: PlayerProps) {
           <p className="text-body text-ink">어디에서 자연을 알아차릴까요?</p>
           {spec.modes.map((m) => (
             <Button key={m.id} variant={modeId === m.id ? "primary" : "secondary"}
-              disabled={m.video && !video} onClick={() => { setModeId(m.id); setError(null); }}>
+              disabled={starting || (m.video && !video)} onClick={() => { setModeId(m.id); setError(null); }}>
               {m.video ? "자연 영상으로 하기" : "실제 자연환경에서 하기"}
             </Button>
           ))}
@@ -155,7 +167,7 @@ export default function RestPlayer({ content, onFinish }: PlayerProps) {
         {/* 소스를 고정하므로 타이머나 자막 변경 때 영상을 다시 선택하지 않는다. */}
         {video && (
           <video ref={videoRef} src={assetUrl(video.url)} muted playsInline loop={spec.loop}
-            preload="metadata" onCanPlay={() => setReady(true)} onError={failedVideo}
+            preload="auto" onError={failedVideo}
             aria-label="바람에 흔들리는 나무와 잎의 자연 영상"
             className={mode?.video ? "absolute inset-0 h-full w-full object-cover" : "hidden"} />
         )}
@@ -177,9 +189,9 @@ export default function RestPlayer({ content, onFinish }: PlayerProps) {
       {error && <p role="alert" className="text-caption text-ink">{error}</p>}
       {!running && mode && (
         <div className="flex flex-col gap-2 pb-[env(safe-area-inset-bottom)]">
-          {mode.video && !ready && <p className="text-caption text-ink-muted">영상을 준비하고 있어요.</p>}
-          {mode.video && error && <Button variant="secondary" onClick={() => { setError(null); videoRef.current?.load(); }}>영상 다시 불러오기</Button>}
-          <Button disabled={mode.video && !ready} onClick={start}>시작하기 · {Math.round(spec.seconds / 60)}분</Button>
+          {starting && <p role="status" className="text-caption text-ink-muted">영상을 재생하고 있어요. 잠시만 기다려 주세요.</p>}
+          {mode.video && error && !starting && <Button variant="secondary" onClick={() => { setError(null); videoRef.current?.load(); }}>영상 다시 불러오기</Button>}
+          <Button disabled={starting} onClick={start}>{starting ? "영상 연결 중…" : `시작하기 · ${Math.round(spec.seconds / 60)}분`}</Button>
         </div>
       )}
       {mode?.video && video?.source_url && (

@@ -52,7 +52,7 @@ CI·Vercel 체크 대기는 `automation/bin/`의 **폴링 스크립트**(`pr-gat
      - **변경 사항**: 변경 요점을 불릿으로. UI 변경이 있으면 "스크린샷은 사람이 첨부" 한 줄을 남긴다. **변경 타입**: 타입 표의 해당 항목 하나만 `[x]`. **테스트 방법**: Phase 2에서 실제 수행한 명령과 결과(`npm run lint`·`npm run typecheck`·`npm test`·`npm run build` 통과). **참고 사항**: 환경변수 추가(Vercel 설정 필요) 등 머지 후 사람이 할 일 — 없으면 "없음". **연결된 이슈**: `close #<이슈번호>`. **체크리스트**: 실제 확인한 항목만 `[x]`(테스트는 게이트·폴링 스크립트에만 있어 「테스트 추가/수정 완료」는 해당 시에만), 환경변수 변경이 있으면 키 이름만 적는다.
      - 본문 끝에 현재 하네스의 **PR 본문 서명**(있으면)을 붙인다. **라벨·담당자를 붙이지 않는다.**
      - 출력 URL 끝 숫자가 `<PR번호>`.
-5. 머지 게이트 폴링: **`node automation/bin/pr-gate.mjs <PR번호> 600 check`** (30초 간격, 최대 10분) → `PR_GATE_DONE` 마커. **게이트 = `mergeable` MERGEABLE + 앵커 체크(`check`) 존재 + 비차단 예외를 제외한 모든 체크가 완료·성공 (실패 0, 대기 0, 체크 1개 이상)** — 정확한 판정 로직·비차단 예외 목록은 `automation/bin/pr-gate.mjs`의 `judge()`·`EXEMPT`가 원천이다(`automation/test/pr-gate.test.mjs`가 fixture로 검증). 체크를 이름 허용목록으로 고르지 않으므로 Vercel 연결 후의 `Vercel` 프리뷰 체크도 자동으로 게이트에 포함되고, 잡이 추가·개명돼도 따라간다.
+5. 머지 게이트 폴링: **`node automation/bin/pr-gate.mjs <PR번호> 600 check`** (30초 간격, 최대 10분) → `PR_GATE_DONE` 마커. **게이트 = `mergeable` MERGEABLE + 앵커 체크(`check`) 존재 + 비차단 예외를 제외한 모든 체크가 완료·성공 (실패 0, 대기 0, 체크 1개 이상)** — 정확한 판정 로직·비차단 예외 목록은 `automation/bin/pr-gate.mjs`의 `judge()`·`EXEMPT`가 원천이다(`automation/test/pr-gate.test.mjs`가 fixture로 검증). 체크를 이름 허용목록으로 고르지 않으므로 잡이 추가·개명돼도 따라간다. PR 브랜치는 Vercel이 배포하지 않아(`vercel.json` `git.deploymentEnabled` — `main`만) PR에는 `Vercel` 체크가 붙지 않는다. 설정 전에 딴 브랜치처럼 붙으면 같은 규칙으로 게이트에 들어간다.
    - **`main` 브랜치 보호가 아직 없어 서버 측 강제가 없다** — 이 클라이언트 게이트가 유일한 관문이므로 PASS 없이 머지하지 않는다. 보호를 설정하면(required check `check`, 승인 0명) 이 문장을 갱신한다. 설정 여부는 `gh api repos/lumi-wellness-agent/lumi-wellness-agent-fe/branches/main/protection`으로 확인한다(404 = 미설정).
    - `result=PASS` → `gh pr merge <PR번호> --squash --subject "[TYPE] 설명 (#<PR번호>)"`. **`--auto`를 쓰지 않는 이유**: 머지를 서버에 위임하면 게이트 실패 시 아무 일도 일어나지 않은 채 대기만 남아 "실패 → 즉시 로그 요약·보고"라는 이 파이프라인의 실행 흐름이 끊긴다.
    - `result=FAIL*` → 마커의 `failed=` 목록에 있는 체크의 로그를 요약해(`gh run view <run-id> --log-failed` 등) 보고하고 중단. `mergeable=CONFLICTING`·`TIMEOUT`·`API_ERROR`·`ERROR`도 각각 요약해 중단 (「폴링 실행 규칙」의 구분 참조).
@@ -80,7 +80,7 @@ CI 폴링: **`node automation/bin/run-wait.mjs ci.yml main "<MERGE_SHA>" 600`** 
 - `result=NOT_FOUND` → 직전 `main` 커밋은 배포됐는데 이 커밋의 배포가 생기지 않았다 — Vercel 프로젝트의 Production Branch가 `main`인지, Git 연동이 살아 있는지 확인을 안내한다.
 - `result=TIMEOUT` → 아직 진행 중일 수 있으니 단정하지 말고 `url=`로 확인을 안내한다. `API_ERROR` → 스크립트 stderr를 요약한다. `ERROR`(대문자) → 배포 상태 `error`와 다른 실행 환경 문제다 — 「폴링 실행 규칙」대로 처리한다.
 
-> PR에도 `Vercel`(프리뷰 배포) 체크가 붙는다. Step 1-5의 게이트는 전수 검사라 그 체크도 자동으로 기다린다. 브랜치 보호를 설정할 때 required check에 `Vercel` 컨텍스트를 함께 넣는다.
+> PR 브랜치는 프리뷰 배포를 하지 않는다(`vercel.json` `git.deploymentEnabled` — `main`만). Hobby는 배포를 하루(24시간) 100번까지만 만들어, PR에 push할 때마다 Preview를 만들면 한도가 차서 `main` 배포까지 막힌다(2026-10-29). 그래서 변경이 Vercel에서 처음 빌드되는 곳은 이 프로덕션 배포이고, 머지 전 빌드 확인은 CI `check`의 `npm run build`가 맡는다. 브랜치 보호를 설정할 때 required check에 `Vercel`을 넣지 않는다.
 
 ## Step 4: 정리 & 보고
 

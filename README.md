@@ -233,5 +233,8 @@ BE 레포와 같은 규칙입니다. feature → `main`으로 올립니다 (`dev
 - Install Command: `npm ci`
 - Build Command: `npm run build`
 
-이 저장소는 Vercel 프로젝트에 Git 연동돼 있어 `main`에 머지하면 프로덕션으로 배포됩니다.
+이 저장소는 Vercel 프로젝트에 Git 연동돼 있어 `main`에 머지하면 프로덕션으로 배포됩니다. PR 브랜치는 배포하지
+않습니다(`vercel.json`의 `git.deploymentEnabled`). Hobby는 배포를 하루(24시간) 100번까지만 만들어서, PR에 push할
+때마다 Preview를 만들면 한도가 차 `main` 배포까지 막힙니다. 머지 전 확인은 CI(`check`의 build 포함)와 로컬
+미리보기(`/dev/players/<id>`)로 합니다.
 GitHub Actions의 CI 통과를 머지 조건으로 사용하려면 저장소의 브랜치 규칙을 설정합니다.

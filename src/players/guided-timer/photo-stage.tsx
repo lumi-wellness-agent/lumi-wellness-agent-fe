@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, type ReactNode } from "react";
+import { Spinner } from "@/ui/controls";
 
 type Props = {
   urls: string[];
@@ -26,17 +27,17 @@ export function PhotoStage({ urls, index, transitionMs, children }: Props) {
           setFailed(false);
         }
       });
+      // Prefetch the next photo once this one has arrived, so the two do not share bandwidth.
+      const next = urls[index + 1];
+      if (next && !cancelled) {
+        const preload = new window.Image();
+        preload.src = next;
+      }
     };
     image.onerror = () => {
       if (!cancelled) setFailed(true);
     };
     image.src = url;
-    // Prefetch the next photo while the current one remains visible.
-    const next = urls[index + 1];
-    if (next) {
-      const preload = new window.Image();
-      preload.src = next;
-    }
     return () => {
       cancelled = true;
       image.onload = null;
@@ -56,17 +57,22 @@ export function PhotoStage({ urls, index, transitionMs, children }: Props) {
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 bg-cover bg-center transition-opacity ease-in-out motion-reduce:transition-none"
           style={{
-            backgroundImage: "url(" + JSON.stringify(url) + ")",
+            // Only the shown, incoming and outgoing photos get a background — giving every photo one downloads
+            // them all at once and the first photo arrives late.
+            backgroundImage: i === active || i === index || i === index - 1 ? "url(" + JSON.stringify(url) + ")" : undefined,
             opacity: active === i ? 1 : 0,
             transitionDuration: transitionMs + "ms",
           }}
         />
       ))}
-      {active === null && (
-        <p className="relative px-5 text-caption text-ink-muted">
-          {failed || urls.length === 0 ? "자연 사진을 불러오지 못했어요." : "자연 사진을 준비하고 있어요."}
-        </p>
-      )}
+      {active === null && (failed || urls.length === 0 ? (
+        <p className="relative px-5 text-caption text-ink-muted">자연 사진을 불러오지 못했어요.</p>
+      ) : (
+        <div role="status" className="relative flex flex-col items-center gap-3 px-5">
+          <Spinner />
+          <p className="text-caption text-ink-muted">자연 사진을 준비하고 있어요.</p>
+        </div>
+      ))}
       {children}
     </div>
   );

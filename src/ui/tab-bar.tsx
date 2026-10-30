@@ -6,7 +6,7 @@ import type { ReactNode } from "react";
 
 /*
  * 아래 탭 바 — 메인 · 기록 · 설정. 탭 화면에만 두고, 세션 · 동의 · 로그인처럼 흐름을 마쳐야 하는 화면에는 두지 않는다.
- * 높이는 64px(탭마다 터치 영역이 화면 폭의 1/3 × 64px)이고 아래로 env(safe-area-inset-bottom)만큼 더 비운다.
+ * 높이는 56px(탭마다 터치 영역이 화면 폭의 1/3 × 56px)이고 아래로 env(safe-area-inset-bottom)만큼 더 비운다.
  * 화면은 TAB_BAR_SPACE(src/ui/controls.tsx)만큼 아래를 비워 탭 바에 가리지 않는다. 아이콘은 currentColor로 그린다.
  * 탭 이름은 화면에 쓰지 않고 aria-label로만 읽힌다.
  */
@@ -46,7 +46,7 @@ export function TabBar() {
       aria-label="주요 화면"
       className="fixed bottom-0 left-1/2 z-20 w-full max-w-[480px] -translate-x-1/2 border-t border-line bg-page pb-[env(safe-area-inset-bottom)]"
     >
-      <ul className="flex h-16">
+      <ul className="flex h-14">
         {TABS.map((tab) => {
           const current = tab.href === "/" ? pathname === "/" : pathname.startsWith(tab.href);
           return (

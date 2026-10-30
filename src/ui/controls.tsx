@@ -62,8 +62,8 @@ export function Chip({ selected, className = "", ...props }: ButtonHTMLAttribute
   );
 }
 
-/** 아래 탭 바(src/ui/tab-bar.tsx, 높이 64px)에 가리지 않게 화면 아래를 비운다 — 탭 바 위로 24px과 안전 영역. */
-export const TAB_BAR_SPACE = "pb-[calc(88px+env(safe-area-inset-bottom))]";
+/** 아래 탭 바(src/ui/tab-bar.tsx, 높이 56px)에 가리지 않게 화면 아래를 비운다 — 탭 바 위로 24px과 안전 영역. */
+export const TAB_BAR_SPACE = "pb-[calc(80px+env(safe-area-inset-bottom))]";
 
 /**
  * 화면 틀 — 360px에서 먼저 맞추고 넓은 화면에서는 가운데 480px. footer는 아래에 붙는 버튼 줄이다.

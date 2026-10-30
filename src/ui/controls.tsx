@@ -67,17 +67,18 @@ export const TAB_BAR_SPACE = "pb-[calc(88px+env(safe-area-inset-bottom))]";
 
 /**
  * 화면 틀 — 360px에서 먼저 맞추고 넓은 화면에서는 가운데 480px. footer는 아래에 붙는 버튼 줄이다.
- * 하단 바는 sticky라 내용을 가리지 않고, env(safe-area-inset-bottom)만큼 아래를 비운다.
+ * 하단 바는 실제 높이만큼 문서 공간을 차지하고 sticky로 화면 아래에 붙는다.
+ * 버튼 수·줄바꿈과 env(safe-area-inset-bottom)에 맞춰 본문을 끝까지 올려 볼 수 있다.
  * tabBar면 footer 대신 아래 탭 바(메인 · 기록 · 설정)를 붙인다 — 탭 화면만 쓴다.
  */
 export function Screen({ children, footer, tabBar = false }: { children: ReactNode; footer?: ReactNode; tabBar?: boolean }) {
-  const space = footer ? "pb-28" : tabBar ? TAB_BAR_SPACE : "pb-6";
+  const space = tabBar && !footer ? TAB_BAR_SPACE : "pb-6";
   return (
     <>
       <main className="mx-auto flex min-h-dvh w-full max-w-[480px] flex-col px-4 pt-6">
         <div className={`flex flex-1 flex-col ${space}`}>{children}</div>
         {footer && (
-          <div className="fixed bottom-0 left-1/2 z-20 flex w-full max-w-[480px] -translate-x-1/2 flex-col gap-2 border-t border-line bg-page px-4 pt-3 pb-[calc(12px+env(safe-area-inset-bottom))]">
+          <div className="sticky bottom-0 z-20 -mx-4 flex shrink-0 flex-col gap-2 border-t border-line bg-page px-4 pt-3 pb-[calc(12px+env(safe-area-inset-bottom))]">
             {footer}
           </div>
         )}

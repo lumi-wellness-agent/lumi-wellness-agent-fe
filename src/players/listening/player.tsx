@@ -9,6 +9,7 @@
  *   autoplay false — iOS는 사용자가 누른 순간에만 소리를 열어 주므로 "재생하기"를 눌러야 시작한다.
  * 시간: 계획한 시간(step.minutes)만큼 돈다. 소리가 그보다 짧으면 반복하고(무봉제 루프는 BE 선택 조건),
  *   끝나면 천천히 소리를 줄이고 "다음으로"를 누르면 onFinish({ completed: true }).
+ *   "재생하기"를 눌러도 소리 · 영상을 다 받기 전에는 시간을 세지 않고 도는 표시를 띄운다(15초가 지나면 먼저 센다).
  * PR-05는 음악 후보가 여럿이면 먼저 한 곡을 고른다(단계 이름 "검수된 음악 후보 중 한 곡 선택해 듣기").
  *   BE가 추천곡을 맨 앞에 두고 metadata.recommended · content_factor.reason을 단다 — "LUMI 추천" 배지와 이유를
  *   보이되 고르는 것은 사용자다(E08: 목록에서 사용자가 고른 음악).
@@ -19,7 +20,7 @@
 import { useEffect, useRef, useState, type RefObject } from "react";
 import type { ActivityAsset } from "@/lib/api/types";
 import { assetUrl } from "@/lib/api/client";
-import { Button, Card } from "@/ui/controls";
+import { Button, Card, Spinner } from "@/ui/controls";
 import { assetsOf, factorOf, findSlot, num, renderOf, str } from "../slideshow/spec";
 import { formatClock, useActivityTimer } from "../slideshow/use-activity-timer";
 import type { PlayerProps } from "../types";
@@ -97,6 +98,9 @@ function Listening({ sound, video, totalSeconds, fadeIn, fadeOut, onFinish }: Li
   const audioRef = useRef<HTMLAudioElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [started, setStarted] = useState(false);
+  // 실제로 나오기 시작했는지(playing). 없는 자산은 기다리지 않고, 못 받은 자산(onError)도 더 기다리지 않는다
+  const [soundOn, setSoundOn] = useState(!sound);
+  const [videoOn, setVideoOn] = useState(!video);
   const [volume, setVolume] = useState(DEFAULT_VOLUME);
   const [error, setError] = useState<string | null>(null);
   const soundLoops = (sound ? (durationOf(sound) ?? Infinity) : Infinity) < totalSeconds;
@@ -127,6 +131,8 @@ function Listening({ sound, video, totalSeconds, fadeIn, fadeOut, onFinish }: Li
             loop
             playsInline
             preload="auto"
+            onPlaying={() => setVideoOn(true)}
+            onError={() => setVideoOn(true)}
             aria-label={video.title ?? "자연 영상"}
             className="absolute inset-0 h-full w-full object-cover"
           />
@@ -145,7 +151,11 @@ function Listening({ sound, video, totalSeconds, fadeIn, fadeOut, onFinish }: Li
           src={assetUrl(sound.url)}
           loop={soundLoops}
           preload="auto"
-          onError={() => setError("소리를 불러오지 못했어요. 화면을 바라보며 쉬거나, '그만하기'로 다른 활동을 고를 수 있어요.")}
+          onPlaying={() => setSoundOn(true)}
+          onError={() => {
+            setSoundOn(true);
+            setError("소리를 불러오지 못했어요. 화면을 바라보며 쉬거나, '그만하기'로 다른 활동을 고를 수 있어요.");
+          }}
         />
       )}
       {!sound && <p className="mt-3 text-caption break-keep text-ink-muted">준비된 소리가 없어요. 화면을 바라보며 천천히 쉬어 가세요.</p>}
@@ -164,6 +174,8 @@ function Listening({ sound, video, totalSeconds, fadeIn, fadeOut, onFinish }: Li
           setVolume={setVolume}
           fadeOut={fadeOut}
           onFinish={onFinish}
+          waiting={!soundOn || !videoOn}
+          loadingText={!videoOn ? "영상을 불러오고 있어요" : sound?.slot === "MUSIC" ? "음악을 불러오고 있어요" : "소리를 불러오고 있어요"}
         />
       ) : (
         <div className="mt-auto flex flex-col gap-2 pt-4 pb-[env(safe-area-inset-bottom)]">
@@ -185,11 +197,23 @@ type RunningProps = {
   setVolume: (v: number) => void;
   fadeOut: number;
   onFinish: () => void;
+  /** 소리 · 영상이 아직 나오지 않았으면 true — 그동안은 도는 표시와 loadingText를 보이고 시간을 세지 않는다. */
+  waiting?: boolean;
+  loadingText?: string;
 };
 
+const MEDIA_WAIT_MS = 15_000; // 이만큼 지나도 소리 · 영상이 나오지 않으면 시간부터 센다 — 활동이 멈춰 있지 않게
+
 /** 재생 중 — 시간 · 멈춤 · 음량. 끝나면 소리를 줄이고 멈춘다. 이미지 + 명상(PR-21)도 쓴다. */
-export function Running({ audioRef, videoRef, totalSeconds, volume, setVolume, fadeOut, onFinish }: RunningProps) {
+export function Running({ audioRef, videoRef, totalSeconds, volume, setVolume, fadeOut, onFinish, waiting = false, loadingText = "소리를 불러오고 있어요" }: RunningProps) {
   const [adjustable] = useState(canSetVolume);
+  const [gaveUp, setGaveUp] = useState(false);
+  useEffect(() => {
+    if (!waiting) return;
+    const timeout = setTimeout(() => setGaveUp(true), MEDIA_WAIT_MS);
+    return () => clearTimeout(timeout);
+  }, [waiting]);
+  const holding = waiting && !gaveUp;
   const timer = useActivityTimer(totalSeconds, () => {
     const audio = audioRef.current;
     if (audio) {
@@ -197,7 +221,7 @@ export function Running({ audioRef, videoRef, totalSeconds, volume, setVolume, f
       setTimeout(() => audio.pause(), fadeOut * 1000 + 100);
     }
     videoRef.current?.pause();
-  });
+  }, !holding);
 
   // 멈춤 · 이어서
   useEffect(() => {
@@ -224,6 +248,12 @@ export function Running({ audioRef, videoRef, totalSeconds, volume, setVolume, f
 
   return (
     <div className="mt-4 flex flex-1 flex-col">
+      {holding && (
+        <div role="status" className="mb-3 flex items-center gap-3">
+          <Spinner />
+          <p className="break-keep text-ink-muted">{loadingText}</p>
+        </div>
+      )}
       <div
         role="progressbar"
         aria-label="남은 시간"

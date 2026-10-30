@@ -109,3 +109,8 @@ export const DELTA_LABELS: Record<string, string> = {
   total: "점수",
   mean: "점수",
 };
+
+/** 척도 점수는 환산값이라 소수가 길 수 있다(53.33 − 43.33) — 둘째 자리까지 보인다. */
+export function score(value: number): number {
+  return Math.round(value * 100) / 100;
+}

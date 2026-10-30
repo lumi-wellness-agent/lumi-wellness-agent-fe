@@ -8,7 +8,7 @@
 import type { EndPayload } from "@/lib/api/types";
 import { ButtonLink, Card, Heading, Screen } from "@/ui/controls";
 import { SafetyScreen } from "./intake/safety-screen";
-import { DELTA_LABELS, GOAL_LABELS } from "./labels";
+import { DELTA_LABELS, GOAL_LABELS, score } from "./labels";
 import { activityNames } from "./use-session";
 
 export function EndScreen({ payload }: { payload: EndPayload }) {
@@ -27,7 +27,7 @@ export function EndScreen({ payload }: { payload: EndPayload }) {
               <li key={key} className="flex justify-between">
                 <span>{DELTA_LABELS[key] ?? key}</span>
                 <strong className="tabular-nums">
-                  {scale.pre[key]} → {scale.end[key]} ({delta > 0 ? `+${delta}` : delta})
+                  {score(scale.pre[key])} → {score(scale.end[key])} ({delta > 0 ? `+${score(delta)}` : score(delta)})
                 </strong>
               </li>
             ))}

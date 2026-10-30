@@ -1,12 +1,13 @@
 "use client";
 /* eslint-disable react-hooks/set-state-in-effect */
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Button, Card, Heading, Screen } from "@/ui/controls";
 import type { PlayerProps } from "../types";
 
 type Status = "READY" | "WRITING" | "PAUSED" | "COMPLETED" | "STOPPED";
 type Draft = { status: Status; text: string; elapsedSeconds: number; startedAt: string | null; activityCompleted: boolean; refreshCount: number };
 const KEY = "lumi.pr18.writing.v1";
+const SAVED_TTL_MS = 3 * 60 * 60 * 1000; // 이보다 오래된 기록은 지난 세션 것으로 보고 새로 시작한다
 const MINIMUM = 300;
 const MAXIMUM = 5000;
 
@@ -16,13 +17,14 @@ export default function WritingPlayer({ onFinish }: PlayerProps) {
   const [draft, setDraft] = useState<Draft>({ status: "READY", text: "", elapsedSeconds: 0, startedAt: null, activityCompleted: false, refreshCount: 0 });
   const [now, setNow] = useState(() => Date.now());
   const [restored, setRestored] = useState(false);
+  const leaving = useRef<number | null>(null);
   const length = useMemo(() => normalizedLength(draft.text), [draft.text]);
   const canComplete = length >= MINIMUM && !draft.activityCompleted;
 
   useEffect(() => {
     try {
-      const saved = JSON.parse(localStorage.getItem(KEY) ?? "null") as Partial<Draft> | null;
-      if (saved) {
+      const saved = JSON.parse(localStorage.getItem(KEY) ?? "null") as (Partial<Draft> & { savedAt?: number }) | null;
+      if (saved && Date.now() - (saved.savedAt ?? 0) < SAVED_TTL_MS) {
         setRestored(true);
         setDraft({ status: saved.status === "WRITING" ? "PAUSED" : saved.status ?? "READY", text: saved.text ?? "", elapsedSeconds: saved.elapsedSeconds ?? 0, startedAt: saved.startedAt ?? null, activityCompleted: saved.activityCompleted ?? false, refreshCount: (saved.refreshCount ?? 0) + 1 });
       }
@@ -30,9 +32,15 @@ export default function WritingPlayer({ onFinish }: PlayerProps) {
   }, []);
 
   useEffect(() => {
-    const timer = window.setTimeout(() => localStorage.setItem(KEY, JSON.stringify(draft)), 500);
+    const timer = window.setTimeout(() => localStorage.setItem(KEY, JSON.stringify({ ...draft, savedAt: Date.now() })), 500);
     return () => window.clearTimeout(timer);
   }, [draft]);
+
+  // 활동을 떠나면(완료 · 그만하기 · 화면 위 그만하기) 기록을 지운다. 새로고침에는 정리 함수가 돌지 않아 이어서 할 수 있고, 개발 모드의 마운트 → 정리 → 마운트에서는 지우기를 취소한다
+  useEffect(() => {
+    if (leaving.current !== null) window.clearTimeout(leaving.current);
+    return () => { leaving.current = window.setTimeout(() => localStorage.removeItem(KEY), 0); };
+  }, []);
 
   useEffect(() => {
     if (draft.status !== "WRITING" || !draft.startedAt) return;

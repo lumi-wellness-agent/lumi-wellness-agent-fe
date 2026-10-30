@@ -1,19 +1,21 @@
 "use client";
 /* eslint-disable react-hooks/set-state-in-effect */
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button, Card, Heading, Screen } from "@/ui/controls";
 import type { PlayerProps } from "../types";
 type Status = "READY" | "RUNNING" | "PAUSED" | "TARGET_REACHED" | "NOTICING";
 type State = { status: Status; elapsed: number; env: boolean; body: boolean; notices: string[] };
-const KEY = "lumi.pr12.noticing.v1"; const TARGET = 1800;
+const KEY = "lumi.pr12.noticing.v1"; const TARGET = 1800; const SAVED_TTL_MS = 3 * 60 * 60 * 1000; // 이보다 오래된 기록은 지난 세션 것으로 보고 새로 시작한다
 export default function OutdoorWalkNoticingPlayer({ onFinish }: PlayerProps) {
   const [state, setState] = useState<State>({ status: "READY", elapsed: 0, env: false, body: false, notices: ["", "", ""] });
-  const [hydrated, setHydrated] = useState(false);
+  const [hydrated, setHydrated] = useState(false); const leaving = useRef<number | null>(null);
   const [startedAt, setStartedAt] = useState<number | null>(null); const [now, setNow] = useState(() => Date.now());
   const recorded = state.notices.filter((value) => value.trim()).length; const progress = Math.min(100, Math.round((state.elapsed / TARGET) * 100));
   const formatTime = (seconds: number) => `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
-  useEffect(() => { try { const saved = JSON.parse(localStorage.getItem(KEY) ?? "null") as Partial<State> | null; if (saved) setState({ status: saved.status === "RUNNING" ? "PAUSED" : saved.status ?? "READY", elapsed: saved.elapsed ?? 0, env: saved.env ?? false, body: saved.body ?? false, notices: saved.notices ?? ["", "", ""] }); } catch { localStorage.removeItem(KEY); } finally { setHydrated(true); } }, []);
-  useEffect(() => { if (hydrated) localStorage.setItem(KEY, JSON.stringify(state)); }, [state, hydrated]);
+  useEffect(() => { try { const saved = JSON.parse(localStorage.getItem(KEY) ?? "null") as (Partial<State> & { savedAt?: number }) | null; if (saved && Date.now() - (saved.savedAt ?? 0) < SAVED_TTL_MS) setState({ status: saved.status === "RUNNING" ? "PAUSED" : saved.status ?? "READY", elapsed: saved.elapsed ?? 0, env: saved.env ?? false, body: saved.body ?? false, notices: saved.notices ?? ["", "", ""] }); } catch { localStorage.removeItem(KEY); } finally { setHydrated(true); } }, []);
+  useEffect(() => { if (hydrated) localStorage.setItem(KEY, JSON.stringify({ ...state, savedAt: Date.now() })); }, [state, hydrated]);
+  // 활동을 떠나면(완료 · 그만하기 · 화면 위 그만하기) 기록을 지운다. 새로고침에는 정리 함수가 돌지 않아 이어서 할 수 있고, 개발 모드의 마운트 → 정리 → 마운트에서는 지우기를 취소한다
+  useEffect(() => { if (leaving.current !== null) window.clearTimeout(leaving.current); return () => { leaving.current = window.setTimeout(() => localStorage.removeItem(KEY), 0); }; }, []);
   useEffect(() => { if (state.status !== "RUNNING") return; const timer = window.setInterval(() => setNow(Date.now()), 1000); return () => window.clearInterval(timer); }, [state.status]);
   useEffect(() => { if (state.status !== "RUNNING" || !startedAt) return; const elapsed = Math.min(TARGET, Math.floor((now - startedAt) / 1000)); setState((current) => current.elapsed === elapsed ? current : { ...current, elapsed, status: elapsed >= TARGET ? "TARGET_REACHED" : "RUNNING" }); }, [now, startedAt, state.status, state.elapsed]);
   const start = () => { setStartedAt(Date.now() - state.elapsed * 1000); setState((value) => ({ ...value, status: "RUNNING" })); }; const pause = () => { setStartedAt(null); setState((value) => ({ ...value, status: "PAUSED" })); }; const resume = () => { setStartedAt(Date.now() - state.elapsed * 1000); setState((value) => ({ ...value, status: "RUNNING" })); }; const stop = () => { localStorage.removeItem(KEY); onFinish({ completed: false, stoppedReason: "SAFETY_OR_DISCOMFORT" }); }; const submit = () => { if (recorded < 1) return; localStorage.removeItem(KEY); onFinish({ completed: true, noticeWords: state.notices.map((value) => value.trim()).filter(Boolean) }); };

@@ -14,7 +14,7 @@ import type { RunPayload, SessionReport } from "@/lib/api/types";
 import { loadVoices, unlockSpeech } from "@/lib/speech";
 import { unlockTone } from "@/lib/tone";
 import { PlayerHost } from "@/players/player-host";
-import { Button, Card, Heading, Screen } from "@/ui/controls";
+import { Button, Card, Chip, Heading, Screen } from "@/ui/controls";
 import { GAP_NOTICES } from "./labels";
 import { ReferenceCardView } from "./reference-card";
 
@@ -130,23 +130,20 @@ export function RunScreen({
       {isOutdoorWalk && (
         <Card className="mt-5">
           <p className="mb-2 text-caption font-bold text-ink-muted">활동 시간 선택</p>
-          <div className="flex flex-nowrap gap-2 overflow-x-auto" role="group" aria-label="야외 자연 보행 활동 시간">
+          <div className="flex flex-col gap-2" role="group" aria-label="야외 자연 보행 활동 시간">
             {durationOptions.map((minutes) => (
-              <button
+              <Chip
                 key={minutes}
-                type="button"
-                aria-pressed={selectedMinutes === minutes}
-                className={`shrink-0 rounded-button border px-3 py-3 text-sm ${selectedMinutes === minutes ? "border-ink bg-primary text-white" : "border-line bg-surface"}`}
+                selected={selectedMinutes === minutes}
+                className="flex w-full items-center gap-2 text-left"
                 onClick={() => {
                   setSelectedMinutes(minutes);
                   window.sessionStorage.setItem(`${playingKey}:minutes`, String(minutes));
                 }}
               >
-                <span className="flex flex-col items-start gap-0.5">
-                  <span className="text-base font-bold leading-tight">{minutes}분</span>
-                  <span className="text-[11px] font-normal leading-tight">{durationDescriptions[minutes]}</span>
-                </span>
-              </button>
+                <span className="font-bold">{minutes}분</span>
+                <span className="text-caption">{durationDescriptions[minutes]}</span>
+              </Chip>
             ))}
           </div>
         </Card>

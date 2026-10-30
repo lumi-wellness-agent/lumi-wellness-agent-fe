@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { assetUrl } from "@/lib/api/client";
 import { cancelSpeech, canSpeak, loadVoices, speakScript, splitScript, unlockSpeech } from "@/lib/speech";
-import { Button } from "@/ui/controls";
+import { Button, Spinner } from "@/ui/controls";
 import type { PlayerProps } from "../types";
 import { cueAt, parseRest } from "./spec";
 import { playVideo } from "./play-video";
@@ -177,6 +177,12 @@ export default function RestPlayer({ content, onFinish }: PlayerProps) {
             aria-label="바람에 흔들리는 나무와 잎의 자연 영상"
             className={mode?.video ? "absolute inset-0 h-full w-full object-cover" : "hidden"} />
         )}
+        {mode?.video && starting && (
+          <div role="status" className="absolute inset-0 flex flex-col items-center justify-center gap-4 p-6 text-center">
+            <Spinner />
+            <p className="break-keep text-ink-muted">영상을 불러오고 있어요</p>
+          </div>
+        )}
         {mode && !mode.video && (
           <NatureTimer remaining={spec.seconds - elapsed} total={spec.seconds} speaking={speaking} />
         )}
@@ -195,7 +201,6 @@ export default function RestPlayer({ content, onFinish }: PlayerProps) {
       {error && <p role="alert" className="text-caption text-ink">{error}</p>}
       {!running && mode && (
         <div className="flex flex-col gap-2 pb-[env(safe-area-inset-bottom)]">
-          {starting && <p role="status" className="text-caption text-ink-muted">영상을 재생하고 있어요. 잠시만 기다려 주세요.</p>}
           {mode.video && error && !starting && <Button variant="secondary" onClick={() => { setError(null); videoRef.current?.load(); }}>영상 다시 불러오기</Button>}
           <Button disabled={starting} onClick={start}>{starting ? "영상 연결 중…" : `시작하기 · ${Math.round(spec.seconds / 60)}분`}</Button>
         </div>

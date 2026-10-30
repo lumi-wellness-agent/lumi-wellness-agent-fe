@@ -12,7 +12,7 @@
 import { Suspense, lazy, useEffect, useRef, useState, type ComponentType, type LazyExoticComponent } from "react";
 import type { ActivityContent, SessionReport } from "@/lib/api/types";
 import { cancelSpeech } from "@/lib/speech";
-import { Button } from "@/ui/controls";
+import { Button, Spinner } from "@/ui/controls";
 import { playerKeyFor, type PlayerKey } from "./catalog";
 import { NoticePopup } from "./notice/notice-popup";
 import { Placeholder } from "./placeholder";
@@ -95,7 +95,14 @@ export function PlayerHost({ content, onReport }: { content: ActivityContent; on
             }}
           />
         ) : (
-          <Suspense fallback={<p className="p-6 text-center text-ink-muted">활동을 불러오고 있어요</p>}>
+          <Suspense
+            fallback={
+              <div role="status" className="flex flex-1 flex-col items-center justify-center gap-4 p-6 text-center">
+                <Spinner />
+                <p className="break-keep text-ink-muted">활동을 불러오고 있어요</p>
+              </div>
+            }
+          >
             {Player ? <Player key={step.order} content={content} step={step} onFinish={onFinish} /> : <Placeholder content={content} step={step} onFinish={onFinish} />}
           </Suspense>
         )}

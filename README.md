@@ -67,7 +67,7 @@ src/session/         세션 상태 기계(use-session.ts)와 화면들 · Refere
 ├─ intake/           시작 입력 · 질문(ASK) · SAFETY 도움 안내 — 담당 A
 └─ measure/          측정 화면(사전 · 사후 · 종료) — 담당 B
 src/players/         활동 플레이어 — 계약(types.ts) · 활동→플레이어 표(catalog.ts) · 호스트 · 플레이어 폴더 10개 (TEAM.md)
-src/ui/controls.tsx  공통 버튼 · 칩 · 화면 틀 (터치 48px · 토큰 색)
+src/ui/controls.tsx  공통 버튼 · 칩 · 화면 틀 · 도는 표시(진행 표시 · 사진 불러오기) (터치 48px · 토큰 색)
 src/ui/tab-bar.tsx   아래 탭 바 — 메인 · 기록 · 설정 (탭 화면만, 세션 · 동의 · 로그인 화면에는 없다)
 src/fixtures/        BE 응답 견본 — scripts/fixtures.py가 BE 코드로 만든다
 src/lib/

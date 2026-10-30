@@ -169,6 +169,13 @@ export default function GuidedTimerPlayer({ content, step, onFinish }: PlayerPro
     };
   }, []);
 
+  // 첫 사진은 시작 안내를 읽는 동안 미리 받아 둔다 — 타이머가 돌기 시작할 때 사진이 바로 보이게
+  useEffect(() => {
+    if (visual.slot !== "VISUAL_STILL" || !visualUrls[0]) return;
+    const preload = new window.Image();
+    preload.src = visualUrls[0];
+  }, [visual.slot, visualUrls]);
+
   useEffect(() => {
     if (!started) return;
     const tick = () => {

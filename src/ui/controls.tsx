@@ -100,3 +100,17 @@ export function Heading({ eyebrow, children }: { eyebrow?: ReactNode; children: 
 export function Card({ children, className = "" }: { children: ReactNode; className?: string }) {
   return <section className={`rounded-card border border-line bg-surface p-4 shadow-card ${className}`}>{children}</section>;
 }
+
+/**
+ * 도는 표시 — 길이를 모르는 기다림(SSE 응답 · 사진 불러오기)에 쓰고, 무엇을 기다리는지는 옆에 글로 적는다.
+ * line 트랙 위에 indicator 호를 둥근 끝으로 그려 1초에 한 바퀴 돈다. indicator는 page · surface · surface-muted 바탕
+ * 모두에서 다섯 색 세트 3:1을 넘는다. '동작 줄이기'를 켰어도 멈추면 화면이 멈춘 것으로 읽혀서 3초에 한 바퀴로 느리게만 돌린다.
+ */
+export function Spinner() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 40 40" fill="none" className="h-10 w-10 shrink-0 animate-spin motion-reduce:[animation-duration:3s]">
+      <circle cx="20" cy="20" r="17" strokeWidth="3" className="stroke-line" />
+      <circle cx="20" cy="20" r="17" strokeWidth="3" strokeLinecap="round" strokeDasharray="27 80" className="stroke-indicator" />
+    </svg>
+  );
+}

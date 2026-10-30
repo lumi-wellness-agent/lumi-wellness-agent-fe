@@ -4,6 +4,7 @@
  * 활동 타이머 — 정해진 시간(초)을 세고, 끝나면 onDone을 한 번 부른다. 담당 A(TEAM.md).
  *
  * 멈춤 · 다시 시작을 지원하고, 도는 동안 화면이 꺼지지 않게 Wake Lock을 요청한다(지원하지 않는 브라우저는 그냥 넘어간다).
+ * running이 false인 동안은 시간을 세지 않는다 — 첫 사진을 받는 중처럼 활동이 아직 화면에 없을 때.
  * 이미지 감상(slideshow) · 소리·영상(listening) · 이미지 + 명상(image-meditation)이 함께 쓴다. 다른 담당도 import해서 쓸 수 있다.
  */
 
@@ -18,7 +19,7 @@ export type ActivityTimer = {
   togglePause: () => void;
 };
 
-export function useActivityTimer(totalSeconds: number, onDone: () => void): ActivityTimer {
+export function useActivityTimer(totalSeconds: number, onDone: () => void, running = true): ActivityTimer {
   const total = Math.max(1, Math.round(totalSeconds));
   const [elapsed, setElapsed] = useState(0);
   const [paused, setPaused] = useState(false);
@@ -31,10 +32,10 @@ export function useActivityTimer(totalSeconds: number, onDone: () => void): Acti
   }, [onDone]);
 
   useEffect(() => {
-    if (paused || done) return;
+    if (paused || done || !running) return;
     const timer = setInterval(() => setElapsed((e) => Math.min(e + 1, total)), 1000);
     return () => clearInterval(timer);
-  }, [paused, done, total]);
+  }, [paused, done, running, total]);
 
   useEffect(() => {
     if (done && !fired.current) {

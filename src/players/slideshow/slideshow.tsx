@@ -12,10 +12,14 @@
  * - 장면이 없으면(자산을 못 받았을 때) 은은한 배경과 안내를 보여 준다 — 활동은 끝까지 돈다.
  *   이미지 서버가 막혀 불러오지 못한 장면(onError)도 같은 배경으로 바꾼다(깨진 그림 아이콘을 보이지 않는다).
  * - panZoom은 장면마다 아주 천천히 확대한다. 사용자가 '동작 줄이기'를 켰으면 하지 않는다.
- * - 다음 장면을 미리 불러 둔다(겹쳐 둔 img가 모두 로드된다).
+ * - 보이는 장면을 받은 뒤에 다음 장면 하나만 미리 받는다. 겹쳐 둔 img를 모두 그리면 장면 수(PR-01은 25장)만큼
+ *   한꺼번에 받아서 첫 장면이 나머지와 대역폭을 나눠 늦게 뜬다.
+ * - 보이는 장면을 받는 동안은 도는 표시를 띄우고, 받은 장면은 천천히 드러낸다. 보이는 장면이 준비되면(받았거나
+ *   못 받았을 때) onReady를 불러, 플레이어가 첫 장면이 뜬 뒤부터 시간을 세게 한다.
  */
 
 import { useState, useSyncExternalStore } from "react";
+import { Spinner } from "@/ui/controls";
 import type { Slide } from "./spec";
 
 export type { Slide } from "./spec";
@@ -40,6 +44,10 @@ type Props = {
   emptyText?: string;
   /** 장면을 불러오지 못했을 때 안내. */
   failedText?: string;
+  /** 보이는 장면을 받는 동안 안내. */
+  loadingText?: string;
+  /** 보이는 장면이 준비되면(받았거나 못 받았을 때) 부른다. 장면이 바뀔 때마다 다시 부를 수 있다. */
+  onReady?: () => void;
   /** 사진 밝기(0~1) — PR-21 render.brightness "사용자 조절". 글자는 어두워지지 않는다. */
   brightness?: number;
 };
@@ -54,12 +62,31 @@ export function Slideshow({
   showCredit = true,
   emptyText = "사진을 준비하지 못했어요. 이 화면을 바라보며 천천히 쉬어 가세요.",
   failedText = "이미지를 불러오지 못했어요. 이 화면을 바라보며 천천히 쉬어 가세요.",
+  loadingText = "사진을 불러오고 있어요",
+  onReady,
   brightness = 1,
 }: Props) {
   const reduceMotion = useReducedMotion();
+  const [loaded, setLoaded] = useState<ReadonlySet<string>>(new Set());
   const [failed, setFailed] = useState<ReadonlySet<string>>(new Set());
-  const current = slides.length ? ((index % slides.length) + slides.length) % slides.length : -1;
+  const count = slides.length;
+  const current = count ? ((index % count) + count) % count : -1;
+  const shown = current >= 0 ? slides[current] : undefined;
+  const loading = shown !== undefined && !loaded.has(shown.url) && !failed.has(shown.url);
   const zoom = panZoom && !reduceMotion;
+
+  const settle = (url: string, ok: boolean) => {
+    const add = (prev: ReadonlySet<string>) => (prev.has(url) ? prev : new Set(prev).add(url));
+    if (ok) setLoaded(add);
+    else setFailed(add);
+    if (url === shown?.url) onReady?.();
+  };
+  // 그릴 장면 — 보이는 장면, 미리 받을 다음 장면, 사라지는 앞 장면. 다음 장면은 보이는 장면을 받은 뒤에 받고
+  // (보이는 장면이 대역폭을 혼자 쓰게), 앞 장면은 이미 받은 것만 그린다(처음에 마지막 장면까지 받지 않게).
+  const drawn = (i: number) =>
+    i === current ||
+    (i === (current + 1) % count && !loading) ||
+    (i === (current - 1 + count) % count && loaded.has(slides[i].url));
 
   return (
     <figure className="flex flex-1 flex-col">
@@ -67,62 +94,68 @@ export function Slideshow({
         className="relative min-h-[50dvh] flex-1 overflow-hidden rounded-card bg-surface-muted"
         style={brightness < 1 ? { filter: `brightness(${brightness})` } : undefined}
       >
-        {current < 0 || failed.has(slides[current].url) ? (
+        {!shown || failed.has(shown.url) ? (
           <div className="bg-progress absolute inset-0 flex items-center justify-center p-6">
-            <p className="max-w-[18rem] text-center break-keep text-ink">{current < 0 ? emptyText : failedText}</p>
+            <p className="max-w-[18rem] text-center break-keep text-ink">{shown ? failedText : emptyText}</p>
           </div>
         ) : null}
-        {current >= 0 && (
-          slides.map((slide, i) => {
-            const active = i === current;
-            const near = Math.abs(i - current) <= 1;
-            return (
-              <div
-                key={`${slide.url}-${i}`}
-                aria-hidden={!active}
-                hidden={failed.has(slide.url)}
-                className="absolute inset-0"
-                style={{ opacity: active ? 1 : 0, transition: `opacity ${reduceMotion ? 0 : transitionMs}ms ease-in-out` }}
-              >
-                {fit === "cover" && near && (
-                  // 칸을 채우는 흐린 배경 — 같은 사진을 크게 흐린다. 장식이라 읽지 않는다
-                  // eslint-disable-next-line @next/next/no-img-element -- 외부 공급자 주소라 next/image 최적화를 쓰지 않는다
-                  <img
-                    src={slide.url}
-                    alt=""
-                    aria-hidden
-                    className="absolute inset-0 h-full w-full scale-110 object-cover opacity-60"
-                    style={{ filter: "blur(24px)" }}
-                  />
-                )}
-                {/* eslint-disable-next-line @next/next/no-img-element -- 외부 공급자 주소라 next/image 최적화를 쓰지 않는다 */}
+        {slides.map((slide, i) => {
+          if (!drawn(i)) return null;
+          const active = i === current;
+          return (
+            <div
+              key={`${slide.url}-${i}`}
+              aria-hidden={!active}
+              hidden={failed.has(slide.url)}
+              className="absolute inset-0"
+              style={{
+                // 받기 전에는 숨겨 두었다가 받으면 드러낸다 — 반쯤 그려진 사진이 보이지 않게
+                opacity: active && loaded.has(slide.url) ? 1 : 0,
+                transition: `opacity ${reduceMotion ? 0 : transitionMs}ms ease-in-out`,
+              }}
+            >
+              {fit === "cover" && (
+                // 칸을 채우는 흐린 배경 — 같은 사진을 크게 흐린다. 장식이라 읽지 않는다
+                // eslint-disable-next-line @next/next/no-img-element -- 외부 공급자 주소라 next/image 최적화를 쓰지 않는다
                 <img
                   src={slide.url}
-                  alt={active ? slide.alt : ""}
-                  loading={near ? "eager" : "lazy"}
-                  onError={() => setFailed((prev) => new Set(prev).add(slide.url))}
-                  className="absolute inset-0 h-full w-full object-contain"
-                  style={{
-                    transform: zoom && active ? "scale(1.08)" : "scale(1)",
-                    transition: zoom ? `transform ${active ? secondsEach : 0}s linear` : undefined,
-                  }}
+                  alt=""
+                  aria-hidden
+                  className="absolute inset-0 h-full w-full scale-110 object-cover opacity-60"
+                  style={{ filter: "blur(24px)" }}
                 />
-              </div>
-            );
-          })
+              )}
+              {/* eslint-disable-next-line @next/next/no-img-element -- 외부 공급자 주소라 next/image 최적화를 쓰지 않는다 */}
+              <img
+                src={slide.url}
+                alt={active ? slide.alt : ""}
+                onLoad={() => settle(slide.url, true)}
+                onError={() => settle(slide.url, false)}
+                className="absolute inset-0 h-full w-full object-contain"
+                style={{
+                  transform: zoom && active ? "scale(1.08)" : "scale(1)",
+                  transition: zoom ? `transform ${active ? secondsEach : 0}s linear` : undefined,
+                }}
+              />
+            </div>
+          );
+        })}
+        {loading && (
+          <div role="status" className="absolute inset-0 flex flex-col items-center justify-center gap-4 p-6 text-center">
+            <Spinner />
+            <p className="break-keep text-ink-muted">{loadingText}</p>
+          </div>
         )}
       </div>
-      {current >= 0 && slides[current].reason && (
-        <p className="mt-2 text-caption break-keep text-ink-muted">{slides[current].reason}</p>
-      )}
-      {showCredit && current >= 0 && slides[current].credit && (
-        <figcaption className={`truncate text-caption text-ink-muted ${slides[current].reason ? "mt-0.5" : "mt-2"}`}>
-          {slides[current].sourceUrl ? (
-            <a href={slides[current].sourceUrl} target="_blank" rel="noreferrer" className="underline">
-              {slides[current].credit}
+      {shown?.reason && <p className="mt-2 text-caption break-keep text-ink-muted">{shown.reason}</p>}
+      {showCredit && shown?.credit && (
+        <figcaption className={`truncate text-caption text-ink-muted ${shown.reason ? "mt-0.5" : "mt-2"}`}>
+          {shown.sourceUrl ? (
+            <a href={shown.sourceUrl} target="_blank" rel="noreferrer" className="underline">
+              {shown.credit}
             </a>
           ) : (
-            slides[current].credit
+            shown.credit
           )}
         </figcaption>
       )}

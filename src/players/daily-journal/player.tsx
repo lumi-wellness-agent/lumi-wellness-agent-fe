@@ -1,21 +1,25 @@
 "use client";
 /* eslint-disable react-hooks/set-state-in-effect */
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button, Card, Heading, Screen } from "@/ui/controls";
 import type { PlayerProps } from "../types";
 
 type State = { status: "DAILY_OVERVIEW" | "DAY_ENTRY" | "DAY_COMPLETED" | "STOPPED"; entries: string[]; startedAt: string | null; elapsedSeconds: number; submittedAt: string | null };
 const KEY = "lumi.pr19.journal.v1";
+const SAVED_TTL_MS = 3 * 60 * 60 * 1000; // 이보다 오래된 기록은 지난 세션 것으로 보고 새로 시작한다
 const EMPTY = ["", "", ""];
 
 export default function DailyJournalPlayer({ onFinish }: PlayerProps) {
   const [state, setState] = useState<State>({ status: "DAILY_OVERVIEW", entries: EMPTY, startedAt: null, elapsedSeconds: 0, submittedAt: null });
   const [now, setNow] = useState(() => Date.now());
+  const leaving = useRef<number | null>(null);
   const validCount = state.entries.filter((value) => value.trim()).length;
   const entryDate = state.submittedAt ? new Date(state.submittedAt).toLocaleDateString("sv-SE") : new Date().toLocaleDateString("sv-SE");
 
-  useEffect(() => { try { const saved = JSON.parse(localStorage.getItem(KEY) ?? "null") as Partial<State> | null; if (saved) setState({ status: saved.status ?? "DAY_ENTRY", entries: saved.entries ?? EMPTY, startedAt: saved.startedAt ?? null, elapsedSeconds: saved.elapsedSeconds ?? 0, submittedAt: saved.submittedAt ?? null }); } catch { localStorage.removeItem(KEY); } }, []);
-  useEffect(() => { const timer = window.setTimeout(() => localStorage.setItem(KEY, JSON.stringify(state)), 500); return () => window.clearTimeout(timer); }, [state]);
+  useEffect(() => { try { const saved = JSON.parse(localStorage.getItem(KEY) ?? "null") as (Partial<State> & { savedAt?: number }) | null; if (saved && Date.now() - (saved.savedAt ?? 0) < SAVED_TTL_MS) setState({ status: saved.status ?? "DAY_ENTRY", entries: saved.entries ?? EMPTY, startedAt: saved.startedAt ?? null, elapsedSeconds: saved.elapsedSeconds ?? 0, submittedAt: saved.submittedAt ?? null }); } catch { localStorage.removeItem(KEY); } }, []);
+  useEffect(() => { const timer = window.setTimeout(() => localStorage.setItem(KEY, JSON.stringify({ ...state, savedAt: Date.now() })), 500); return () => window.clearTimeout(timer); }, [state]);
+  // 활동을 떠나면(완료 · 그만하기 · 화면 위 그만하기) 기록을 지운다. 새로고침에는 정리 함수가 돌지 않아 이어서 할 수 있고, 개발 모드의 마운트 → 정리 → 마운트에서는 지우기를 취소한다
+  useEffect(() => { if (leaving.current !== null) window.clearTimeout(leaving.current); return () => { leaving.current = window.setTimeout(() => localStorage.removeItem(KEY), 0); }; }, []);
   useEffect(() => { if (!state.startedAt || state.status === "DAY_COMPLETED") return; const timer = window.setInterval(() => setNow(Date.now()), 1000); return () => window.clearInterval(timer); }, [state.startedAt, state.status]);
   useEffect(() => { if (!state.startedAt || state.status === "DAY_COMPLETED") return; const elapsed = Math.floor((now - Date.parse(state.startedAt)) / 1000); setState((current) => current.elapsedSeconds === elapsed ? current : { ...current, elapsedSeconds: elapsed }); }, [now, state.startedAt, state.status, state.elapsedSeconds]);
 

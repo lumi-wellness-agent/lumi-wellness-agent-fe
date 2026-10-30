@@ -12,7 +12,7 @@ import { ApiError, meApi } from "@/lib/api/client";
 import { mockEnabled, mockHistory } from "@/lib/api/mock";
 import type { SessionHistory } from "@/lib/api/types";
 import { authConfigured, signIn, viewer, type Provider } from "@/lib/auth";
-import { DELTA_LABELS, GOAL_DOTS, GOAL_LABELS } from "@/session/labels";
+import { DELTA_LABELS, GOAL_DOTS, GOAL_LABELS, score } from "@/session/labels";
 import { Button, ButtonLink, Card, Heading, Screen } from "@/ui/controls";
 import { SocialLoginButton } from "@/ui/social-login";
 
@@ -181,9 +181,4 @@ function SessionCard({ session }: { session: SessionHistory }) {
 function startedAt(iso: string): string {
   const date = new Date(iso);
   return (date.getFullYear() === new Date().getFullYear() ? THIS_YEAR : OTHER_YEAR).format(date);
-}
-
-/** 척도 점수는 환산값이라 소수가 길 수 있다(53.33 − 43.33) — 둘째 자리까지 보인다. */
-function score(value: number): number {
-  return Math.round(value * 100) / 100;
 }

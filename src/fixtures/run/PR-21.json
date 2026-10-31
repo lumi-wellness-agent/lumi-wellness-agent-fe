@@ -21,7 +21,8 @@
       "badges": [
         "EXPERIMENTAL",
         "CONFLICTING_EVIDENCE",
-        "ADAPTED_STIMULUS"
+        "AI_IMAGE_UNVERIFIED",
+        "PROVISIONAL_MEASURE"
       ],
       "goal": {
         "goal": "S1",
@@ -78,11 +79,13 @@
         ],
         "measured_by": {
           "instrument_id": "INS-BSRI",
-          "name": "Brief State Rumination Inventory (BSRI)",
+          "name": "Brief State Rumination Inventory (BSRI) — 한국어 번역본 · 내부 시험용",
           "concept": "상태 반추",
-          "provisional": false
+          "provisional": true
         },
-        "notes": []
+        "notes": [
+          "이 척도는 연구에서 타당성이 확인된 영어판 문항을 LUMI가 한국어로 옮긴 것입니다. 번역본은 아직 따로 검증하지 않아, 점수 변화는 참고로 봐 주세요."
+        ]
       },
       "grades": {
         "RUMINATION": "—"
@@ -240,10 +243,13 @@
         "연구 참여자에게서 관찰된 결과이며, 진단이나 치료 효과를 뜻하지 않습니다.",
         "여러 활동을 묶은 실험적 구성이라, 함께 했을 때의 효과는 검증되지 않았습니다.",
         "같은 활동 · 지표에서 효과가 없거나 반대로 나온 연구도 있습니다.",
-        "연구에서 쓴 자극을 LUMI에 맞게 바꾼 콘텐츠라, 같은 효과가 나는지는 확인되지 않았습니다.",
+        "AI로 만든 이미지는 연구의 자연 사진과 효과가 같은지 검증되지 않았습니다.",
         "한국 성인 대상 검증 없음"
       ]
-    }
+    },
+    "content_factors": null,
+    "search_query": null,
+    "selection": null
   },
   "content": {
     "protocol_id": "PR-21",
@@ -286,6 +292,7 @@
       }
     ],
     "asset_warnings": [
+      "VISUAL_STILL: AI_HORDE_API_KEY가 없어 Pixabay 사진을 사용함",
       "VISUAL_STILL: PIXABAY_API_KEY가 설정되지 않음",
       "GUIDE_AUDIO: 고정 자산의 내용 검수가 필요함 (audio/pr21_meditation_ko_v1)"
     ],
@@ -341,7 +348,7 @@
           },
           "generation": {
             "provider": "AI_HORDE",
-            "when": "큐레이션 풀에 선호·제약 조건을 충족하는 이미지가 없을 때",
+            "when": "기본(10-29) — 사진 한 장 모드라 AI 그림을 먼저 만든다(app/protocols.is_ai_image_slot)",
             "prompt_template_ref": "prompts/indoor_nature_meditation_v1",
             "style": "사실적 자연 사진",
             "negative": [
@@ -351,8 +358,8 @@
               "초현실 색",
               "복잡한 건축물"
             ],
-            "timing": "세션 시작 전 비동기 생성·검수 완료. 세션 중 생성 금지",
-            "fallback": "생성 실패·대기 초과·검수 실패 시 검수된 기본 이미지 사용",
+            "timing": "활동 준비(prepare) 때 생성한다. 대기 상한은 AI_HORDE_POLL_TIMEOUT_SECONDS(기본 60초). 세션 전 미리 생성·검수는 아직 없다",
+            "fallback": "키 없음·생성 실패·대기 초과 시 같은 슬롯의 Pixabay 검색(selection)으로 사진을 받는다",
             "verification": "UNVERIFIED"
           }
         },

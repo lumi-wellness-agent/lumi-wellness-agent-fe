@@ -15,7 +15,8 @@
       "composition": "EXPERIMENTAL",
       "badges": [
         "EXPERIMENTAL",
-        "NO_VERIFIED_EVIDENCE"
+        "NO_VERIFIED_EVIDENCE",
+        "PROVISIONAL_MEASURE"
       ],
       "goal": {
         "goal": "S1",
@@ -72,11 +73,13 @@
         ],
         "measured_by": {
           "instrument_id": "INS-BSRI",
-          "name": "Brief State Rumination Inventory (BSRI)",
+          "name": "Brief State Rumination Inventory (BSRI) — 한국어 번역본 · 내부 시험용",
           "concept": "상태 반추",
-          "provisional": false
+          "provisional": true
         },
-        "notes": []
+        "notes": [
+          "이 척도는 연구에서 타당성이 확인된 영어판 문항을 LUMI가 한국어로 옮긴 것입니다. 번역본은 아직 따로 검증하지 않아, 점수 변화는 참고로 봐 주세요."
+        ]
       },
       "grades": {
         "RUMINATION": "—"
@@ -88,7 +91,10 @@
         "이번에는 이 활동을 직접 뒷받침하는 검증된 연구를 찾지 못했습니다.",
         "한국 성인 대상 검증 없음"
       ]
-    }
+    },
+    "content_factors": null,
+    "search_query": null,
+    "selection": null
   },
   "content": {
     "protocol_id": "PR-15",
@@ -249,7 +255,7 @@
       "COLORING_TEMPLATE: 고정 자산의 내용 검수가 필요함 (coloring/pr15_nature_7)"
     ],
     "image_urls": [],
-    "guide_text": "지금부터 자연 도안 디지털 컬러링 3–5분을 약 3분 동안 합니다. 편한 자세로 시작하고, 불편하면 언제든 멈출 수 있습니다.",
+    "guide_text": "지금부터 자연 도안 디지털 컬러링을 약 3분 동안 합니다. 편한 자세로 시작하고, 불편하면 언제든 멈출 수 있습니다.",
     "notice_prompt": "지금 느낌 알아차리기",
     "content_spec": {
       "slots": [

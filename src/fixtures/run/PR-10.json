@@ -98,7 +98,7 @@
         },
         "notes": [
           "근거 연구는 주의 과제 성적을 봤지만, LUMI는 주의 용량을 재지 않고 지금 느끼는 정신 피로로 변화를 봅니다.",
-          "정신 피로 VAS (Mental Fatigue VAS)는 팀이 만든 임시 도구로, 아직 타당화되지 않았습니다."
+          "이 척도는 지금 느끼는 정신 피로를 보려고 LUMI가 만든 질문이라, 아직 검증되지 않았습니다. 점수 변화는 참고로 봐 주세요."
         ]
       },
       "grades": {
@@ -226,7 +226,10 @@
         "연구에서 쓴 자극을 LUMI에 맞게 바꾼 콘텐츠라, 같은 효과가 나는지는 확인되지 않았습니다.",
         "한국 성인 대상 검증 없음"
       ]
-    }
+    },
+    "content_factors": null,
+    "search_query": null,
+    "selection": null
   },
   "content": {
     "protocol_id": "PR-10",
@@ -395,7 +398,7 @@
             ],
             "silence_between_cues": true,
             "on_stop": "STOP_TIMER_AND_CANCEL_ALL_PENDING_AUDIO",
-            "completion_sound": "UNDECIDED",
+            "completion_sound": "NONE",
             "note": "각 클립 길이와 간격, 마지막 안내 40초 이내, 총 20분을 실제 제작 후 검증."
           },
           "selection": {
@@ -523,19 +526,23 @@
             "provider": "PIXABAY",
             "endpoint": "VIDEO_SEARCH",
             "query_tags": [
-              "calm nature",
-              "forest stream"
+              "forest leaves wind"
             ],
-            "min_source_duration_seconds": 30,
-            "quality_gate": "자연 영상·출처·이용 조건·반복 재생 적합성 검토"
+            "min_source_duration_seconds": 10,
+            "quality_gate": "자연 영상·출처·이용 조건·반복 재생 적합성 검토",
+            "mode": "FIXED",
+            "candidate_review": "PAGE_METADATA_ONLY",
+            "fixed_video_id": 165178,
+            "source_url": "https://pixabay.com/videos/leaves-plants-wind-forest-nature-165178/"
           },
           "render": {
             "video_mode_only": true,
             "loop": true,
             "activity_seconds": 1200,
-            "nature_sound": "UNDECIDED",
-            "note": "자연음 사용 여부 결정 보류. 20분 반복 재생은 LUMI 설계; 선택형 모드 연결 확인 필요.",
-            "duration_seconds": 1200
+            "nature_sound": "MUTED",
+            "note": "사용자가 확인한 Pixabay 165178 영상 하나를 모든 세션에서 반복한다. 20분 원본은 미확보이며 반복 경계는 재생 검토 필요.",
+            "duration_seconds": 1200,
+            "loop_boundary_review": "PENDING"
           }
         }
       ],
@@ -572,7 +579,7 @@
           "close_icon": true,
           "on_exit": "STOP_TIMER_AND_ALL_AUDIO_AND_VIDEO"
         },
-        "completion_sound": "UNDECIDED"
+        "completion_sound": "NONE"
       }
     },
     "notice_module": null

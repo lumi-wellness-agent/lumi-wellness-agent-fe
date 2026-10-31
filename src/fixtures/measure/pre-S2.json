@@ -5,7 +5,7 @@
     {
       "instrument_id": "INS-SAM",
       "name": "Self-Assessment Manikin (SAM)",
-      "instruction": "지금 느낌에 가장 가까운 그림을 고르세요.",
+      "instruction": "막대를 좌우로 움직여 지금 느낌에 가장 가까운 곳에 맞춰 주세요.",
       "scale": {
         "min": 1.0,
         "max": 9.0,
@@ -29,8 +29,8 @@
     },
     {
       "instrument_id": "INS-STAI6",
-      "name": "STAI 상태판 6문항 단축형 (STAI-6)",
-      "instruction": null,
+      "name": "STAI 상태판 6문항 단축형 (STAI-6) — 한국어 번역본 · 내부 시험용",
+      "instruction": "각 문항에 대해 지금 이 순간의 느낌을 답하세요. 현재 느낌에 가장 잘 맞는 응답을 고르고, 한 문항에 오래 고민하지 마세요. 1 전혀 그렇지 않다 · 2 약간 그렇다 · 3 상당히 그렇다 · 4 매우 그렇다.",
       "scale": {
         "min": 1.0,
         "max": 4.0,
@@ -40,39 +40,39 @@
       "items": [
         {
           "id": "calm",
-          "text": null,
-          "low_label": null,
-          "high_label": null
+          "text": "지금 나는 차분하다.",
+          "low_label": "전혀 그렇지 않다",
+          "high_label": "매우 그렇다"
         },
         {
           "id": "tense",
-          "text": null,
-          "low_label": null,
-          "high_label": null
+          "text": "지금 나는 긴장되어 있다.",
+          "low_label": "전혀 그렇지 않다",
+          "high_label": "매우 그렇다"
         },
         {
           "id": "upset",
-          "text": null,
-          "low_label": null,
-          "high_label": null
+          "text": "지금 나는 마음이 불편하다.",
+          "low_label": "전혀 그렇지 않다",
+          "high_label": "매우 그렇다"
         },
         {
           "id": "relaxed",
-          "text": null,
-          "low_label": null,
-          "high_label": null
+          "text": "지금 나는 편안하다.",
+          "low_label": "전혀 그렇지 않다",
+          "high_label": "매우 그렇다"
         },
         {
           "id": "content",
-          "text": null,
-          "low_label": null,
-          "high_label": null
+          "text": "지금 나는 만족스럽다.",
+          "low_label": "전혀 그렇지 않다",
+          "high_label": "매우 그렇다"
         },
         {
           "id": "worried",
-          "text": null,
-          "low_label": null,
-          "high_label": null
+          "text": "지금 나는 걱정된다.",
+          "low_label": "전혀 그렇지 않다",
+          "high_label": "매우 그렇다"
         }
       ]
     }

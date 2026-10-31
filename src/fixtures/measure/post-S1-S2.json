@@ -5,7 +5,7 @@
     {
       "instrument_id": "INS-SAM",
       "name": "Self-Assessment Manikin (SAM)",
-      "instruction": "지금 느낌에 가장 가까운 그림을 고르세요.",
+      "instruction": "막대를 좌우로 움직여 지금 느낌에 가장 가까운 곳에 맞춰 주세요.",
       "scale": {
         "min": 1.0,
         "max": 9.0,

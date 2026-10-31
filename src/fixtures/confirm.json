@@ -16,7 +16,9 @@
       "END",
       "CHANGE_ACTIVITY",
       "ADDITIONAL_SESSION"
-    ]
+    ],
+    "rule_recommended": null,
+    "by_llm": false
   },
   "options": [
     "END",

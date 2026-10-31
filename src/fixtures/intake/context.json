@@ -59,6 +59,12 @@
       "select": "single",
       "options": [
         {
+          "label": "3분",
+          "set": {
+            "minutes": 3
+          }
+        },
+        {
           "label": "5분",
           "set": {
             "minutes": 5

@@ -15,7 +15,8 @@
       "composition": "SINGLE",
       "badges": [
         "NO_VERIFIED_EVIDENCE",
-        "ADAPTED_STIMULUS"
+        "ADAPTED_STIMULUS",
+        "PROVISIONAL_MEASURE"
       ],
       "goal": {
         "goal": "S2",
@@ -73,11 +74,13 @@
         ],
         "measured_by": {
           "instrument_id": "INS-STAI6",
-          "name": "STAI 상태판 6문항 단축형 (STAI-6)",
+          "name": "STAI 상태판 6문항 단축형 (STAI-6) — 한국어 번역본 · 내부 시험용",
           "concept": "상태 불안",
-          "provisional": false
+          "provisional": true
         },
-        "notes": []
+        "notes": [
+          "이 척도는 연구에서 타당성이 확인된 영어판 문항을 LUMI가 한국어로 옮긴 것입니다. 번역본은 아직 따로 검증하지 않아, 점수 변화는 참고로 봐 주세요."
+        ]
       },
       "grades": {
         "SUBJECTIVE_STRESS": "A",
@@ -90,7 +93,10 @@
         "P16 수행법을 참고한 한국어 각색 안내. 타이머·중간 안내·종료음과 TTS의 효과 동등성은 미검증. P18의 20분 심호흡 결과를 현재 세션 효과로 직접 적용하지 않는다.",
         "한국 성인 대상 검증 없음"
       ]
-    }
+    },
+    "content_factors": null,
+    "search_query": null,
+    "selection": null
   },
   "content": {
     "protocol_id": "PR-06",

@@ -14,7 +14,8 @@
       "minutes": 20,
       "composition": "SINGLE",
       "badges": [
-        "NO_VERIFIED_EVIDENCE"
+        "NO_VERIFIED_EVIDENCE",
+        "PROVISIONAL_MEASURE"
       ],
       "goal": {
         "goal": "S2",
@@ -72,15 +73,17 @@
         ],
         "measured_by": {
           "instrument_id": "INS-STAI6",
-          "name": "STAI 상태판 6문항 단축형 (STAI-6)",
+          "name": "STAI 상태판 6문항 단축형 (STAI-6) — 한국어 번역본 · 내부 시험용",
           "concept": "상태 불안",
-          "provisional": false
+          "provisional": true
         },
-        "notes": []
+        "notes": [
+          "이 척도는 연구에서 타당성이 확인된 영어판 문항을 LUMI가 한국어로 옮긴 것입니다. 번역본은 아직 따로 검증하지 않아, 점수 변화는 참고로 봐 주세요."
+        ]
       },
       "grades": {
         "SUBJECTIVE_STRESS": "B",
-        "AFFECT": "B"
+        "AFFECT": "—"
       },
       "evidence": [],
       "limits": [
@@ -88,7 +91,10 @@
         "이번에는 이 활동을 직접 뒷받침하는 검증된 연구를 찾지 못했습니다.",
         "한국 성인 대상 검증 없음"
       ]
-    }
+    },
+    "content_factors": null,
+    "search_query": null,
+    "selection": null
   },
   "content": {
     "protocol_id": "PR-08",

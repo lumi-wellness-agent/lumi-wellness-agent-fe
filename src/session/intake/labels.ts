@@ -1,6 +1,6 @@
 /** intake 화면 문구 — 시작 입력의 환경 칩 · 프로필과 질문 묶음 머리말. 담당 A(TEAM.md). */
 
-import type { Setting } from "@/lib/api/types";
+import type { CareRequest, Setting } from "@/lib/api/types";
 
 /** 지금 있는 곳. BE intake_rules.SETTING_OPTIONS와 같은 네 곳이다. */
 export const SETTING_LABELS: Record<Setting, string> = {
@@ -21,14 +21,25 @@ export const GROUP_LABELS: Record<string, string> = {
 };
 
 /**
- * 첫 질문 아래 예시 문장 — 누르면 입력 칸에 채워지고 고쳐 쓸 수 있다. 목표마다 하나씩, BE 단서표
- * (data/intake_cues.json)의 표현으로 만들었다(S1 반추 · S2 긴장 · S3 피로). 목표를 고르는 칩이 아니다.
+ * 첫 질문 아래 예시 문장 — 누르면 입력 칸에 채워지고(여건 칩은 EXAMPLE_CONTEXT) 고쳐 쓸 수 있다. 목표마다 하나씩
+ * (S1 반추 · S2 긴장 · S3 피로), BE 단서표(data/intake_cues.json)의 표현에 시점 표현("끝났는데" · "앞두고" ·
+ * "몇 시간째")을 붙였다. 시점이 분명해야 BE가 시점 질문을 건너뛴다 — "아까 …"만으로는 3번 중 2번 되물었다.
+ * 목표를 고르는 칩이 아니고, 문장을 바꾸면 BE intake(scripts/plan_trial.py --text)로 목표와 질문을 다시 확인한다
+ * (2026-11-01 실측: 세 문장 모두 3/3 같은 목표, 시점 질문 없음).
  */
 export const EXAMPLE_TEXTS = [
-  "발표가 끝났는데 계속 생각나요",
+  "회의 끝났는데 들은 말이 계속 생각나요",
   "발표 앞두고 긴장돼요",
   "몇 시간째 공부해서 머리가 멍해요",
 ];
+
+/**
+ * 예시 문장을 누르면 같이 골라지는 여건 — 집 · 10분. 장소와 시간이 차면 BE가 환경 질문을 건너뛰어(intake_rules.
+ * context_groups) 시작 → 사전 측정으로 바로 간다. 집에서는 이어폰이 후보 활동을 바꾸지 않아 묻지 않으므로 비워 둔다.
+ * 세 예시가 같은 값이다 — 장소는 기분이 아니라 지금 있는 곳이라 예시마다 다르게 두지 않는다. 사실과 다를 수 있으니
+ * 화면은 고른 칩을 펼쳐 보이고 고칠 수 있게 한다. 값은 SETTING_LABELS · MINUTE_CHOICES 안의 것이어야 칩이 켜진다.
+ */
+export const EXAMPLE_CONTEXT: Pick<CareRequest, "setting" | "minutes_available"> = { setting: "HOME", minutes_available: 10 };
 
 /** 직접 쓰기 칸의 안내. 되묻기는 기분을 캐묻지 않고 상황을 가볍게 묻는다(BE READ_SYSTEM_PROMPT). */
 export const FREE_TEXT_HINTS = {

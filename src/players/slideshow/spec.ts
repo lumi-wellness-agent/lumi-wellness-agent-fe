@@ -46,7 +46,7 @@ export function factorOf(asset: ActivityAsset): ContentFactor | undefined {
   return { axis, value, label, source, reason: str(tag.reason) };
 }
 
-/** 화면에 보일 장면 하나. credit은 사진 아래 작은 글씨(작가 · 출처), reason은 고른 이유(좋아하는 풍경 · LUMI가 고른 풍경)다. */
+/** 화면에 보일 장면 하나. 사진 아래 한 줄에 reason(고른 이유 — 좋아하는 풍경 · LUMI가 고른 풍경)을 왼쪽, credit(작가 · 출처)을 오른쪽에 둔다. */
 export type Slide = {
   url: string;
   alt: string;

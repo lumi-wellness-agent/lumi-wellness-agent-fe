@@ -167,6 +167,8 @@
   --text-body--line-height: 1.6;
   --text-caption: 0.8125rem;
   --text-caption--line-height: 1.5;
+  --text-fine: 0.75rem;
+  --text-fine--line-height: 1.5;
 }
 
 /* 런타임에 바뀌는 값이라 inline으로 변수를 그대로 넘긴다. */

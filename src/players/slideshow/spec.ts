@@ -46,7 +46,10 @@ export function factorOf(asset: ActivityAsset): ContentFactor | undefined {
   return { axis, value, label, source, reason: str(tag.reason) };
 }
 
-/** 화면에 보일 장면 하나. 사진 아래 한 줄에 reason(고른 이유 — 좋아하는 풍경 · LUMI가 고른 풍경)을 왼쪽, credit(작가 · 출처)을 오른쪽에 둔다. */
+/**
+ * 화면에 보일 장면 하나. 사진 아래 한 줄에 reason(고른 이유 — 좋아하는 풍경 · LUMI가 고른 풍경)을 왼쪽,
+ * credit(사진은 작가 · 공급자, 작품은 소장처)을 오른쪽에 둔다.
+ */
 export type Slide = {
   url: string;
   alt: string;
@@ -86,13 +89,22 @@ export function slidesFrom(content: ActivityContent, ...slots: string[]): Slide[
   const fromAssets = assetsOf(content, ...slots).map((a) => ({
     url: assetUrl(a.url),
     alt: a.title ?? "자연 풍경 사진",
-    credit: [a.creator, providerName(a.provider)].filter(Boolean).join(" · ") || undefined,
+    credit: creditOf(a),
     sourceUrl: a.source_url ?? undefined,
     reason: reasonOf(a),
   }));
   if (fromAssets.length) return fromAssets;
   // 옛 응답 호환 — 자산 대신 주소만 온 경우
   return content.image_urls.map((url) => ({ url: assetUrl(url), alt: "자연 풍경 사진" }));
+}
+
+/**
+ * 사진 아래 오른쪽 출처. 사진은 작가 · 공급자다. 작품(PR-20)은 작가를 작품 정보에 따로 보이므로 소장처만 둔다 —
+ * 고른 이유와 한 줄에 들어가야 해서 이용 조건(공개 도메인)은 쓰지 않는다(사진도 Pixabay 이용 조건은 쓰지 않는다).
+ */
+function creditOf(asset: ActivityAsset): string | undefined {
+  const parts = asset.slot === "ARTWORK" ? [providerName(asset.provider)] : [asset.creator, providerName(asset.provider)];
+  return parts.filter(Boolean).join(" · ") || undefined;
 }
 
 function providerName(provider: string): string | undefined {

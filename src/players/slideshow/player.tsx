@@ -5,7 +5,8 @@
  *
  * 자산: content.assets 중 slot VISUAL_STILL(PR-01 · 03) · ARTWORK(PR-20). url은 assetUrl()로 감싼다(spec.slidesFrom).
  * 재생: content_spec.slots[] — 장면 길이는 seconds_each(PR-01)가 있으면 그것, 없으면 계획 시간 ÷ 장면 수.
- *   render.transition(FADE · NONE) · transition_ms · pan_zoom, PR-20은 show_metadata(작품 정보와 출처를 보여 준다).
+ *   render.transition(FADE · NONE) · transition_ms · pan_zoom, PR-20은 show_metadata(작품 정보를 보여 주고,
+ *   source는 사진 아래 줄 오른쪽에 소장처로 둔다 — 사진의 출처와 같은 자리).
  * 시간: 계획한 시간(step.minutes)만큼 돈다. 끝나면 알림음을 울리고 "다음으로"를 누르면 onFinish({ completed: true }).
  *   PR-01은 그다음 호스트가 NOTICE 팝업을 띄운다. 첫 장면을 받는 동안은 도는 표시를 띄우고 시간을 세지 않는다.
  * 자산이 없으면(공급자 키 없음 · 요청 실패) 은은한 배경과 안내로 끝까지 돈다.
@@ -28,6 +29,7 @@ export default function SlideshowPlayer({ content, step, onFinish }: PlayerProps
   const slot = findSlot(content, "VISUAL_STILL", "ARTWORK");
   const render = renderOf(slot);
   const artwork = slot?.slot === "ARTWORK";
+  const metadata = metadataFields(render.show_metadata);
   const slides = slidesFrom(content, slot?.slot ?? "VISUAL_STILL");
 
   const total = Math.round(step.minutes * 60);
@@ -55,12 +57,12 @@ export default function SlideshowPlayer({ content, step, onFinish }: PlayerProps
         panZoom={render.pan_zoom === true}
         secondsEach={secondsEach}
         fit={artwork ? "contain" : "cover"}
-        showCredit={!artwork}
+        showCredit={!artwork || metadata.has("source")}
         loadingText={artwork ? "작품을 불러오고 있어요" : undefined}
         onReady={() => setWaiting(false)}
       />
 
-      {artwork && <ArtworkInfo content={content} fields={render.show_metadata} />}
+      {artwork && <ArtworkInfo content={content} show={metadata} />}
 
       <div className="mt-4">
         <div
@@ -92,11 +94,15 @@ export default function SlideshowPlayer({ content, step, onFinish }: PlayerProps
   );
 }
 
-/** PR-20 작품 정보 — render.show_metadata(title · artist_display · date_display · source)에 있는 것만 보인다. */
-function ArtworkInfo({ content, fields }: { content: PlayerProps["content"]; fields: unknown }) {
+/** PR-20 render.show_metadata(title · artist_display · date_display · source) — 없으면 넷 다 보인다. */
+function metadataFields(fields: unknown): ReadonlySet<string> {
+  return new Set(Array.isArray(fields) ? fields : ["title", "artist_display", "date_display", "source"]);
+}
+
+/** PR-20 작품 정보 — 제목 · 작가 · 날짜 중 show_metadata에 있는 것. source는 Slideshow가 사진 아래 줄 오른쪽에 보인다. */
+function ArtworkInfo({ content, show }: { content: PlayerProps["content"]; show: ReadonlySet<string> }) {
   const asset = assetsOf(content, "ARTWORK")[0];
   if (!asset) return null;
-  const show = new Set(Array.isArray(fields) ? fields : ["title", "artist_display", "date_display", "source"]);
   const date = str(asset.metadata.date_display);
   return (
     <div className="mt-3">
@@ -105,11 +111,6 @@ function ArtworkInfo({ content, fields }: { content: PlayerProps["content"]; fie
         <p className="text-caption break-keep text-ink-muted">
           {[show.has("artist_display") ? asset.creator : null, show.has("date_display") ? date : null].filter(Boolean).join(" · ")}
         </p>
-      )}
-      {show.has("source") && asset.source_url && (
-        <a href={asset.source_url} target="_blank" rel="noreferrer" className="text-caption text-ink-muted underline">
-          Art Institute of Chicago · 공개 도메인
-        </a>
       )}
     </div>
   );

@@ -56,6 +56,7 @@ export default function ImageMeditationPlayer({ content, step, onFinish }: Playe
   return (
     <div className="mx-auto flex w-full max-w-[480px] flex-1 flex-col px-4 py-4">
       <Slideshow slides={slides} index={0} transitionMs={0} brightness={brightness} />
+      {guide && <Credits assets={[guide]} />}
 
       {guide && (
         <audio
@@ -107,8 +108,6 @@ export default function ImageMeditationPlayer({ content, step, onFinish }: Playe
           <Button onClick={start}>재생하기</Button>
         </div>
       )}
-
-      {guide && <Credits assets={[guide]} />}
     </div>
   );
 }

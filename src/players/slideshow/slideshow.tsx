@@ -38,7 +38,7 @@ type Props = {
    * contain = 미술 작품 — 전체를 보이고 배경은 비운다(작품 주변에 다른 색을 깔지 않는다).
    */
   fit?: "cover" | "contain";
-  /** 아래 작은 글씨로 작가 · 출처를 보일지. */
+  /** 사진 아래 오른쪽 작은 글씨로 작가 · 출처를 보일지. 고른 이유(reason)는 같은 줄 왼쪽에 둔다. */
   showCredit?: boolean;
   /** 장면이 없을 때 안내. */
   emptyText?: string;
@@ -73,6 +73,8 @@ export function Slideshow({
   const current = count ? ((index % count) + count) % count : -1;
   const shown = current >= 0 ? slides[current] : undefined;
   const loading = shown !== undefined && !loaded.has(shown.url) && !failed.has(shown.url);
+  const reason = shown?.reason;
+  const credit = showCredit ? shown?.credit : undefined;
   const zoom = panZoom && !reduceMotion;
 
   const settle = (url: string, ok: boolean) => {
@@ -147,15 +149,21 @@ export function Slideshow({
           </div>
         )}
       </div>
-      {shown?.reason && <p className="mt-2 text-caption break-keep text-ink-muted">{shown.reason}</p>}
-      {showCredit && shown?.credit && (
-        <figcaption className={`truncate text-caption text-ink-muted ${shown.reason ? "mt-0.5" : "mt-2"}`}>
-          {shown.sourceUrl ? (
-            <a href={shown.sourceUrl} target="_blank" rel="noreferrer" className="underline">
-              {shown.credit}
-            </a>
-          ) : (
-            shown.credit
+      {(reason || credit) && (
+        // 고른 이유는 왼쪽, 출처는 오른쪽에 한 줄로 둔다 — 두 줄일 때보다 사진 칸이 세로로 커진다.
+        // 이유는 줄이지 않고, 둘이 한 줄에 다 들어가지 않으면 출처 끝을 말줄임한다(겹치지 않게).
+        <figcaption className="mt-2 flex gap-2 text-fine text-ink-muted">
+          {reason && <span className="shrink-0">{reason}</span>}
+          {credit && (
+            <span className="ml-auto min-w-0 truncate">
+              {shown?.sourceUrl ? (
+                <a href={shown.sourceUrl} target="_blank" rel="noreferrer" className="underline">
+                  {credit}
+                </a>
+              ) : (
+                credit
+              )}
+            </span>
           )}
         </figcaption>
       )}

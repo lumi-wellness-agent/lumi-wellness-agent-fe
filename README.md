@@ -115,7 +115,7 @@ automation/                ship 하네스 (준비 문서 README.md + 하네스 �
 | 소셜 로그인 버튼 (`src/ui/social-login.tsx`) | `bg-google` · `border-google-line` · `bg-kakao` |
 | 카드 그림자 | `shadow-card` |
 | 반경 | `rounded-card` 18 · `rounded-button` 14 · `rounded-chip` 12 · `rounded-row` 12 (px) |
-| 글자 크기 | `text-title` 26 · `text-body` 15 · `text-caption` 13 · `text-fine` 12 (px) — `text-fine`은 사진 아래 고른 이유 · 출처처럼 한 줄에 나란히 두는 작은 글씨 |
+| 글자 크기 | `text-title` 26 · `text-body` 15 · `text-caption` 13 · `text-fine` 12 (px) — `text-fine`은 사진 · 영상 · 소리 칸 바로 아래의 고른 이유 · 출처 글씨 |
 | 제목 글꼴 | `font-display` (본문은 기본 `font-sans`) |
 
 - Tailwind 기본 팔레트(`bg-gray-100` 등)는 지웠습니다. 고정 색은 시간대가 바뀌어도 그대로 남기 때문입니다.

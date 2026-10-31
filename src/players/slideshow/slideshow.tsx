@@ -38,7 +38,7 @@ type Props = {
    * contain = 미술 작품 — 전체를 보이고 배경은 비운다(작품 주변에 다른 색을 깔지 않는다).
    */
   fit?: "cover" | "contain";
-  /** 사진 아래 오른쪽 작은 글씨로 작가 · 출처를 보일지. 고른 이유(reason)는 같은 줄 왼쪽에 둔다. */
+  /** 사진 아래 오른쪽 작은 글씨로 출처(Slide.credit — 사진은 작가 · 공급자, 작품은 소장처)를 보일지. 고른 이유(reason)는 같은 줄 왼쪽에 둔다. */
   showCredit?: boolean;
   /** 장면이 없을 때 안내. */
   emptyText?: string;

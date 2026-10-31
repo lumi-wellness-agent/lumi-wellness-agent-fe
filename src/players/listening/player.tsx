@@ -14,13 +14,13 @@
  *   BE가 추천곡을 맨 앞에 두고 metadata.recommended · content_factor.reason을 단다 — "LUMI 추천" 배지와 이유를
  *   보이되 고르는 것은 사용자다(E08: 목록에서 사용자가 고른 음악).
  * 소리를 불러오지 못하면 안내하고 시간은 그대로 돈다 — 그만두려면 호스트의 "그만하기".
- * 출처(CC BY 계열은 표기가 조건)를 아래에 보인다.
+ * 출처는 영상 · 소리 칸 바로 아래 오른쪽에 작은 글씨로 보인다(CC BY 계열은 표기가 조건이라 말줄임하지 않는다).
  */
 
 import { useEffect, useRef, useState, type RefObject } from "react";
 import type { ActivityAsset } from "@/lib/api/types";
 import { assetUrl } from "@/lib/api/client";
-import { Button, Card, Spinner } from "@/ui/controls";
+import { Button, Spinner } from "@/ui/controls";
 import { assetsOf, factorOf, findSlot, num, renderOf, str } from "../slideshow/spec";
 import { formatClock, useActivityTimer } from "../slideshow/use-activity-timer";
 import type { PlayerProps } from "../types";
@@ -144,6 +144,7 @@ function Listening({ sound, video, totalSeconds, fadeIn, fadeOut, onFinish }: Li
           </div>
         )}
       </div>
+      <Credits assets={[video, sound].filter((a): a is ActivityAsset => Boolean(a))} />
 
       {sound && (
         <audio
@@ -183,8 +184,6 @@ function Listening({ sound, video, totalSeconds, fadeIn, fadeOut, onFinish }: Li
           <Button onClick={start}>재생하기</Button>
         </div>
       )}
-
-      <Credits assets={[video, sound].filter((a): a is ActivityAsset => Boolean(a))} />
     </div>
   );
 }
@@ -247,7 +246,8 @@ export function Running({ audioRef, videoRef, totalSeconds, volume, setVolume, f
   };
 
   return (
-    <div className="mt-4 flex flex-1 flex-col">
+    // 남는 높이는 위의 영상 · 소리 칸(PR-21은 사진)이 갖는다 — 여기까지 늘리면 둘이 나눠 가져 버튼 위가 빈다
+    <div className="mt-4 flex flex-col">
       {holding && (
         <div role="status" className="mb-3 flex items-center gap-3">
           <Spinner />
@@ -298,39 +298,42 @@ export function Running({ audioRef, videoRef, totalSeconds, volume, setVolume, f
   );
 }
 
+/**
+ * 출처 — 영상 · 소리 칸(PR-21은 사진) 바로 아래 오른쪽에 작은 글씨로 자산마다 한 줄. 사진 출처와 같은 자리다.
+ * CC BY 계열은 표기가 조건이라 사진 출처처럼 말줄임하지 않고 줄바꿈한다.
+ */
 export function Credits({ assets }: { assets: ActivityAsset[] }) {
-  if (!assets.length) return null;
+  const credits = assets.flatMap((asset) => {
+    const credit = creditOf(asset);
+    return credit ? [{ key: asset.url, ...credit }] : [];
+  });
+  if (!credits.length) return null;
   return (
-    <Card className="mt-4">
-      <p className="text-caption font-bold text-ink-muted">출처</p>
-      <ul className="mt-1 flex flex-col gap-1">
-        {assets.map((asset) => {
-          const credit = creditOf(asset);
-          return (
-            <li key={asset.url} className="text-caption break-all text-ink-muted">
-              {credit.href ? (
-                <a href={credit.href} target="_blank" rel="noreferrer" className="underline">
-                  {credit.text}
+    <ul aria-label="출처" className="mt-2 flex flex-col gap-0.5 text-right text-fine wrap-break-word text-ink-muted">
+      {credits.map((credit) => (
+        <li key={credit.key}>
+          {credit.href ? (
+            <a href={credit.href} target="_blank" rel="noreferrer" className="underline">
+              {credit.text}
+            </a>
+          ) : (
+            credit.text
+          )}
+          {credit.license && (
+            <>
+              {" · "}
+              {/* 'CC BY-SA 4.0'이 줄 끝에서 갈라지지 않게 한 덩어리로 둔다 */}
+              {credit.licenseHref ? (
+                <a href={credit.licenseHref} target="_blank" rel="noreferrer" className="whitespace-nowrap underline">
+                  {credit.license}
                 </a>
               ) : (
-                credit.text
+                <span className="whitespace-nowrap">{credit.license}</span>
               )}
-              {credit.license && (
-                <>
-                  {" · "}
-                  {credit.licenseHref ? (
-                    <a href={credit.licenseHref} target="_blank" rel="noreferrer" className="underline">
-                      {credit.license}
-                    </a>
-                  ) : (
-                    credit.license
-                  )}
-                </>
-              )}
-            </li>
-          );
-        })}
-      </ul>
-    </Card>
+            </>
+          )}
+        </li>
+      ))}
+    </ul>
   );
 }

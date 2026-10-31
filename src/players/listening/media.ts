@@ -47,14 +47,23 @@ export function durationOf(asset: ActivityAsset): number | undefined {
   return undefined;
 }
 
-/** 출처 한 줄 — 제목 · 만든 사람(작곡가) · 공급자 · 라이선스. CC BY 계열은 표기가 조건이라 꼭 보인다. */
-export function creditOf(asset: ActivityAsset): { text: string; href?: string; license?: string; licenseHref?: string } {
+export type Credit = { text: string; href?: string; license?: string; licenseHref?: string };
+
+/**
+ * 출처 한 줄 — 제목 · 만든 사람(작곡가) · 공급자 · 라이선스. CC BY 계열은 표기가 조건이라 꼭 보인다.
+ * Pixabay는 사진 출처와 같이 작가 · Pixabay만 쓴다(제목은 BE가 붙인 'Pixabay nature video 123'이고 이용 조건은 표기 조건이 아니다).
+ * 밝힐 사람도 출처 주소도 없는 자산(LUMI가 가진 녹음 — PR-21 안내 음성)은 null이다.
+ */
+export function creditOf(asset: ActivityAsset): Credit | null {
   const composer = str(asset.metadata.composer);
-  const provider: Record<string, string> = { PIXABAY: "Pixabay", FREESOUND: "Freesound", CURATED_ASSET_LIBRARY: "LUMI 검수 음원" };
+  if (!asset.creator && !composer && !asset.source_url) return null;
+  const href = asset.source_url ?? undefined;
+  if (asset.provider === "PIXABAY") return { text: [asset.creator, "Pixabay"].filter(Boolean).join(" · "), href };
+  const provider: Record<string, string> = { FREESOUND: "Freesound", CURATED_ASSET_LIBRARY: "LUMI 검수 음원" };
   const parts = [asset.title, composer ?? asset.creator, provider[asset.provider]].filter(Boolean);
   return {
     text: parts.join(" · "),
-    href: asset.source_url ?? undefined,
+    href,
     license: asset.license ?? undefined,
     licenseHref: str(asset.metadata.license_url),
   };

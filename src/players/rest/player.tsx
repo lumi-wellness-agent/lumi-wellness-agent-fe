@@ -166,7 +166,7 @@ export default function RestPlayer({ content, onFinish }: PlayerProps) {
               {m.video ? "자연 영상으로 하기" : "실제 자연환경에서 하기"}
             </Button>
           ))}
-          {!video && <p className="text-caption text-ink-muted">준비된 영상이 없어요. 영상 모드는 BE에서 영상 자산을 받은 뒤 사용할 수 있어요.</p>}
+          {!video && <p className="text-caption break-keep text-ink-muted">지금은 영상을 준비하지 못했어요. &lsquo;실제 자연환경에서 하기&rsquo;로 진행하거나, &lsquo;그만하기&rsquo;로 다른 활동을 고를 수 있어요.</p>}
         </div>
       )}
       <div className={!mode ? "hidden" : mode.video ? "relative min-h-[42dvh] overflow-hidden rounded-card bg-surface-muted" : "relative"}>

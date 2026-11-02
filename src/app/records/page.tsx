@@ -3,8 +3,8 @@
 /**
  * 기록 — 회원이 한 활동을 세션별로 최근 것부터 보인다(GET /me/sessions). 게스트 체험은 기록을 남기지 않아서
  * 로그인하지 않았거나 게스트면 로그인을 권한다. 목업 세션이 켜져 있으면 이 탭에서 끝낸 목업 세션을 보인다.
- * 활동마다 끝까지 했는지와 나아졌는지(improved — BE 판정 그대로)를 먼저 보이고, 점수는 마친 세션의 목표 척도만
- * 종료 화면처럼 보인다.
+ * 카드는 날짜와 목표만 보이게 접어 두고, 누르면 펼친다. 펼치면 활동마다 끝까지 했는지와 나아졌는지(improved —
+ * BE 판정 그대로)를 먼저 보이고, 점수는 마친 세션의 목표 척도만 종료 화면처럼 보인다.
  */
 
 import { useEffect, useState } from "react";
@@ -126,54 +126,77 @@ function LoginCard() {
   );
 }
 
+/**
+ * 세션 카드 — 날짜와 목표(summary)만 보이고 활동 · 점수는 접어 둔다. summary를 카드 여백만큼 넓혀(-m-4 p-4) 접힌
+ * 카드 어디를 눌러도 열리고, 펼치면 아래 여백을 활동 목록과의 간격(8px)으로 줄인다. 브라우저의 펼침 삼각형은
+ * 지우고(사파리는 ::-webkit-details-marker) 오른쪽 화살표로 접힘 · 펼침을 보인다.
+ */
 function SessionCard({ session }: { session: SessionHistory }) {
   const { goal, goal_scale: scale } = session;
   return (
     <Card>
-      <div className="flex items-baseline justify-between gap-3 text-caption text-ink-muted">
-        <time dateTime={session.started_at}>{startedAt(session.started_at)}</time>
-        {!session.ended_at && <span className="shrink-0">마치지 않음</span>}
-      </div>
-      {goal && (
-        <p className="mt-1 flex items-center gap-2 font-bold">
-          <span aria-hidden className={`size-2.5 shrink-0 rounded-full ${GOAL_DOTS[goal]}`} />
-          {GOAL_LABELS[goal]}
-        </p>
-      )}
-      <ol className="mt-2 divide-y divide-line">
-        {session.rounds.map((round) => (
-          <li key={round.round} className="flex items-center justify-between gap-3 py-2.5">
-            <div className="min-w-0">
-              <p className="break-keep">{round.name ?? round.protocol_id}</p>
-              <p className="text-caption text-ink-muted">
-                {round.minutes}분 · {round.completed ? "끝까지 함" : "중간에 멈춤"}
-              </p>
-            </div>
-            {round.improved !== null && (
-              <span
-                className={`shrink-0 rounded-chip px-2.5 py-1 text-caption font-bold ${round.improved ? "bg-primary-soft text-on-primary-soft" : "bg-surface-muted text-ink-muted"}`}
-              >
-                {round.improved ? "나아짐" : "그대로"}
+      <details className="group">
+        <summary className="-m-4 flex cursor-pointer list-none items-center gap-3 rounded-card p-4 group-open:mb-0 group-open:pb-2 [&::-webkit-details-marker]:hidden">
+          <span className="min-w-0 flex-1">
+            <span className="flex items-baseline justify-between gap-3 text-caption text-ink-muted">
+              <time dateTime={session.started_at}>{startedAt(session.started_at)}</time>
+              {!session.ended_at && <span className="shrink-0">마치지 않음</span>}
+            </span>
+            {goal && (
+              <span className="mt-1 flex items-center gap-2 font-bold">
+                <span aria-hidden className={`size-2.5 shrink-0 rounded-full ${GOAL_DOTS[goal]}`} />
+                {GOAL_LABELS[goal]}
               </span>
             )}
-          </li>
-        ))}
-      </ol>
-      {scale && (
-        <div className="mt-1 border-t border-line pt-2.5">
-          <p className="mb-1 text-caption font-bold text-ink-muted">시작할 때와 비교</p>
-          <ul className="flex flex-col gap-1">
-            {Object.entries(scale.delta).map(([key, delta]) => (
-              <li key={key} className="flex justify-between gap-3">
-                <span>{DELTA_LABELS[key] ?? key}</span>
-                <strong className="tabular-nums">
-                  {score(scale.pre[key])} → {score(scale.end[key])} ({delta > 0 ? `+${score(delta)}` : score(delta)})
-                </strong>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+          </span>
+          <svg
+            viewBox="0 0 24 24"
+            className="size-5 shrink-0 text-ink-muted transition-transform group-open:rotate-180 motion-reduce:transition-none"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={1.8}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden
+          >
+            <path d="m6 9 6 6 6-6" />
+          </svg>
+        </summary>
+        <ol className="divide-y divide-line">
+          {session.rounds.map((round) => (
+            <li key={round.round} className="flex items-center justify-between gap-3 py-2.5">
+              <div className="min-w-0">
+                <p className="break-keep">{round.name ?? round.protocol_id}</p>
+                <p className="text-caption text-ink-muted">
+                  {round.minutes}분 · {round.completed ? "끝까지 함" : "중간에 멈춤"}
+                </p>
+              </div>
+              {round.improved !== null && (
+                <span
+                  className={`shrink-0 rounded-chip px-2.5 py-1 text-caption font-bold ${round.improved ? "bg-primary-soft text-on-primary-soft" : "bg-surface-muted text-ink-muted"}`}
+                >
+                  {round.improved ? "나아짐" : "그대로"}
+                </span>
+              )}
+            </li>
+          ))}
+        </ol>
+        {scale && (
+          <div className="mt-1 border-t border-line pt-2.5">
+            <p className="mb-1 text-caption font-bold text-ink-muted">시작할 때와 비교</p>
+            <ul className="flex flex-col gap-1">
+              {Object.entries(scale.delta).map(([key, delta]) => (
+                <li key={key} className="flex justify-between gap-3">
+                  <span>{DELTA_LABELS[key] ?? key}</span>
+                  <strong className="tabular-nums">
+                    {score(scale.pre[key])} → {score(scale.end[key])} ({delta > 0 ? `+${score(delta)}` : score(delta)})
+                  </strong>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </details>
     </Card>
   );
 }

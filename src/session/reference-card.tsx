@@ -6,30 +6,37 @@
  * 코드 값의 이름(배지 · 지표 · 섹션)만 FE가 정한다(labels.ts).
  */
 
+import { nameOf } from "@/i18n/locale";
+import { useLocale, useMessages } from "@/i18n/use-locale";
 import type { CardEvidence, ReferenceCard } from "@/lib/api/types";
-import { BADGE_LABELS, EFFECT_LABELS, ORDER_LABELS, OUTCOME_LABELS, SECTION_LABELS } from "./labels";
+import { LABELS } from "./labels";
+import { SESSION } from "./messages";
 
 export function ReferenceCardView({ card }: { card: ReferenceCard }) {
   const { goal } = card;
+  const t = useMessages(SESSION).card;
+  const labels = useMessages(LABELS);
+  // 목표 라벨은 BE가 한국어로 보낸다 — 한국어 화면은 그대로, 영어 화면은 목표 코드의 이름을 쓴다
+  const goalLabel = useLocale() === "ko" ? goal.label : labels.goals[goal.goal];
   return (
     <div className="flex flex-col gap-5 text-body">
       {card.badges.length > 0 && (
-        <ul className="flex flex-wrap gap-1.5" aria-label="표시">
+        <ul className="flex flex-wrap gap-1.5" aria-label={t.badges}>
           {card.badges.map((badge) => (
             <li key={badge} className="rounded-full bg-surface-muted px-2.5 py-1 text-caption font-bold text-ink-muted">
-              {BADGE_LABELS[badge] ?? badge}
+              {nameOf(labels.badges, badge)}
             </li>
           ))}
         </ul>
       )}
 
       <section>
-        <h3 className="mb-1 font-bold">목표 — {goal.label}</h3>
+        <h3 className="mb-1 font-bold">{t.goal(goalLabel)}</h3>
         {goal.reason && <p className="break-keep text-ink-muted">{goal.reason}</p>}
         {goal.measured_by && (
           <p className="mt-1 text-caption text-ink-muted">
-            LUMI가 재는 척도: {goal.measured_by.name}
-            {goal.measured_by.provisional && " (임시 · 타당화 전)"}
+            {t.measuredBy(goal.measured_by.name)}
+            {goal.measured_by.provisional && t.provisional}
           </p>
         )}
         {goal.notes.map((note) => (
@@ -39,7 +46,7 @@ export function ReferenceCardView({ card }: { card: ReferenceCard }) {
         ))}
         {goal.definitions.length > 0 && (
           <details className="mt-2">
-            <summary className="min-h-12 cursor-pointer content-center font-bold">목표 개념의 정의(원문)</summary>
+            <summary className="min-h-12 cursor-pointer content-center font-bold">{t.definitions}</summary>
             <ul className="mt-1 flex flex-col gap-3">
               {goal.definitions.map((d) => (
                 <li key={d.sentence} className="text-caption">
@@ -58,11 +65,11 @@ export function ReferenceCardView({ card }: { card: ReferenceCard }) {
 
       {Object.keys(card.grades).length > 0 && (
         <section>
-          <h3 className="mb-1 font-bold">근거 등급</h3>
+          <h3 className="mb-1 font-bold">{t.grades}</h3>
           <ul className="flex flex-wrap gap-x-4 gap-y-1">
             {Object.entries(card.grades).map(([outcome, grade]) => (
               <li key={outcome}>
-                {OUTCOME_LABELS[outcome] ?? outcome} <strong>{grade}</strong>
+                {nameOf(labels.outcomes, outcome)} <strong>{grade}</strong>
               </li>
             ))}
           </ul>
@@ -70,9 +77,9 @@ export function ReferenceCardView({ card }: { card: ReferenceCard }) {
       )}
 
       <section>
-        <h3 className="mb-2 font-bold">연구 근거</h3>
+        <h3 className="mb-2 font-bold">{t.evidence}</h3>
         {card.evidence.length === 0 ? (
-          <p className="text-ink-muted">이번에는 검증을 통과한 연구를 찾지 못했어요.</p>
+          <p className="text-ink-muted">{t.noEvidence}</p>
         ) : (
           <ol className="flex flex-col gap-3">
             {card.evidence.map((evidence) => (
@@ -83,7 +90,7 @@ export function ReferenceCardView({ card }: { card: ReferenceCard }) {
       </section>
 
       <section>
-        <h3 className="mb-1 font-bold">한계</h3>
+        <h3 className="mb-1 font-bold">{t.limits}</h3>
         <ul className="list-disc pl-5 text-caption break-keep text-ink-muted">
           {card.limits.map((limit) => (
             <li key={limit}>{limit}</li>
@@ -96,16 +103,18 @@ export function ReferenceCardView({ card }: { card: ReferenceCard }) {
 
 function EvidenceItem({ evidence }: { evidence: CardEvidence }) {
   const { paper } = evidence;
+  const t = useMessages(SESSION).card;
+  const labels = useMessages(LABELS);
   const conditions = [
     evidence.population,
-    evidence.n && `${evidence.n}명`,
-    evidence.exposure_minutes && `${evidence.exposure_minutes}분`,
-    evidence.studied_orders.map((o) => ORDER_LABELS[o] ?? o).join(" · "),
+    evidence.n && t.participants(evidence.n),
+    evidence.exposure_minutes && t.exposure(evidence.exposure_minutes),
+    evidence.studied_orders.map((o) => nameOf(labels.orders, o)).join(" · "),
   ].filter(Boolean);
   return (
     <li className="rounded-row border border-line p-3">
       <p className="text-caption font-bold text-ink-muted">
-        {evidence.supports_goal ? "목표를 지지하는 연구" : "참고 연구"}
+        {evidence.supports_goal ? t.supports : t.reference}
         {evidence.theories.length > 0 && ` · ${evidence.theories.join(" · ")}`}
       </p>
       <p className="mt-1 font-bold break-keep">
@@ -126,8 +135,8 @@ function EvidenceItem({ evidence }: { evidence: CardEvidence }) {
         <ul className="mt-2 flex flex-col gap-1 text-caption">
           {evidence.results.map((r, i) => (
             <li key={i} className="break-keep">
-              {OUTCOME_LABELS[r.outcome] ?? r.outcome}
-              {r.measure && `(${r.measure})`}: {EFFECT_LABELS[r.effect] ?? r.effect}
+              {nameOf(labels.outcomes, r.outcome)}
+              {r.measure && `(${r.measure})`}: {nameOf(labels.effects, r.effect)}
               {r.comparison && ` — ${r.comparison}`}
               {r.stat && `, ${r.stat}`}
             </li>
@@ -140,10 +149,10 @@ function EvidenceItem({ evidence }: { evidence: CardEvidence }) {
         </p>
       ))}
       <details className="mt-1">
-        <summary className="min-h-12 cursor-pointer content-center text-caption font-bold">원문 보기</summary>
+        <summary className="min-h-12 cursor-pointer content-center text-caption font-bold">{t.source}</summary>
         {evidence.excerpts.map((x) => (
           <blockquote key={`${x.evidence_record_id}-${x.section}`} className="mt-2 border-l-2 border-line-strong pl-3 text-caption">
-            <span className="font-bold">{SECTION_LABELS[x.section] ?? x.section}</span> <span lang="en">{x.text}</span>
+            <span className="font-bold">{nameOf(labels.sections, x.section)}</span> <span lang="en">{x.text}</span>
           </blockquote>
         ))}
       </details>

@@ -7,18 +7,22 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { errorText } from "@/i18n/errors";
+import { LOCALE_NAMES, LOCALES } from "@/i18n/locale";
+import { setLocale, useLocale, useMessages } from "@/i18n/use-locale";
 import { meApi } from "@/lib/api/client";
 import { forgetRecords } from "@/lib/api/records";
 import { signOut, viewer, type Viewer } from "@/lib/auth";
 import { LIGHT_KEYS, pickLight, type Light } from "@/lib/light";
 import { useBrowserValue } from "@/lib/use-browser-value";
 import { Button, Card, Chip, Heading, Screen } from "@/ui/controls";
+import { APP } from "../messages";
 
-const LIGHT_CHOICES: { value: Light | null; label: string }[] = [
-  { value: null, label: "시간대 따라" },
-  { value: "mist", label: "물안개" },
-  { value: "sunlit", label: "볕" },
-  { value: "moonlight", label: "달빛" },
+const LIGHT_CHOICES: { value: Light | null; key: "follow" | Light }[] = [
+  { value: null, key: "follow" },
+  { value: "mist", key: "mist" },
+  { value: "sunlit", key: "sunlit" },
+  { value: "moonlight", key: "moonlight" },
 ];
 
 export default function SettingsPage() {
@@ -28,7 +32,9 @@ export default function SettingsPage() {
   const [picked, setPicked] = useState<Light | null | undefined>(undefined); // 이 화면에서 고른 값
   const light = picked === undefined ? stored : picked;
   const [confirming, setConfirming] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<unknown>(null);
+  const locale = useLocale();
+  const t = useMessages(APP).settings;
 
   useEffect(() => {
     void viewer().then(setWho);
@@ -46,26 +52,37 @@ export default function SettingsPage() {
       await meApi.withdraw();
       await leave();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "탈퇴하지 못했어요.");
+      setError(e);
     }
   };
 
   return (
     <Screen tabBar>
-      <Heading>설정</Heading>
+      <Heading>{t.title}</Heading>
       <Card>
-        <p className="mb-2 font-bold">화면 색</p>
+        <p className="mb-2 font-bold">{t.language}</p>
+        <div className="flex flex-wrap gap-2" role="group" aria-label={t.language}>
+          {LOCALES.map((option) => (
+            <Chip key={option} selected={locale === option} lang={option} onClick={() => setLocale(option)}>
+              {LOCALE_NAMES[option]}
+            </Chip>
+          ))}
+        </div>
+      </Card>
+
+      <Card className="mt-4">
+        <p className="mb-2 font-bold">{t.light}</p>
         <div className="flex flex-wrap gap-2">
           {LIGHT_CHOICES.map((choice) => (
             <Chip
-              key={choice.label}
+              key={choice.key}
               selected={light === choice.value}
               onClick={() => {
                 pickLight(choice.value);
                 setPicked(choice.value);
               }}
             >
-              {choice.label}
+              {t.lights[choice.key]}
             </Chip>
           ))}
         </div>
@@ -73,27 +90,25 @@ export default function SettingsPage() {
 
       {member && (
         <Card className="mt-4">
-          <p className="mb-3 font-bold">계정</p>
+          <p className="mb-3 font-bold">{t.account}</p>
           <div className="flex flex-col gap-2">
             <Button variant="secondary" onClick={leave}>
-              로그아웃
+              {t.logout}
             </Button>
             {confirming ? (
               <>
-                <p className="break-keep text-ink-muted">
-                  탈퇴하면 계정과 세션 기록 · 원문 · 동의가 모두 지워지고 되돌릴 수 없어요.
-                </p>
-                <Button onClick={withdraw}>탈퇴하기</Button>
+                <p className="break-keep text-ink-muted">{t.withdrawWarning}</p>
+                <Button onClick={withdraw}>{t.withdrawConfirm}</Button>
                 <Button variant="quiet" onClick={() => setConfirming(false)}>
-                  그만두기
+                  {t.cancel}
                 </Button>
               </>
             ) : (
               <Button variant="quiet" onClick={() => setConfirming(true)}>
-                회원 탈퇴
+                {t.withdraw}
               </Button>
             )}
-            {error && <p className="text-caption">{error}</p>}
+            {error !== null && <p className="text-caption">{errorText(error, locale, t.withdrawFailed)}</p>}
           </div>
         </Card>
       )}

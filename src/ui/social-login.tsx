@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
+import { useMessages } from "@/i18n/use-locale";
 import type { Provider } from "@/lib/auth";
+import { UI } from "./messages";
 
 /*
  * 소셜 로그인 버튼. 마크만 둔 원형 아이콘 버튼이라 화면에 글자가 없고, aria-label이 버튼 이름이다(마크는 aria-hidden).
@@ -7,7 +9,8 @@ import type { Provider } from "@/lib/auth";
  * - Google(developers.google.com/identity/branding-guidelines): 버튼 테두리가 있으면 G만 둘 수 있다. 테마 색과 4색 G를
  *   그대로 쓰고, 밝은 세트는 라이트, 어두운 세트는 다크 테마다(globals.css의 --lumi-google*).
  * - 카카오(developers.kakao.com/docs/latest/ko/kakaologin/design-guide): 바탕 #FEE500 · 심볼 검정이고 다크 짝이 없다
- *   (@theme의 kakao 토큰). 가이드에 심볼만 쓰는 형태는 따로 없어 cure-agent-fe처럼 이름에 완성형 '카카오 로그인'을 쓴다.
+ *   (@theme의 kakao 토큰). 가이드에 심볼만 쓰는 형태는 따로 없어 cure-agent-fe처럼 이름에 완성형 '카카오 로그인'(영어 화면은
+ *   가이드의 영어 문구 'Login with Kakao')을 쓴다. 이름은 src/ui/messages.ts에 있다.
  * 마크의 색 · 모양 · 비율은 바꾸지 않는다.
  */
 
@@ -54,13 +57,14 @@ function KakaoLogo() {
 }
 
 const BRANDS = {
-  google: { label: "Google로 로그인", look: "border border-google-line bg-google", Logo: GoogleLogo },
-  kakao: { label: "카카오 로그인", look: "bg-kakao", Logo: KakaoLogo },
-} satisfies Record<Provider, { label: string; look: string; Logo: () => ReactNode }>;
+  google: { look: "border border-google-line bg-google", Logo: GoogleLogo },
+  kakao: { look: "bg-kakao", Logo: KakaoLogo },
+} satisfies Record<Provider, { look: string; Logo: () => ReactNode }>;
 
 /** 로그인 버튼. 지름 48px은 터치 영역 하한이자 카카오 심볼 비율이 맞는 크기라 줄이지 않는다. */
 export function SocialLoginButton({ provider, onClick }: { provider: Provider; onClick: () => void }) {
-  const { label, look, Logo } = BRANDS[provider];
+  const { look, Logo } = BRANDS[provider];
+  const label = useMessages(UI).login[provider];
   return (
     <button
       type="button"

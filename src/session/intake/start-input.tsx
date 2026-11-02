@@ -7,27 +7,29 @@
  * 고르면 intake가 문장에서 읽은 값보다 우선한다. 목표(S1 · S2 · S3)는 묻지 않는다 — intake가 문장과 대화로 추론한다.
  * 로그인 · 게스트 고지 · 시작 버튼은 시작 화면(src/app/start-form.tsx, 통합 담당)이 맡는다.
  *
- * 입력 칸 아래 예시 문장(EXAMPLE_TEXTS)을 누르면 칸에 채워지고 여건 칩(EXAMPLE_CONTEXT)도 같이 골라지며 여건 섹션이
+ * 입력 칸 아래 예시 문장(INTAKE_LABELS.examples)을 누르면 칸에 채워지고 여건 칩(EXAMPLE_CONTEXT)도 같이 골라지며 여건 섹션이
  * 펼쳐진다 — 무엇을 쓰면 되는지 보여 주고, 질문 없이 측정으로 바로 가게 하는 용도다. 칩은 그대로 고칠 수 있다.
  * 프로필(선호 풍경 · 선호 색 · 피하고 싶은 색)은 세션마다 다시 묻지 않는 선호라 이 기기에 기억해 두고(localStorage)
  * CareRequest.profile로 보낸다. 피하고 싶은 색에 검정 · 진한 보라가 있으면 setAvoidDark(true)(src/lib/light.ts).
  */
 
 import { useEffect, useState, type ReactNode } from "react";
-import type { CareRequest, Setting, UserProfile } from "@/lib/api/types";
+import { useLocale, useMessages } from "@/i18n/use-locale";
+import type { CareRequest, UserProfile } from "@/lib/api/types";
 import { setAvoidDark } from "@/lib/light";
 import { Chip } from "@/ui/controls";
 import {
-  COLOR_CHOICES,
+  COLOR_VALUES,
   DARK_COLORS,
   EXAMPLE_CONTEXT,
-  EXAMPLE_TEXTS,
-  GROUP_LABELS,
+  INTAKE_LABELS,
+  localizedExample,
   MAX_PREFERRED_COLORS,
   MINUTE_CHOICES,
-  SCENERY_CHOICES,
-  SETTING_LABELS,
+  SCENERY_VALUES,
+  SETTINGS,
 } from "./labels";
+import { INTAKE } from "./messages";
 
 const PROFILE_KEY = "lumi:profile";
 
@@ -56,6 +58,11 @@ export function StartInput({ value, onChange }: { value: CareRequest; onChange: 
   const profile = value.profile ?? {};
   // 여건 섹션 — 예시를 누르면 펼쳐서 같이 골라진 칩을 보인다. 사용자가 접고 펴면 onToggle로 따라간다
   const [contextOpen, setContextOpen] = useState(false);
+  const locale = useLocale();
+  const labels = useMessages(INTAKE_LABELS);
+  const t = useMessages(INTAKE).start;
+  // 예시를 누른 뒤 언어를 바꾸면 칸의 예시도 따라간다 — 보내는 문장도 같은 값이다(start-form.tsx)
+  const text = localizedExample(value.text, locale);
 
   // 지난번에 고른 프로필을 한 번 불러온다
   useEffect(() => {
@@ -79,23 +86,23 @@ export function StartInput({ value, onChange }: { value: CareRequest; onChange: 
   return (
     <>
       <label className="flex flex-col gap-2">
-        <span className="font-display text-title">오늘 상황이 어떠세요?</span>
+        <span className="font-display text-title">{t.question}</span>
         <textarea
-          value={value.text}
+          value={text}
           onChange={(e) => set({ text: e.target.value })}
           rows={3}
           maxLength={500}
-          placeholder="한두 마디면 충분해요"
+          placeholder={t.placeholder}
           className="rounded-row border border-line-control bg-control p-3 text-body text-ink"
         />
       </label>
       <div className="mt-3">
-        <p className="mb-2 text-caption text-ink-muted">이렇게 써도 돼요</p>
+        <p className="mb-2 text-caption text-ink-muted">{t.examples}</p>
         <div className="flex flex-wrap gap-2">
-          {EXAMPLE_TEXTS.map((example) => (
+          {labels.examples.map((example) => (
             <Chip
               key={example}
-              selected={value.text === example}
+              selected={text === example}
               className="text-left"
               onClick={() => {
                 set({ text: example, ...EXAMPLE_CONTEXT });
@@ -110,30 +117,31 @@ export function StartInput({ value, onChange }: { value: CareRequest; onChange: 
 
       <details className="mt-4" open={contextOpen} onToggle={(e) => setContextOpen(e.currentTarget.open)}>
         <summary className="min-h-12 cursor-pointer content-center font-bold text-ink-muted">
-          지금 여건 알려 주기 (선택){contextCount > 0 && ` · ${contextCount}개 고름`}
+          {t.context}
+          {contextCount > 0 && t.picked(contextCount)}
         </summary>
-        <ChipGroup label={GROUP_LABELS.setting}>
-          {(Object.keys(SETTING_LABELS) as Setting[]).map((key) => (
+        <ChipGroup label={labels.groups.setting}>
+          {SETTINGS.map((key) => (
             <Chip key={key} selected={value.setting === key} onClick={() => set({ setting: value.setting === key ? null : key })}>
-              {SETTING_LABELS[key]}
+              {labels.settings[key]}
             </Chip>
           ))}
         </ChipGroup>
-        <ChipGroup label={GROUP_LABELS.earphones}>
+        <ChipGroup label={labels.groups.earphones}>
           {[true, false].map((on) => (
             <Chip key={String(on)} selected={value.earphones === on} onClick={() => set({ earphones: value.earphones === on ? null : on })}>
-              {on ? "있어요" : "없어요"}
+              {on ? t.earphones.yes : t.earphones.no}
             </Chip>
           ))}
         </ChipGroup>
-        <ChipGroup label={GROUP_LABELS.minutes}>
+        <ChipGroup label={labels.groups.minutes}>
           {MINUTE_CHOICES.map((minutes) => (
             <Chip
               key={minutes}
               selected={value.minutes_available === minutes}
               onClick={() => set({ minutes_available: value.minutes_available === minutes ? null : minutes })}
             >
-              {minutes === 20 ? "20분 이상" : `${minutes}분`}
+              {t.minutes(minutes)}
             </Chip>
           ))}
         </ChipGroup>
@@ -141,48 +149,49 @@ export function StartInput({ value, onChange }: { value: CareRequest; onChange: 
 
       <details className="mt-1">
         <summary className="min-h-12 cursor-pointer content-center font-bold text-ink-muted">
-          내 취향 알려 주기 (선택){profileCount > 0 && ` · ${profileCount}개 고름`}
+          {t.profile}
+          {profileCount > 0 && t.picked(profileCount)}
         </summary>
-        <p className="mt-1 text-caption text-ink-muted break-keep">이 기기에 기억해 두고 다음에도 써요.</p>
-        <ChipGroup label="좋아하는 풍경">
-          {SCENERY_CHOICES.map((c) => (
+        <p className="mt-1 text-caption text-ink-muted break-keep">{t.remembered}</p>
+        <ChipGroup label={t.likedScenery}>
+          {SCENERY_VALUES.map((scenery) => (
             <Chip
-              key={c.value}
-              selected={profile.preferred_scenery?.includes(c.value) ?? false}
-              onClick={() => setProfile({ preferred_scenery: toggled(profile.preferred_scenery, c.value) })}
+              key={scenery}
+              selected={profile.preferred_scenery?.includes(scenery) ?? false}
+              onClick={() => setProfile({ preferred_scenery: toggled(profile.preferred_scenery, scenery) })}
             >
-              {c.label}
+              {labels.scenery[scenery]}
             </Chip>
           ))}
         </ChipGroup>
-        <ChipGroup label={`좋아하는 색 (${MAX_PREFERRED_COLORS}개까지)`}>
-          {COLOR_CHOICES.map((c) => {
-            const on = preferred.includes(c.value);
+        <ChipGroup label={t.likedColors(MAX_PREFERRED_COLORS)}>
+          {COLOR_VALUES.map((color) => {
+            const on = preferred.includes(color);
             return (
               <Chip
-                key={c.value}
+                key={color}
                 selected={on}
                 className="disabled:opacity-40"
-                disabled={!on && (preferred.length >= MAX_PREFERRED_COLORS || avoided.includes(c.value))}
-                onClick={() => setProfile({ preferred_colors: toggled(preferred, c.value) })}
+                disabled={!on && (preferred.length >= MAX_PREFERRED_COLORS || avoided.includes(color))}
+                onClick={() => setProfile({ preferred_colors: toggled(preferred, color) })}
               >
-                {c.label}
+                {labels.colors[color]}
               </Chip>
             );
           })}
         </ChipGroup>
-        <ChipGroup label="불편한 색">
-          {COLOR_CHOICES.map((c) => {
-            const on = avoided.includes(c.value);
+        <ChipGroup label={t.avoidedColors}>
+          {COLOR_VALUES.map((color) => {
+            const on = avoided.includes(color);
             return (
               <Chip
-                key={c.value}
+                key={color}
                 selected={on}
                 className="disabled:opacity-40"
-                disabled={!on && preferred.includes(c.value)}
-                onClick={() => setProfile({ avoided_colors: toggled(avoided, c.value) })}
+                disabled={!on && preferred.includes(color)}
+                onClick={() => setProfile({ avoided_colors: toggled(avoided, color) })}
               >
-                {c.label}
+                {labels.colors[color]}
               </Chip>
             );
           })}

@@ -29,6 +29,12 @@ Codex·Claude Code 같은 AI 에이전트가 이 저장소에서 작업할 때 �
 - 새 화면은 다섯 색 세트에서 모두 확인한다. 시간대는 개발자 도구 콘솔에서 `localStorage.setItem("lumi:light-pick", "moonlight")`(`mist`·`sunlit`도 같다)를 실행하고 새로고침해 바꾸고, `localStorage.removeItem("lumi:light-pick")`로 되돌린다. 다크 짝은 개발자 도구 Rendering 패널에서 `prefers-color-scheme: dark`를 켜서 본다.
 - 세션 화면은 시작할 때 `lockLight()`, 마칠 때 `unlockLight()`를 부른다(`src/lib/light.ts`). 설정·프로필과 잇는 `pickLight()`·`setAvoidDark()` 규칙은 README에 있다.
 
+## 화면 언어
+
+- 화면 문구는 한국어와 영어 둘이다. 새 문구는 그 폴더의 `messages.ts`(코드 값의 이름은 `labels.ts`)에 `defineMessages`로 한국어와
+  영어를 함께 넣고 `useMessages`로 쓴다(`src/i18n/`). 컴포넌트에 문구를 박지 않는다 — 영어 키가 빠지면 typecheck가 실패한다.
+- BE로 보내는 값(선택지 값 · 멈춘 이유)은 화면 언어에 따라 바꾸지 않는다. 문구와 값을 나눠 둔다.
+
 ## 팀 작업
 
 역할과 담당 파일은 [TEAM.md](TEAM.md)에 있다.

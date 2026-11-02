@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
+import { useMessages } from "@/i18n/use-locale";
+import { UI } from "./messages";
 
 /*
  * 아래 탭 바 — 메인 · 기록 · 설정. 탭 화면에만 두고, 세션 · 동의 · 로그인처럼 흐름을 마쳐야 하는 화면에는 두지 않는다.
@@ -11,15 +13,15 @@ import type { ReactNode } from "react";
  * 탭 이름은 화면에 쓰지 않고 aria-label로만 읽힌다.
  */
 
-const TABS: { href: string; label: string; icon: ReactNode }[] = [
+const TABS: { href: string; key: keyof (typeof UI)["ko"]["tabs"]; icon: ReactNode }[] = [
   {
     href: "/",
-    label: "메인",
+    key: "home",
     icon: <path d="M4 10.2 12 4l8 6.2V19a1.5 1.5 0 0 1-1.5 1.5H15v-5.5H9v5.5H5.5A1.5 1.5 0 0 1 4 19z" />,
   },
   {
     href: "/records",
-    label: "기록",
+    key: "records",
     icon: (
       <>
         <rect x="4" y="5.5" width="16" height="15" rx="2.5" />
@@ -29,7 +31,7 @@ const TABS: { href: string; label: string; icon: ReactNode }[] = [
   },
   {
     href: "/settings",
-    label: "설정",
+    key: "settings",
     icon: (
       <>
         <path d="M10.21 5.34 10.56 2.91h2.88l.35 2.43 1.66.68 1.96-1.46 2.03 2.03-1.46 1.96.68 1.66 2.43.35v2.88l-2.43.35-.68 1.66 1.46 1.96-2.03 2.03-1.96-1.46-1.66.68-.35 2.43h-2.88l-.35-2.43-1.66-.68-1.96 1.46-2.03-2.03 1.46-1.96-.68-1.66-2.43-.35v-2.88l2.43-.35.68-1.66-1.46-1.96 2.03-2.03 1.96 1.46z" />
@@ -41,9 +43,10 @@ const TABS: { href: string; label: string; icon: ReactNode }[] = [
 
 export function TabBar() {
   const pathname = usePathname();
+  const t = useMessages(UI);
   return (
     <nav
-      aria-label="주요 화면"
+      aria-label={t.tabNav}
       className="fixed bottom-0 left-1/2 z-20 w-full max-w-[480px] -translate-x-1/2 border-t border-line bg-page pb-[env(safe-area-inset-bottom)]"
     >
       <ul className="flex h-14">
@@ -53,7 +56,7 @@ export function TabBar() {
             <li key={tab.href} className="flex-1">
               <Link
                 href={tab.href}
-                aria-label={tab.label}
+                aria-label={t.tabs[tab.key]}
                 aria-current={current ? "page" : undefined}
                 className={`flex h-full items-center justify-center ${current ? "text-ink" : "text-ink-muted"}`}
               >

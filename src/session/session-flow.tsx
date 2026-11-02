@@ -9,13 +9,17 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
+import { errorText } from "@/i18n/errors";
+import { useLocale, useMessages } from "@/i18n/use-locale";
 import type { ApiError } from "@/lib/api/client";
 import { lockLight, unlockLight } from "@/lib/light";
 import { Button, ButtonLink, Heading, Screen } from "@/ui/controls";
 import { AskScreen } from "./intake/ask-screen";
 import { ConfirmScreen } from "./confirm-screen";
 import { EndScreen } from "./end-screen";
+import { LABELS, progressLabel } from "./labels";
 import { MeasureScreen } from "./measure/measure-screen";
+import { SESSION } from "./messages";
 import { Progress } from "./progress";
 import { RunScreen } from "./run-screen";
 import { readDraft, savedSessionId, useSession, type Session } from "./use-session";
@@ -27,6 +31,8 @@ export function SessionFlow() {
   const router = useRouter();
   const session = useSession();
   const { view, busy, progress, error } = session.status;
+  const labels = useMessages(LABELS);
+  const progressText = progress ? progressLabel(labels, progress) : null;
   const entered = useRef(false);
 
   useEffect(() => {
@@ -60,13 +66,13 @@ export function SessionFlow() {
 
   if (!view) {
     if (error && error.code !== "CONSENT_REQUIRED") return <ErrorScreen error={error} session={session} />;
-    return <Progress text={progress} />;
+    return <Progress text={progressText} />;
   }
 
   return (
     <>
       <StepScreen session={session} />
-      {busy && <Progress text={progress} overlay />}
+      {busy && <Progress text={progressText} overlay />}
       {error && <ErrorSheet error={error} session={session} />}
     </>
   );
@@ -74,6 +80,7 @@ export function SessionFlow() {
 
 function StepScreen({ session }: { session: Session }) {
   const { view, busy } = session.status;
+  const t = useMessages(SESSION).stalled;
   if (!view) return null;
   switch (view.step) {
     case "ASK":
@@ -98,9 +105,9 @@ function StepScreen({ session }: { session: Session }) {
       return <EndScreen payload={view.payload} />;
     case "STALLED":
       return (
-        <Screen footer={<Button onClick={session.retry} disabled={busy}>이어서 하기</Button>}>
-          <Heading>잠시 멈췄어요</Heading>
-          <p className="break-keep text-ink-muted">연결이 끊겼거나 준비 중에 문제가 생겼어요. 멈춘 곳부터 다시 할게요.</p>
+        <Screen footer={<Button onClick={session.retry} disabled={busy}>{t.continue}</Button>}>
+          <Heading>{t.title}</Heading>
+          <p className="break-keep text-ink-muted">{t.body}</p>
         </Screen>
       );
   }
@@ -126,31 +133,34 @@ function ErrorScreen({ error, session }: { error: ApiError; session: Session }) 
 }
 
 function ErrorBody({ error, session }: { error: ApiError; session: Session }) {
+  const locale = useLocale();
+  const m = useMessages(SESSION);
+  const t = m.error;
   const home = (
     <ButtonLink href="/" variant="secondary">
-      처음으로
+      {m.home}
     </ButtonLink>
   );
-  let title = "문제가 생겼어요";
+  let title = t.title;
   let action = home;
-  if (RELOGIN.includes(error.code)) title = "다시 로그인해 주세요";
-  else if (GONE.includes(error.code)) title = "이어 갈 수 없는 세션이에요";
+  if (RELOGIN.includes(error.code)) title = t.relogin;
+  else if (GONE.includes(error.code)) title = t.gone;
   else if (error.code === "INVALID_ANSWER" || error.code === "VALIDATION") {
-    title = "답을 다시 확인해 주세요";
-    action = <Button onClick={session.dismissError}>확인</Button>;
+    title = t.checkAnswer;
+    action = <Button onClick={session.dismissError}>{t.ok}</Button>;
   } else if (error.retryable) {
-    title = "잠시 뒤에 다시 해 볼게요";
-    action = <Button onClick={session.retry}>다시 시도</Button>;
+    title = t.retryLater;
+    action = <Button onClick={session.retry}>{m.tryAgain}</Button>;
   } else if (error.code === "NETWORK" || error.code === "STREAM_CLOSED" || error.status >= 500) {
-    title = "연결이 원활하지 않아요";
-    action = <Button onClick={session.again}>다시 시도</Button>;
+    title = t.network;
+    action = <Button onClick={session.again}>{m.tryAgain}</Button>;
   }
   return (
     <>
       <h2 id="error-title" className="mb-1 font-display text-title">
         {title}
       </h2>
-      <p className="mb-4 break-keep text-ink-muted">{error.message}</p>
+      <p className="mb-4 break-keep text-ink-muted">{errorText(error, locale, t.title)}</p>
       <div className="flex flex-col gap-2">
         {action}
         {action !== home && home}

@@ -9,18 +9,25 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { errorText } from "@/i18n/errors";
+import { useLocale, useMessages } from "@/i18n/use-locale";
 import { meApi } from "@/lib/api/client";
 import type { ConsentView } from "@/lib/api/types";
 import { viewer } from "@/lib/auth";
 import { Button, Card, Heading, Screen } from "@/ui/controls";
+import { APP } from "../messages";
 
 export default function ConsentPage() {
   const router = useRouter();
   const [consent, setConsent] = useState<ConsentView | null>(null);
   const [records, setRecords] = useState(false);
   const [rawText, setRawText] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  // 실패한 오류와 그 화면의 '…하지 못했어요' 문장(언어를 바꾸면 따라간다)
+  const [error, setError] = useState<{ error: unknown; fallback: "readFailed" | "saveFailed" } | null>(null);
   const [busy, setBusy] = useState(false);
+  const locale = useLocale();
+  const m = useMessages(APP);
+  const t = m.consent;
 
   useEffect(() => {
     const next = nextPath();
@@ -33,7 +40,7 @@ export default function ConsentPage() {
         setConsent(view);
         setRawText(view.raw_text);
       } catch (e) {
-        setError(e instanceof Error ? e.message : "동의 상태를 읽지 못했어요.");
+        setError({ error: e, fallback: "readFailed" });
       }
     })();
   }, [router]);
@@ -44,7 +51,7 @@ export default function ConsentPage() {
       await meApi.agree(rawText);
       router.replace(nextPath());
     } catch (e) {
-      setError(e instanceof Error ? e.message : "동의를 저장하지 못했어요.");
+      setError({ error: e, fallback: "saveFailed" });
       setBusy(false);
     }
   };
@@ -53,21 +60,18 @@ export default function ConsentPage() {
     <Screen
       footer={
         <Button disabled={!consent || !records || busy} onClick={agree}>
-          동의하고 시작하기
+          {t.agree}
         </Button>
       }
     >
-      <Heading eyebrow="처음 한 번만">세션 기록에 동의해 주세요</Heading>
+      <Heading eyebrow={t.once}>{t.title}</Heading>
       <div className="flex flex-col gap-3">
         <Card>
           <label className="flex min-h-12 items-start gap-3">
             <input type="checkbox" checked={records} onChange={(e) => setRecords(e.target.checked)} className="mt-1 size-5 accent-primary" />
             <span>
-              <strong>(필수) 세션 기록</strong>
-              <span className="mt-1 block break-keep text-ink-muted">
-                상황 분류, 질문에 고른 답, 측정값, 한 활동과 결과를 기록해요. 심리 상태 측정값이 들어 있어 민감정보로 보고
-                따로 동의를 받아요. 거두려면 탈퇴하면 돼요.
-              </span>
+              <strong>{t.records}</strong>
+              <span className="mt-1 block break-keep text-ink-muted">{t.recordsBody}</span>
             </span>
           </label>
         </Card>
@@ -75,19 +79,16 @@ export default function ConsentPage() {
           <label className="flex min-h-12 items-start gap-3">
             <input type="checkbox" checked={rawText} onChange={(e) => setRawText(e.target.checked)} className="mt-1 size-5 accent-primary" />
             <span>
-              <strong>(선택) 원문 보관</strong>
-              <span className="mt-1 block break-keep text-ink-muted">
-                처음 입력, 직접 쓴 답, 감정 단어, 멈춘 이유 같은 글을 {consent?.text_retention_days ?? 90}일 동안 보관해요.
-                나중에 끄면 남긴 원문을 바로 지워요.
-              </span>
+              <strong>{t.rawText}</strong>
+              <span className="mt-1 block break-keep text-ink-muted">{t.rawTextBody(consent?.text_retention_days ?? 90)}</span>
             </span>
           </label>
         </Card>
         <p className="text-caption break-keep text-ink-muted">
-          입력한 글은 추천을 위해 OpenAI 모델로 보내져요. LUMI는 의료적 진단이나 치료를 대신하지 않습니다.
-          {consent && ` (동의 문구 ${consent.version})`}
+          {t.openai}
+          {consent && t.version(consent.version)}
         </p>
-        {error && <p className="text-caption break-keep">{error}</p>}
+        {error && <p className="text-caption break-keep">{errorText(error.error, locale, t[error.fallback])}</p>}
       </div>
     </Screen>
   );

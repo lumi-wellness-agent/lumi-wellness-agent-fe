@@ -166,7 +166,8 @@ export default function RestPlayer({ content, onFinish }: PlayerProps) {
               {m.video ? "자연 영상으로 하기" : "실제 자연환경에서 하기"}
             </Button>
           ))}
-          {!video && <p className="text-caption break-keep text-ink-muted">지금은 영상을 준비하지 못했어요. &lsquo;실제 자연환경에서 하기&rsquo;로 진행하거나, &lsquo;그만하기&rsquo;로 다른 활동을 고를 수 있어요.</p>}
+          {/* 따옴표 양옆이 한글이면 닫는 따옴표 뒤에서도 줄이 바뀌어 다음 줄이 조사로 시작한다 — 버튼 이름과 조사를 한 덩어리로 둔다 */}
+          {!video && <p className="text-caption break-keep text-ink-muted">지금은 영상을 준비하지 못했어요. <span className="whitespace-nowrap">&lsquo;실제 자연환경에서 하기&rsquo;로</span> 진행하거나, <span className="whitespace-nowrap">&lsquo;그만하기&rsquo;로</span> 다른 활동을 고를 수 있어요.</p>}
         </div>
       )}
       <div className={!mode ? "hidden" : mode.video ? "relative min-h-[42dvh] overflow-hidden rounded-card bg-surface-muted" : "relative"}>

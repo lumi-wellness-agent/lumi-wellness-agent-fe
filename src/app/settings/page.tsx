@@ -8,6 +8,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { meApi } from "@/lib/api/client";
+import { forgetRecords } from "@/lib/api/records";
 import { signOut, viewer, type Viewer } from "@/lib/auth";
 import { LIGHT_KEYS, pickLight, type Light } from "@/lib/light";
 import { useBrowserValue } from "@/lib/use-browser-value";
@@ -34,11 +35,16 @@ export default function SettingsPage() {
   }, []);
 
   const member = who && !who.anonymous;
+  // 로그아웃 · 탈퇴하면 이 탭에 받아 둔 활동 기록(src/lib/api/records.ts)도 버린다
+  const leave = async () => {
+    forgetRecords();
+    await signOut();
+    router.replace("/");
+  };
   const withdraw = async () => {
     try {
       await meApi.withdraw();
-      await signOut();
-      router.replace("/");
+      await leave();
     } catch (e) {
       setError(e instanceof Error ? e.message : "탈퇴하지 못했어요.");
     }
@@ -69,7 +75,7 @@ export default function SettingsPage() {
         <Card className="mt-4">
           <p className="mb-3 font-bold">계정</p>
           <div className="flex flex-col gap-2">
-            <Button variant="secondary" onClick={() => signOut().then(() => router.replace("/"))}>
+            <Button variant="secondary" onClick={leave}>
               로그아웃
             </Button>
             {confirming ? (

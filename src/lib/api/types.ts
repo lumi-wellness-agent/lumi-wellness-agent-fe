@@ -327,6 +327,15 @@ export type SessionHistory = {
   goal_scale: GoalScaleChange | null; // DONE으로 끝난 세션만
 };
 
+/** GET /me/sessions 응답. 기록 탭 달력은 기기 시간대의 한 달을 since(이상) · until(미만)으로 묻는다. */
+export type SessionHistoryPage = {
+  sessions: SessionHistory[]; // 시작 시각이 기간 안인 세션, 최근 것부터 limit개
+  first_started_at: string | null; // 기간과 상관없이 가장 이른 기록의 시작 시각. null = 기록이 하나도 없다
+};
+
+/** GET /me/sessions 쿼리. since · until은 시간대를 붙인 ISO 8601(Date.toISOString)이다. */
+export type SessionHistoryQuery = { limit?: number; since?: string; until?: string };
+
 // ── 기록 동의 (GET · PUT /me/consent) ───────────────────────────────────────────────────
 
 export type ConsentView = {

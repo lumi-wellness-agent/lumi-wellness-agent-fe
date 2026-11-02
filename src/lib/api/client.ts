@@ -15,7 +15,8 @@ import type {
   MeasureAnswers,
   ProgressEvent,
   ReplanDecision,
-  SessionHistory,
+  SessionHistoryPage,
+  SessionHistoryQuery,
   SessionReport,
   SessionView,
 } from "./types";
@@ -79,9 +80,12 @@ export const meApi = {
   consent: () => call<ConsentView>("/me/consent"),
   agree: (rawText: boolean) =>
     call<ConsentView>("/me/consent", { method: "PUT", body: { records: true, raw_text: rawText } }),
-  // limit: 최근 세션 몇 개까지(BE 기본 20 · 최대 100)
-  sessions: async (limit?: number) =>
-    (await call<{ sessions: SessionHistory[] }>(limit ? `/me/sessions?limit=${limit}` : "/me/sessions")).sessions,
+  // 활동 기록 — since 이상 · until 미만(시작 시각)인 세션을 최근 것부터 limit개(BE 기본 20 · 최대 100)
+  sessions: (query: SessionHistoryQuery = {}) => {
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries(query)) if (value !== undefined) params.set(key, String(value));
+    return call<SessionHistoryPage>(`/me/sessions${params.size ? `?${params}` : ""}`);
+  },
   withdraw: () => call<null>("/me", { method: "DELETE" }),
 };
 

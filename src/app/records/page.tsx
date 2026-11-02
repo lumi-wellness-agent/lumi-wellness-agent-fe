@@ -3,104 +3,76 @@
 /**
  * 기록 — 회원이 한 활동을 달력으로 보인다(GET /me/sessions). 게스트 체험은 기록을 남기지 않아서
  * 로그인하지 않았거나 게스트면 로그인을 권한다. 목업 세션이 켜져 있으면 이 탭에서 끝낸 목업 세션을 보인다.
- * 달력에서 날짜를 누르면 달력 아래에 그날 시작한 세션 카드가 보이고, 처음에는 마지막으로 기록한 날을 고른다.
- * 카드는 목표와 시작 시각만 보이게 접어 두고, 누르면 펼친다. 펼치면 활동마다 끝까지 했는지와 나아졌는지(improved —
- * BE 판정 그대로)를 먼저 보이고, 점수는 마친 세션의 목표 척도만 종료 화면처럼 보인다.
+ * 처음에는 이번 달 달력에서 오늘을 고르고, 기록은 기기 시간대의 한 달씩 받는다(src/lib/api/records.ts). 이번 달은
+ * 열 때마다 새로 받아 바꾸고(앱을 열 때 미리 받아 둔 것이 있으면 먼저 보인다), 지난 달은 넘겨 볼 때 한 번 받는다.
+ * 날짜를 누르면 달력 아래에 그날 시작한 세션 카드가 보인다. 카드는 목표와 시작 시각만 보이게 접어 두고, 누르면
+ * 펼친다. 펼치면 활동마다 끝까지 했는지와 나아졌는지(improved — BE 판정 그대로)를 먼저 보이고, 점수는 마친 세션의
+ * 목표 척도만 종료 화면처럼 보인다.
  */
 
-import { useEffect, useMemo, useState } from "react";
-import { ApiError, meApi } from "@/lib/api/client";
-import { mockEnabled, mockHistory } from "@/lib/api/mock";
-import type { SessionHistory } from "@/lib/api/types";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { ApiError } from "@/lib/api/client";
+import { mockEnabled } from "@/lib/api/mock";
+import { forgetRecords, loadMonth, MOCK_OWNER, MONTH_LIMIT, savedMonth, savedOwner } from "@/lib/api/records";
+import type { SessionHistory, SessionHistoryPage } from "@/lib/api/types";
 import { authConfigured, signIn, viewer, type Provider } from "@/lib/auth";
+import { byDay, dayKey, keyDate, monthIndex } from "@/lib/days";
 import { DELTA_LABELS, GOAL_DOTS, GOAL_LABELS, score } from "@/session/labels";
 import { Button, ButtonLink, Card, Heading, Screen } from "@/ui/controls";
 import { SocialLoginButton } from "@/ui/social-login";
 import { RecordCalendar } from "./calendar";
-import { byDay, dayKey, keyDate } from "./days";
 
 // 로그인 세션이 끝났다 — 다시 로그인하면 볼 수 있다(BE README 「오류」)
 const RELOGIN = ["UNAUTHENTICATED", "INVALID_TOKEN", "SESSION_REVOKED"];
-
-// 달력에 올릴 최근 세션 수 — BE 최대(GET /me/sessions?limit=)
-const HISTORY_LIMIT = 100;
 
 // year를 넣으면 요일 괄호가 빠져('2025년 12월 24일 수') 다른 해는 연도만 앞에 붙인다 — dayTitle
 const DAY = new Intl.DateTimeFormat("ko-KR", { month: "long", day: "numeric", weekday: "short" }); // 11월 2일 (월)
 const TIME = new Intl.DateTimeFormat("ko-KR", { hour: "numeric", minute: "2-digit" }); // 오후 2:12
 
-type Records =
-  | { kind: "loading" }
-  | { kind: "login" }
-  | { kind: "failed"; message: string }
-  | { kind: "loaded"; sessions: SessionHistory[] };
+// 누구의 기록을 보이나 — 회원은 사용자 ID, 목업 세션은 MOCK_OWNER
+type Access = { kind: "checking" } | { kind: "login" } | { kind: "ready"; owner: string };
 
 export default function RecordsPage() {
-  const [records, setRecords] = useState<Records>({ kind: "loading" });
-  const [attempt, setAttempt] = useState(0);
+  // 다른 탭에서 옮겨 왔으면 받아 둔 기록의 주인으로 바로 그린다. 이 화면을 새로 열면(서버 렌더 · hydration) 아직 없다
+  const [access, setAccess] = useState<Access>(() => {
+    const owner = savedOwner();
+    return owner ? { kind: "ready", owner } : { kind: "checking" };
+  });
+  const toLogin = useCallback(() => setAccess({ kind: "login" }), []);
 
   useEffect(() => {
     let current = true;
-    void readRecords().then((next) => {
-      if (current) setRecords(next);
+    void whose().then((next) => {
+      if (current) setAccess(next);
     });
     return () => {
       current = false;
     };
-  }, [attempt]);
-
-  const retry = () => {
-    setRecords({ kind: "loading" });
-    setAttempt((n) => n + 1);
-  };
+  }, []);
 
   return (
     <Screen tabBar>
       <Heading>기록</Heading>
-      {records.kind === "loading" && (
+      {access.kind === "checking" && (
         <p role="status" className="text-ink-muted">
           기록을 불러오고 있어요
         </p>
       )}
-      {records.kind === "login" && <LoginCard />}
-      {records.kind === "failed" && (
-        <Card>
-          <p className="font-bold">기록을 불러오지 못했어요</p>
-          <p className="mt-1 break-keep text-ink-muted">{records.message}</p>
-          <Button variant="secondary" className="mt-4 w-full" onClick={retry}>
-            다시 시도
-          </Button>
-        </Card>
+      {access.kind === "login" && <LoginCard />}
+      {access.kind === "ready" && (
+        <>
+          <RecordsByMonth key={access.owner} owner={access.owner} onLoggedOut={toLogin} />
+          <p className="mt-6 text-caption text-ink-muted">LUMI는 의료적 진단이나 치료를 대신하지 않습니다.</p>
+        </>
       )}
-      {records.kind === "loaded" &&
-        (records.sessions.length === 0 ? (
-          <Card>
-            <p className="font-bold">아직 기록이 없어요</p>
-            <p className="mt-1 break-keep text-ink-muted">세션에서 활동을 하나 마치면 여기에 남아요.</p>
-            <ButtonLink href="/" variant="secondary" className="mt-4 w-full">
-              활동 시작하기
-            </ButtonLink>
-          </Card>
-        ) : (
-          <>
-            <RecordsByDay sessions={records.sessions} />
-            <p className="mt-6 text-caption text-ink-muted">LUMI는 의료적 진단이나 치료를 대신하지 않습니다.</p>
-          </>
-        ))}
     </Screen>
   );
 }
 
-async function readRecords(): Promise<Records> {
-  if (mockEnabled()) return { kind: "loaded", sessions: mockHistory() };
+async function whose(): Promise<Access> {
+  if (mockEnabled()) return { kind: "ready", owner: MOCK_OWNER };
   const who = await viewer();
-  if (!who || who.anonymous) return { kind: "login" };
-  try {
-    return { kind: "loaded", sessions: await meApi.sessions(HISTORY_LIMIT) };
-  } catch (e) {
-    if (e instanceof ApiError && RELOGIN.includes(e.code)) return { kind: "login" };
-    return { kind: "failed", message: e instanceof Error ? e.message : "기록을 불러오지 못했어요." };
-  }
+  return who && !who.anonymous ? { kind: "ready", owner: who.id } : { kind: "login" };
 }
 
 /** 로그인을 권한다. 로그인하면 이 화면으로 돌아온다(게스트 체험은 이어지지 않는다). */
@@ -126,30 +98,118 @@ function LoginCard() {
   );
 }
 
-/** 달력과 고른 날의 세션 카드. 처음에는 마지막으로 기록한 날을 고르고, 카드는 그날 받은 순서(최근 것부터)다. */
-function RecordsByDay({ sessions }: { sessions: SessionHistory[] }) {
-  const days = useMemo(() => byDay(sessions), [sessions]);
-  const counts = useMemo(() => new Map([...days].map(([day, list]) => [day, list.length])), [days]);
+/**
+ * 달력과 고른 날의 세션 카드. 처음에는 이번 달에서 오늘을 고른다. 달을 넘기면 그 달을 받아 점을 찍고, 고른 날은
+ * 그대로 둔다(제목이 그날을 보인다). 카드는 그날 받은 순서(최근 것부터)다.
+ * 받을 달 — 보이는 달과 고른 날의 달. 이번 달은 이 화면을 열 때 한 번 새로 받고, 지난 달은 받아 둔 것이 있으면
+ * 다시 받지 않는다(지난 달 기록은 늘지 않는다). 받는 중에도 받아 둔 달은 바로 보인다.
+ */
+function RecordsByMonth({ owner, onLoggedOut }: { owner: string; onLoggedOut: () => void }) {
   const [today] = useState(() => dayKey(new Date()));
-  const [selected, setSelected] = useState(() => [...days.keys()].sort().at(-1) ?? today);
-  const picked = days.get(selected) ?? [];
+  const thisMonth = monthIndex(keyDate(today));
+  const [month, setMonth] = useState(thisMonth);
+  const [selected, setSelected] = useState(today);
+  const selectedMonth = monthIndex(keyDate(selected));
+  const [pages, setPages] = useState<ReadonlyMap<number, SessionHistoryPage>>(() => new Map());
+  const [failures, setFailures] = useState<ReadonlyMap<number, string>>(() => new Map());
+  const [attempt, setAttempt] = useState(0);
+  const asked = useRef(new Set<number>()); // 이 화면에서 받은(받는) 달 — 실패하면 빼서 다시 시도로 받는다
+
+  useEffect(() => {
+    for (const m of new Set([month, selectedMonth])) {
+      if (asked.current.has(m) || (m !== thisMonth && savedMonth(owner, m))) continue;
+      asked.current.add(m);
+      // 결과는 화면을 떠난 뒤에 와도 버리지 않는다 — 받아 둔 달에도 남아 다음에 바로 보인다
+      loadMonth(owner, m).then(
+        (page) => setPages((old) => new Map(old).set(m, page)),
+        (e: unknown) => {
+          asked.current.delete(m);
+          if (e instanceof ApiError && RELOGIN.includes(e.code)) {
+            forgetRecords();
+            onLoggedOut();
+            return;
+          }
+          const message = e instanceof Error ? e.message : "기록을 불러오지 못했어요.";
+          setFailures((old) => new Map(old).set(m, message));
+        },
+      );
+    }
+  }, [owner, month, selectedMonth, thisMonth, attempt, onLoggedOut]);
+
+  // 새로 받은 달이 먼저, 없으면 받아 둔 달(앱을 열 때 미리 받았거나 전에 이 탭을 열었다)
+  const pageOf = (m: number) => pages.get(m) ?? savedMonth(owner, m);
+  const visible = pageOf(month);
+  const selectedPage = pageOf(selectedMonth);
+  // 기간과 상관없는 값이라 받은 달 어디에서 읽어도 같다. undefined = 아직 모른다, null = 기록이 하나도 없다
+  const firstStarted = (visible ?? selectedPage ?? pageOf(thisMonth))?.first_started_at;
+  const firstMonth = firstStarted ? Math.min(monthIndex(new Date(firstStarted)), thisMonth) : thisMonth;
+  const counts = useMemo(
+    () => new Map([...byDay(visible?.sessions ?? [])].map(([day, list]) => [day, list.length])),
+    [visible],
+  );
+  const picked = useMemo(() => (selectedPage ? (byDay(selectedPage.sessions).get(selected) ?? []) : null), [selectedPage, selected]);
+
+  const retry = () => {
+    setFailures(new Map());
+    setAttempt((n) => n + 1);
+  };
+
   return (
     <>
-      <RecordCalendar counts={counts} selected={selected} today={today} onSelect={setSelected} />
-      {sessions.length >= HISTORY_LIMIT && (
-        <p className="mt-1 text-caption break-keep text-ink-muted">최근 세션 {HISTORY_LIMIT}개까지 달력에 보여요.</p>
+      <RecordCalendar
+        month={month}
+        first={firstMonth}
+        last={thisMonth}
+        onMonth={setMonth}
+        loading={!visible && !failures.has(month)}
+        counts={counts}
+        selected={selected}
+        today={today}
+        onSelect={setSelected}
+      />
+      {!visible && failures.has(month) && (
+        <Card className="mt-3">
+          <p className="font-bold">이 달 기록을 불러오지 못했어요</p>
+          <p className="mt-1 break-keep text-ink-muted">{failures.get(month)}</p>
+          <Button variant="secondary" className="mt-4 w-full" onClick={retry}>
+            다시 시도
+          </Button>
+        </Card>
       )}
-      <h2 className="mt-6 mb-3 font-bold">{dayTitle(selected, today)}</h2>
-      {picked.length === 0 ? (
-        <p className="text-ink-muted">이 날은 기록이 없어요.</p>
+      {visible && visible.sessions.length >= MONTH_LIMIT && (
+        <p className="mt-1 text-caption break-keep text-ink-muted">이 달은 최근 세션 {MONTH_LIMIT}개까지 보여요.</p>
+      )}
+      {firstStarted === null ? (
+        <Card className="mt-6">
+          <p className="font-bold">아직 기록이 없어요</p>
+          <p className="mt-1 break-keep text-ink-muted">세션에서 활동을 하나 마치면 여기에 남아요.</p>
+          <ButtonLink href="/" variant="secondary" className="mt-4 w-full">
+            활동 시작하기
+          </ButtonLink>
+        </Card>
       ) : (
-        <ol className="flex flex-col gap-3">
-          {picked.map((session) => (
-            <li key={session.session_id}>
-              <SessionCard session={session} />
-            </li>
-          ))}
-        </ol>
+        <>
+          <h2 className="mt-6 mb-3 font-bold">{dayTitle(selected, today)}</h2>
+          {picked === null ? (
+            failures.has(selectedMonth) ? (
+              <p className="text-ink-muted">기록을 불러오지 못했어요.</p>
+            ) : (
+              <p role="status" className="text-ink-muted">
+                기록을 불러오고 있어요
+              </p>
+            )
+          ) : picked.length === 0 ? (
+            <p className="text-ink-muted">이 날은 기록이 없어요.</p>
+          ) : (
+            <ol className="flex flex-col gap-3">
+              {picked.map((session) => (
+                <li key={session.session_id}>
+                  <SessionCard session={session} />
+                </li>
+              ))}
+            </ol>
+          )}
+        </>
       )}
     </>
   );

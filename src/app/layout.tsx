@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Gowun_Dodum, Noto_Sans_KR } from "next/font/google";
 import { applyLight, LIGHT_KEYS } from "@/lib/light";
+import { BackendWarmup } from "./backend-warmup";
 import { LightSync } from "./light-sync";
 import "./globals.css";
 
@@ -30,6 +31,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body className="min-h-dvh bg-page text-body text-ink antialiased">
         {children}
         <LightSync />
+        <BackendWarmup />
       </body>
     </html>
   );

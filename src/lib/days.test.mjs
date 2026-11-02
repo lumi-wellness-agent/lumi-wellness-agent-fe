@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { byDay, dayKey, keyDate, monthCells, monthIndex, monthStart } from "./days.ts";
+import { byDay, dayKey, keyDate, monthCells, monthIndex, monthRange, monthStart } from "./days.ts";
 
 // 날짜 경계는 기기 시간대를 따른다 — 한국(UTC+9)으로 고정한다. node --test는 파일마다 프로세스가 따로라 다른 테스트에 번지지 않는다.
 process.env.TZ = "Asia/Seoul";
@@ -48,4 +48,15 @@ test("byDay groups sessions by local start day and keeps the given order", () =>
     ["2026-11-02", ["c", "b"]],
     ["2026-11-01", ["a"]],
   ]);
+});
+
+test("month range is the local month as UTC instants (since inclusive, until exclusive)", () => {
+  assert.deepEqual(monthRange(monthIndex(new Date(2026, 10, 15))), {
+    since: "2026-10-31T15:00:00.000Z", // 한국 11월 1일 0시
+    until: "2026-11-30T15:00:00.000Z", // 한국 12월 1일 0시
+  });
+  assert.deepEqual(monthRange(monthIndex(new Date(2026, 11, 1))), {
+    since: "2026-11-30T15:00:00.000Z",
+    until: "2026-12-31T15:00:00.000Z", // 해를 넘겨도 다음 달 1일
+  });
 });

@@ -1,6 +1,8 @@
 "use client";
 
 import { useId } from "react";
+import { useMessages } from "@/i18n/use-locale";
+import { PMR } from "./messages";
 import type { PhaseName } from "./timeline";
 
 const BODY = "M120 15 C103 15 94 29 95 47 C95 62 101 73 108 78 L107 93 C93 98 72 101 65 115 C57 132 58 150 53 169 L42 213 L35 245 L27 258 L24 278 Q24 283 29 279 L35 268 L33 291 Q34 296 38 290 L42 273 L41 295 Q44 299 47 290 L50 273 L51 290 Q55 294 57 286 L60 263 L57 248 L64 216 L77 174 L82 149 L85 190 L82 230 C80 246 84 260 86 275 L88 334 L91 388 L94 458 L86 481 Q82 495 94 497 L109 494 L113 477 L111 454 L113 391 L118 337 L120 286 L122 337 L127 391 L129 454 L127 477 L131 494 L146 497 Q158 495 154 481 L146 458 L149 388 L152 334 L154 275 C156 260 160 246 158 230 L155 190 L158 149 L163 174 L176 216 L183 248 L180 263 L183 286 Q185 294 189 290 L190 273 L193 290 Q196 299 199 295 L198 273 L202 290 Q206 296 207 291 L205 268 L211 279 Q216 283 216 278 L213 258 L205 245 L198 213 L187 169 C182 150 183 132 175 115 C168 101 147 98 133 93 L132 78 C139 73 145 62 145 47 C146 29 137 15 120 15 Z";
@@ -26,12 +28,13 @@ const AREAS: Record<string, string[]> = {
 };
 
 export function BodySilhouette({ region, label, phase }: { region: string | null; label: string; phase: PhaseName | null }) {
+  const t = useMessages(PMR);
   const clip = useId();
   const back = region === "SHOULDER_BLADES_BACK" || region === "HIPS_BUTTOCKS";
   const highlighted = region && phase !== "TRANSITION" ? AREAS[region] ?? [] : [];
   return (
     <figure className="flex w-full flex-col items-center">
-      <svg viewBox="0 0 240 515" role="img" aria-label={(back ? "후면" : "정면") + " 인체 안내: " + label}
+      <svg viewBox="0 0 240 515" role="img" aria-label={t.figure(back ? t.back : t.front, label)}
         className="h-[340px] w-full max-w-[230px]">
         <defs><clipPath id={clip}><path d={BODY} /></clipPath></defs>
         <path d={BODY} className="fill-primary-soft stroke-primary" strokeWidth="2" />
@@ -52,7 +55,7 @@ export function BodySilhouette({ region, label, phase }: { region: string | null
         </g>
       </svg>
       <figcaption className="text-caption text-ink-muted">
-        {back ? "후면" : "정면 · 내 오른쪽은 화면 왼쪽"}
+        {back ? t.back : t.frontNote}
       </figcaption>
     </figure>
   );

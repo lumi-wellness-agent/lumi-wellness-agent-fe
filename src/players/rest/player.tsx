@@ -1,15 +1,18 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useMessages } from "@/i18n/use-locale";
 import { assetUrl } from "@/lib/api/client";
 import { cancelSpeech, canSpeak, loadVoices, speakScript, splitScript, unlockSpeech } from "@/lib/speech";
 import { Button, Spinner } from "@/ui/controls";
 import type { PlayerProps } from "../types";
+import { REST } from "./messages";
 import { cueAt, parseRest } from "./spec";
 import { playVideo } from "./play-video";
 import { NatureTimer, VideoTimer } from "./nature-timer";
 
 export default function RestPlayer({ content, onFinish }: PlayerProps) {
+  const t = useMessages(REST);
   const spec = useMemo(() => parseRest(content.content_spec), [content.content_spec]);
   const video = content.assets.find((asset) => asset.slot === "VISUAL_VIDEO" && asset.url);
   const [modeId, setModeId] = useState<string | null>(null);
@@ -19,7 +22,7 @@ export default function RestPlayer({ content, onFinish }: PlayerProps) {
   const [caption, setCaption] = useState("");
   const [starting, setStarting] = useState(false);
   const startRequest = useRef<AbortController | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<"videoSlow" | "videoPlayFailed" | "videoLoadFailed" | null>(null); // 문장은 그릴 때 지금 언어로 고른다
   const [silent, setSilent] = useState(false);
   const [speaking, setSpeaking] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -111,8 +114,8 @@ export default function RestPlayer({ content, onFinish }: PlayerProps) {
 
   if (!spec) return (
     <div className="p-4 text-body text-ink">
-      <p>활동 안내를 불러오지 못했어요.</p>
-      <Button onClick={() => onFinish({ completed: false, stoppedReason: "REST_SPEC_UNAVAILABLE" })}>돌아가기</Button>
+      <p>{t.specFailed}</p>
+      <Button onClick={() => onFinish({ completed: false, stoppedReason: "REST_SPEC_UNAVAILABLE" })}>{t.back}</Button>
     </div>
   );
 
@@ -134,9 +137,7 @@ export default function RestPlayer({ content, onFinish }: PlayerProps) {
     void playVideo(media, request.signal).then(begin).catch((reason: unknown) => {
       if (!mounted.current || request.signal.aborted) return;
       const timeout = reason instanceof Error && reason.message === "VIDEO_START_TIMEOUT";
-      setError(timeout
-        ? "영상 로딩이 오래 걸려요. 영상 다시 불러오기를 누른 뒤 재시도해 주세요."
-        : "영상을 재생하지 못했어요. 영상 다시 불러오기를 누른 뒤 재시도해 주세요.");
+      setError(timeout ? "videoSlow" : "videoPlayFailed");
     }).finally(() => {
       if (startRequest.current === request) {
         startRequest.current = null;
@@ -145,7 +146,7 @@ export default function RestPlayer({ content, onFinish }: PlayerProps) {
     });
   };
   const failedVideo = () => {
-    setError("영상을 불러오지 못했어요. 다시 불러오거나 실제 자연환경 모드를 선택해 주세요.");
+    setError("videoLoadFailed");
     if (running && mode?.video && !finished.current) {
       finished.current = true;
       generation.current += 1;
@@ -159,15 +160,15 @@ export default function RestPlayer({ content, onFinish }: PlayerProps) {
       <h2 className="font-display text-title break-keep">{content.name}</h2>
       {!running && (
         <div className="flex flex-col gap-2">
-          <p className="text-body text-ink">어디에서 자연을 알아차릴까요?</p>
+          <p className="text-body text-ink">{t.where}</p>
           {spec.modes.map((m) => (
             <Button key={m.id} variant={modeId === m.id ? "primary" : "secondary"}
               disabled={starting || (m.video && !video)} onClick={() => { setModeId(m.id); setError(null); }}>
-              {m.video ? "자연 영상으로 하기" : "실제 자연환경에서 하기"}
+              {m.video ? t.modeVideo : t.modeReal}
             </Button>
           ))}
-          {/* 따옴표 양옆이 한글이면 닫는 따옴표 뒤에서도 줄이 바뀌어 다음 줄이 조사로 시작한다 — 버튼 이름과 조사를 한 덩어리로 둔다 */}
-          {!video && <p className="text-caption break-keep text-ink-muted">지금은 영상을 준비하지 못했어요. <span className="whitespace-nowrap">&lsquo;실제 자연환경에서 하기&rsquo;로</span> 진행하거나, <span className="whitespace-nowrap">&lsquo;그만하기&rsquo;로</span> 다른 활동을 고를 수 있어요.</p>}
+          {/* 버튼 이름과 조사를 한 덩어리로 둔 문장(messages.tsx) */}
+          {!video && <p className="text-caption break-keep text-ink-muted">{t.noVideo}</p>}
         </div>
       )}
       <div className={!mode ? "hidden" : mode.video ? "relative min-h-[42dvh] overflow-hidden rounded-card bg-surface-muted" : "relative"}>
@@ -175,13 +176,13 @@ export default function RestPlayer({ content, onFinish }: PlayerProps) {
         {video && (
           <video ref={videoRef} src={assetUrl(video.url)} muted playsInline loop={spec.loop}
             preload="auto" onError={failedVideo}
-            aria-label="바람에 흔들리는 나무와 잎의 자연 영상"
+            aria-label={t.videoAlt}
             className={mode?.video ? "absolute inset-0 h-full w-full object-cover" : "hidden"} />
         )}
         {mode?.video && starting && (
           <div role="status" className="absolute inset-0 flex flex-col items-center justify-center gap-4 p-6 text-center">
             <Spinner />
-            <p className="break-keep text-ink-muted">영상을 불러오고 있어요</p>
+            <p className="break-keep text-ink-muted">{t.loadingVideo}</p>
           </div>
         )}
         {mode && !mode.video && (
@@ -193,17 +194,17 @@ export default function RestPlayer({ content, onFinish }: PlayerProps) {
         <a href={video.source_url} target="_blank" rel="noreferrer"
           className="-mt-3 flex min-h-12 items-center text-caption text-ink-muted underline">
           <span className="origin-left scale-90 break-words">
-            Pixabay · {video.creator || "영상 출처"} · {video.license}
+            Pixabay · {video.creator || t.videoSource} · {video.license}
           </span>
         </a>
       )}
       <p className="text-body break-keep whitespace-pre-line text-ink">{caption || content.guide_text}</p>
-      {silent && <p className="text-caption text-ink-muted">음성 안내를 사용할 수 없어 화면에 대본을 표시하고 있어요.</p>}
-      {error && <p role="alert" className="text-caption text-ink">{error}</p>}
+      {silent && <p className="text-caption text-ink-muted">{t.silent}</p>}
+      {error && <p role="alert" className="text-caption text-ink">{t[error]}</p>}
       {!running && mode && (
         <div className="flex flex-col gap-2 pb-[env(safe-area-inset-bottom)]">
-          {mode.video && error && !starting && <Button variant="secondary" onClick={() => { setError(null); videoRef.current?.load(); }}>영상 다시 불러오기</Button>}
-          <Button disabled={starting} onClick={start}>{starting ? "영상 연결 중…" : `시작하기 · ${Math.round(spec.seconds / 60)}분`}</Button>
+          {mode.video && error && !starting && <Button variant="secondary" onClick={() => { setError(null); videoRef.current?.load(); }}>{t.reload}</Button>}
+          <Button disabled={starting} onClick={start}>{starting ? t.connecting : t.start(Math.round(spec.seconds / 60))}</Button>
         </div>
       )}
 

@@ -10,10 +10,12 @@
  */
 
 import { Suspense, lazy, useEffect, useRef, useState, type ComponentType, type LazyExoticComponent } from "react";
+import { useMessages } from "@/i18n/use-locale";
 import type { ActivityContent, SessionReport } from "@/lib/api/types";
 import { cancelSpeech } from "@/lib/speech";
 import { Button, Spinner } from "@/ui/controls";
 import { playerKeyFor, type PlayerKey } from "./catalog";
+import { PLAYER, STOP_REASONS } from "./messages";
 import { NoticePopup } from "./notice/notice-popup";
 import { Placeholder } from "./placeholder";
 import type { ActivityResult, PlayerProps } from "./types";
@@ -33,9 +35,8 @@ const COMPONENTS: Record<PlayerKey, LazyExoticComponent<ComponentType<PlayerProp
   "outdoor-walk-noticing": lazy(() => import("./outdoor-walk-noticing/player")),
 };
 
-const STOP_REASONS = ["불편해요", "어지러워요", "지금은 시간이 없어요", "그냥 그만할래요"];
-
 export function PlayerHost({ content, onReport }: { content: ActivityContent; onReport: (report: SessionReport) => void }) {
+  const t = useMessages(PLAYER);
   const steps = content.steps
     .filter((s) => s.type === "ACTIVITY" || s.type === "NOTICE")
     .sort((a, b) => a.order - b.order);
@@ -77,7 +78,7 @@ export function PlayerHost({ content, onReport }: { content: ActivityContent; on
             {step && steps.length > 1 && ` · ${index + 1}/${steps.length} ${step.label}`}
           </p>
           <Button variant="quiet" className="shrink-0 px-2" onClick={() => setStopping(true)}>
-            그만하기
+            {t.stop}
           </Button>
         </div>
       </div>
@@ -99,7 +100,7 @@ export function PlayerHost({ content, onReport }: { content: ActivityContent; on
             fallback={
               <div role="status" className="flex flex-1 flex-col items-center justify-center gap-4 p-6 text-center">
                 <Spinner />
-                <p className="break-keep text-ink-muted">활동을 불러오고 있어요</p>
+                <p className="break-keep text-ink-muted">{t.loading}</p>
               </div>
             }
           >
@@ -112,17 +113,17 @@ export function PlayerHost({ content, onReport }: { content: ActivityContent; on
         <div role="dialog" aria-modal="true" aria-labelledby="stop-title" className="fixed inset-0 z-30 flex items-end bg-black/40">
           <div className="mx-auto w-full max-w-[480px] rounded-t-card bg-surface px-4 pt-5 pb-[calc(16px+env(safe-area-inset-bottom))]">
             <h2 id="stop-title" className="mb-1 font-display text-title">
-              여기서 멈출까요?
+              {t.stopTitle}
             </h2>
-            <p className="mb-4 text-ink-muted">멈춘 이유를 고르면 다음 추천에 참고해요.</p>
+            <p className="mb-4 text-ink-muted">{t.stopHint}</p>
             <div className="flex flex-col gap-2">
               {STOP_REASONS.map((reason) => (
-                <Button key={reason} variant="secondary" onClick={() => report({ completed: false, stopped_reason: reason })}>
-                  {reason}
+                <Button key={reason.key} variant="secondary" onClick={() => report({ completed: false, stopped_reason: reason.value })}>
+                  {t.reasons[reason.key]}
                 </Button>
               ))}
               <Button variant="quiet" onClick={() => setStopping(false)}>
-                계속할게요
+                {t.keepGoing}
               </Button>
             </div>
           </div>

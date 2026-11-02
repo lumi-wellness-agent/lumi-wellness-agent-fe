@@ -14,9 +14,11 @@
  */
 
 import { useEffect, useState } from "react";
+import { useMessages } from "@/i18n/use-locale";
 import { playTone } from "@/lib/tone";
 import { Button } from "@/ui/controls";
 import type { PlayerProps } from "../types";
+import { SLIDESHOW } from "./messages";
 import { Slideshow, slideIndex } from "./slideshow";
 import { assetsOf, findSlot, num, renderOf, slidesFrom, str } from "./spec";
 import { formatClock, useActivityTimer } from "./use-activity-timer";
@@ -26,11 +28,12 @@ const MIN_SECONDS_EACH = 8; // 장면 수가 많고 시간이 짧을 때 너무 
 const FIRST_SLIDE_WAIT_MS = 15_000; // 첫 장면이 이만큼 지나도 안 오면 시간부터 센다 — 사진 서버가 답하지 않아도 활동이 멈춰 있지 않게
 
 export default function SlideshowPlayer({ content, step, onFinish }: PlayerProps) {
+  const t = useMessages(SLIDESHOW);
   const slot = findSlot(content, "VISUAL_STILL", "ARTWORK");
   const render = renderOf(slot);
   const artwork = slot?.slot === "ARTWORK";
   const metadata = metadataFields(render.show_metadata);
-  const slides = slidesFrom(content, slot?.slot ?? "VISUAL_STILL");
+  const slides = slidesFrom(content, t, slot?.slot ?? "VISUAL_STILL");
 
   const total = Math.round(step.minutes * 60);
   const secondsEach = slides.length
@@ -58,7 +61,7 @@ export default function SlideshowPlayer({ content, step, onFinish }: PlayerProps
         secondsEach={secondsEach}
         fit={artwork ? "contain" : "cover"}
         showCredit={!artwork || metadata.has("source")}
-        loadingText={artwork ? "작품을 불러오고 있어요" : undefined}
+        loadingText={artwork ? t.loadingArtwork : undefined}
         onReady={() => setWaiting(false)}
       />
 
@@ -67,7 +70,7 @@ export default function SlideshowPlayer({ content, step, onFinish }: PlayerProps
       <div className="mt-4">
         <div
           role="progressbar"
-          aria-label="남은 시간"
+          aria-label={t.remainingLabel}
           aria-valuemin={0}
           aria-valuemax={total}
           aria-valuenow={timer.elapsed}
@@ -76,17 +79,17 @@ export default function SlideshowPlayer({ content, step, onFinish }: PlayerProps
           <div className="h-full rounded-full bg-primary transition-[width] duration-1000 ease-linear" style={{ width: `${timer.progress * 100}%` }} />
         </div>
         <p className="mt-2 text-caption text-ink-muted tabular-nums" aria-live="off">
-          {timer.done ? "다 봤어요" : `남은 시간 ${formatClock(timer.remaining)}`}
+          {timer.done ? t.done : t.remaining(formatClock(timer.remaining))}
           {slides.length > 1 && !timer.done && ` · ${index + 1}/${slides.length}`}
         </p>
       </div>
 
       <div className="mt-auto flex flex-col gap-2 pt-4 pb-[env(safe-area-inset-bottom)]">
         {timer.done ? (
-          <Button onClick={() => onFinish({ completed: true })}>다음으로</Button>
+          <Button onClick={() => onFinish({ completed: true })}>{t.next}</Button>
         ) : (
           <Button variant="secondary" onClick={timer.togglePause}>
-            {timer.paused ? "이어서 보기" : "잠깐 멈추기"}
+            {timer.paused ? t.resume : t.pause}
           </Button>
         )}
       </div>

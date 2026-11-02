@@ -14,19 +14,23 @@
  */
 
 import { useRef, useState } from "react";
+import { useMessages } from "@/i18n/use-locale";
 import type { ActivityAsset } from "@/lib/api/types";
 import { assetUrl } from "@/lib/api/client";
 import { Button } from "@/ui/controls";
 import { DEFAULT_VOLUME, fadeVolume } from "../listening/media";
 import { Credits, Running } from "../listening/player";
+import { SLIDESHOW } from "../slideshow/messages";
 import { Slideshow } from "../slideshow/slideshow";
 import { assetsOf, findSlot, num, renderOf, slidesFrom } from "../slideshow/spec";
 import type { PlayerProps } from "../types";
+import { MEDITATION } from "./messages";
 
 const MIN_BRIGHTNESS = 0.5;
 
 export default function ImageMeditationPlayer({ content, step, onFinish }: PlayerProps) {
-  const slides = slidesFrom(content, "VISUAL_STILL").slice(0, 1); // SINGLE_IMAGE
+  const t = useMessages(MEDITATION);
+  const slides = slidesFrom(content, useMessages(SLIDESHOW), "VISUAL_STILL").slice(0, 1); // SINGLE_IMAGE
   const guide: ActivityAsset | undefined = assetsOf(content, "GUIDE_AUDIO")[0];
   const audioRender = renderOf(findSlot(content, "GUIDE_AUDIO"));
   const rate = num(audioRender.playback_rate) ?? 1;
@@ -38,7 +42,7 @@ export default function ImageMeditationPlayer({ content, step, onFinish }: Playe
   const [playing, setPlaying] = useState(!guide); // 녹음이 실제로 나오기 시작했는지 — 못 받으면(onError) 더 기다리지 않는다
   const [volume, setVolume] = useState(DEFAULT_VOLUME);
   const [brightness, setBrightness] = useState(1);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<"playFailed" | "loadFailed" | null>(null); // 문장은 그릴 때 지금 언어로 고른다
 
   const start = () => {
     const audio = audioRef.current;
@@ -47,7 +51,7 @@ export default function ImageMeditationPlayer({ content, step, onFinish }: Playe
       audio.volume = 0;
       audio.play().then(
         () => fadeVolume(audio, volume, 1),
-        () => setError((prev) => prev ?? "안내 음성을 재생하지 못했어요. 기기 소리가 켜져 있는지 확인해 주세요."),
+        () => setError((prev) => prev ?? "playFailed"),
       );
     }
     setStarted(true);
@@ -66,19 +70,19 @@ export default function ImageMeditationPlayer({ content, step, onFinish }: Playe
           onPlaying={() => setPlaying(true)}
           onError={() => {
             setPlaying(true);
-            setError("안내 음성을 불러오지 못했어요. 사진을 바라보며 천천히 호흡하거나, '그만하기'로 다른 활동을 고를 수 있어요.");
+            setError("loadFailed");
           }}
         />
       )}
-      {!guide && <p className="mt-3 text-caption break-keep text-ink-muted">준비된 안내 음성이 없어요. 사진을 바라보며 천천히 호흡해 보세요.</p>}
+      {!guide && <p className="mt-3 text-caption break-keep text-ink-muted">{t.noGuide}</p>}
       {error && (
         <p role="alert" className="mt-3 text-caption break-keep text-ink">
-          {error}
+          {t[error]}
         </p>
       )}
 
       <label className="mt-3 flex min-h-12 items-center gap-3">
-        <span className="shrink-0 text-caption font-bold text-ink-muted">밝기</span>
+        <span className="shrink-0 text-caption font-bold text-ink-muted">{t.brightness}</span>
         <input
           type="range"
           min={MIN_BRIGHTNESS}
@@ -100,12 +104,12 @@ export default function ImageMeditationPlayer({ content, step, onFinish }: Playe
           fadeOut={1}
           onFinish={() => onFinish({ completed: true })}
           waiting={!playing}
-          loadingText="안내 음성을 불러오고 있어요"
+          loadingText={t.loading}
         />
       ) : (
         <div className="mt-auto flex flex-col gap-2 pt-4 pb-[env(safe-area-inset-bottom)]">
-          <p className="text-caption break-keep text-ink-muted">약 {Math.round(totalSeconds / 60)}분 · 편한 자세로 앉아 안내를 따라가요</p>
-          <Button onClick={start}>재생하기</Button>
+          <p className="text-caption break-keep text-ink-muted">{t.ready(Math.round(totalSeconds / 60))}</p>
+          <Button onClick={start}>{t.play}</Button>
         </div>
       )}
     </div>

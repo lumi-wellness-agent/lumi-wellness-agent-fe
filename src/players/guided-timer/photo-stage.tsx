@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState, type ReactNode } from "react";
+import { useMessages } from "@/i18n/use-locale";
 import { Spinner } from "@/ui/controls";
+import { GUIDED_TIMER } from "./messages";
 
 type Props = {
   urls: string[];
@@ -12,6 +14,7 @@ type Props = {
 
 /** Loaded photos overlap: outgoing opacity 1→0 and incoming opacity 0→1 together. */
 export function PhotoStage({ urls, index, transitionMs, children }: Props) {
+  const t = useMessages(GUIDED_TIMER);
   const [active, setActive] = useState<number | null>(null);
   const [failed, setFailed] = useState(false);
 
@@ -49,7 +52,7 @@ export function PhotoStage({ urls, index, transitionMs, children }: Props) {
     <div
       className="relative my-6 flex aspect-[4/3] w-full shrink-0 items-center justify-center overflow-hidden rounded-card bg-surface-muted"
       role="region"
-      aria-label={active === null ? "자연 사진 준비 영역" : "자연 풍경 사진 " + (active + 1)}
+      aria-label={active === null ? t.photoArea : t.photo(active + 1)}
     >
       {urls.map((url, i) => (
         <div
@@ -66,11 +69,11 @@ export function PhotoStage({ urls, index, transitionMs, children }: Props) {
         />
       ))}
       {active === null && (failed || urls.length === 0 ? (
-        <p className="relative px-5 text-caption text-ink-muted">자연 사진을 불러오지 못했어요.</p>
+        <p className="relative px-5 text-caption text-ink-muted">{t.photoFailed}</p>
       ) : (
         <div role="status" className="relative flex flex-col items-center gap-3 px-5">
           <Spinner />
-          <p className="text-caption text-ink-muted">자연 사진을 준비하고 있어요.</p>
+          <p className="text-caption text-ink-muted">{t.photoPreparing}</p>
         </div>
       ))}
       {children}

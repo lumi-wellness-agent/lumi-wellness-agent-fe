@@ -19,7 +19,9 @@
  */
 
 import { useState, useSyncExternalStore } from "react";
+import { useMessages } from "@/i18n/use-locale";
 import { Spinner } from "@/ui/controls";
+import { SLIDESHOW } from "./messages";
 import type { Slide } from "./spec";
 
 export type { Slide } from "./spec";
@@ -60,13 +62,15 @@ export function Slideshow({
   secondsEach = 15,
   fit = "cover",
   showCredit = true,
-  emptyText = "사진을 준비하지 못했어요. 이 화면을 바라보며 천천히 쉬어 가세요.",
-  failedText = "이미지를 불러오지 못했어요. 이 화면을 바라보며 천천히 쉬어 가세요.",
-  loadingText = "사진을 불러오고 있어요",
+  emptyText,
+  failedText,
+  loadingText,
   onReady,
   brightness = 1,
 }: Props) {
   const reduceMotion = useReducedMotion();
+  // 안내 문구를 넘기지 않으면 사진 감상의 기본 문구(지금 언어)
+  const t = useMessages(SLIDESHOW);
   const [loaded, setLoaded] = useState<ReadonlySet<string>>(new Set());
   const [failed, setFailed] = useState<ReadonlySet<string>>(new Set());
   const count = slides.length;
@@ -98,7 +102,7 @@ export function Slideshow({
       >
         {!shown || failed.has(shown.url) ? (
           <div className="bg-progress absolute inset-0 flex items-center justify-center p-6">
-            <p className="max-w-[18rem] text-center break-keep text-ink">{shown ? failedText : emptyText}</p>
+            <p className="max-w-[18rem] text-center break-keep text-ink">{shown ? (failedText ?? t.failed) : (emptyText ?? t.empty)}</p>
           </div>
         ) : null}
         {slides.map((slide, i) => {
@@ -145,7 +149,7 @@ export function Slideshow({
         {loading && (
           <div role="status" className="absolute inset-0 flex flex-col items-center justify-center gap-4 p-6 text-center">
             <Spinner />
-            <p className="break-keep text-ink-muted">{loadingText}</p>
+            <p className="break-keep text-ink-muted">{loadingText ?? t.loading}</p>
           </div>
         )}
       </div>

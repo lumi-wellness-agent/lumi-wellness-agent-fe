@@ -79,7 +79,9 @@ export const meApi = {
   consent: () => call<ConsentView>("/me/consent"),
   agree: (rawText: boolean) =>
     call<ConsentView>("/me/consent", { method: "PUT", body: { records: true, raw_text: rawText } }),
-  sessions: async () => (await call<{ sessions: SessionHistory[] }>("/me/sessions")).sessions,
+  // limit: 최근 세션 몇 개까지(BE 기본 20 · 최대 100)
+  sessions: async (limit?: number) =>
+    (await call<{ sessions: SessionHistory[] }>(limit ? `/me/sessions?limit=${limit}` : "/me/sessions")).sessions,
   withdraw: () => call<null>("/me", { method: "DELETE" }),
 };
 

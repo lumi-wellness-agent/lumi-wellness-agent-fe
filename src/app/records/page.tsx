@@ -1,13 +1,14 @@
 "use client";
 
 /**
- * 기록 — 회원이 한 활동을 세션별로 최근 것부터 보인다(GET /me/sessions). 게스트 체험은 기록을 남기지 않아서
+ * 기록 — 회원이 한 활동을 달력으로 보인다(GET /me/sessions). 게스트 체험은 기록을 남기지 않아서
  * 로그인하지 않았거나 게스트면 로그인을 권한다. 목업 세션이 켜져 있으면 이 탭에서 끝낸 목업 세션을 보인다.
- * 카드는 날짜와 목표만 보이게 접어 두고, 누르면 펼친다. 펼치면 활동마다 끝까지 했는지와 나아졌는지(improved —
+ * 달력에서 날짜를 누르면 달력 아래에 그날 시작한 세션 카드가 보이고, 처음에는 마지막으로 기록한 날을 고른다.
+ * 카드는 목표와 시작 시각만 보이게 접어 두고, 누르면 펼친다. 펼치면 활동마다 끝까지 했는지와 나아졌는지(improved —
  * BE 판정 그대로)를 먼저 보이고, 점수는 마친 세션의 목표 척도만 종료 화면처럼 보인다.
  */
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ApiError, meApi } from "@/lib/api/client";
 import { mockEnabled, mockHistory } from "@/lib/api/mock";
 import type { SessionHistory } from "@/lib/api/types";
@@ -15,13 +16,18 @@ import { authConfigured, signIn, viewer, type Provider } from "@/lib/auth";
 import { DELTA_LABELS, GOAL_DOTS, GOAL_LABELS, score } from "@/session/labels";
 import { Button, ButtonLink, Card, Heading, Screen } from "@/ui/controls";
 import { SocialLoginButton } from "@/ui/social-login";
+import { RecordCalendar } from "./calendar";
+import { byDay, dayKey, keyDate } from "./days";
 
 // 로그인 세션이 끝났다 — 다시 로그인하면 볼 수 있다(BE README 「오류」)
 const RELOGIN = ["UNAUTHENTICATED", "INVALID_TOKEN", "SESSION_REVOKED"];
 
-const WHEN = { month: "long", day: "numeric", weekday: "short", hour: "numeric", minute: "2-digit" } as const;
-const THIS_YEAR = new Intl.DateTimeFormat("ko-KR", WHEN); // 10월 29일 (목) 오후 2:12
-const OTHER_YEAR = new Intl.DateTimeFormat("ko-KR", { ...WHEN, year: "numeric" });
+// 달력에 올릴 최근 세션 수 — BE 최대(GET /me/sessions?limit=)
+const HISTORY_LIMIT = 100;
+
+// year를 넣으면 요일 괄호가 빠져('2025년 12월 24일 수') 다른 해는 연도만 앞에 붙인다 — dayTitle
+const DAY = new Intl.DateTimeFormat("ko-KR", { month: "long", day: "numeric", weekday: "short" }); // 11월 2일 (월)
+const TIME = new Intl.DateTimeFormat("ko-KR", { hour: "numeric", minute: "2-digit" }); // 오후 2:12
 
 type Records =
   | { kind: "loading" }
@@ -77,13 +83,7 @@ export default function RecordsPage() {
           </Card>
         ) : (
           <>
-            <ol className="flex flex-col gap-3">
-              {records.sessions.map((session) => (
-                <li key={session.session_id}>
-                  <SessionCard session={session} />
-                </li>
-              ))}
-            </ol>
+            <RecordsByDay sessions={records.sessions} />
             <p className="mt-6 text-caption text-ink-muted">LUMI는 의료적 진단이나 치료를 대신하지 않습니다.</p>
           </>
         ))}
@@ -96,7 +96,7 @@ async function readRecords(): Promise<Records> {
   const who = await viewer();
   if (!who || who.anonymous) return { kind: "login" };
   try {
-    return { kind: "loaded", sessions: await meApi.sessions() };
+    return { kind: "loaded", sessions: await meApi.sessions(HISTORY_LIMIT) };
   } catch (e) {
     if (e instanceof ApiError && RELOGIN.includes(e.code)) return { kind: "login" };
     return { kind: "failed", message: e instanceof Error ? e.message : "기록을 불러오지 못했어요." };
@@ -126,10 +126,40 @@ function LoginCard() {
   );
 }
 
+/** 달력과 고른 날의 세션 카드. 처음에는 마지막으로 기록한 날을 고르고, 카드는 그날 받은 순서(최근 것부터)다. */
+function RecordsByDay({ sessions }: { sessions: SessionHistory[] }) {
+  const days = useMemo(() => byDay(sessions), [sessions]);
+  const counts = useMemo(() => new Map([...days].map(([day, list]) => [day, list.length])), [days]);
+  const [today] = useState(() => dayKey(new Date()));
+  const [selected, setSelected] = useState(() => [...days.keys()].sort().at(-1) ?? today);
+  const picked = days.get(selected) ?? [];
+  return (
+    <>
+      <RecordCalendar counts={counts} selected={selected} today={today} onSelect={setSelected} />
+      {sessions.length >= HISTORY_LIMIT && (
+        <p className="mt-1 text-caption break-keep text-ink-muted">최근 세션 {HISTORY_LIMIT}개까지 달력에 보여요.</p>
+      )}
+      <h2 className="mt-6 mb-3 font-bold">{dayTitle(selected, today)}</h2>
+      {picked.length === 0 ? (
+        <p className="text-ink-muted">이 날은 기록이 없어요.</p>
+      ) : (
+        <ol className="flex flex-col gap-3">
+          {picked.map((session) => (
+            <li key={session.session_id}>
+              <SessionCard session={session} />
+            </li>
+          ))}
+        </ol>
+      )}
+    </>
+  );
+}
+
 /**
- * 세션 카드 — 날짜와 목표(summary)만 보이고 활동 · 점수는 접어 둔다. summary를 카드 여백만큼 넓혀(-m-4 p-4) 접힌
- * 카드 어디를 눌러도 열리고, 펼치면 아래 여백을 활동 목록과의 간격(8px)으로 줄인다. 브라우저의 펼침 삼각형은
- * 지우고(사파리는 ::-webkit-details-marker) 오른쪽 화살표로 접힘 · 펼침을 보인다.
+ * 세션 카드 — 목표와 시작 시각(summary)만 보이고 활동 · 점수는 접어 둔다. 날짜는 달력이 보이므로 카드에 쓰지 않는다.
+ * summary를 카드 여백만큼 넓혀(-m-4 p-4) 접힌 카드 어디를 눌러도 열리고, 펼치면 아래 여백을 활동 목록과의
+ * 간격(8px)으로 줄인다. 브라우저의 펼침 삼각형은 지우고(사파리는 ::-webkit-details-marker) 오른쪽 화살표로
+ * 접힘 · 펼침을 보인다.
  */
 function SessionCard({ session }: { session: SessionHistory }) {
   const { goal, goal_scale: scale } = session;
@@ -138,16 +168,16 @@ function SessionCard({ session }: { session: SessionHistory }) {
       <details className="group">
         <summary className="-m-4 flex cursor-pointer list-none items-center gap-3 rounded-card p-4 group-open:mb-0 group-open:pb-2 [&::-webkit-details-marker]:hidden">
           <span className="min-w-0 flex-1">
-            <span className="flex items-baseline justify-between gap-3 text-caption text-ink-muted">
-              <time dateTime={session.started_at}>{startedAt(session.started_at)}</time>
-              {!session.ended_at && <span className="shrink-0">마치지 않음</span>}
-            </span>
-            {goal && (
-              <span className="mt-1 flex items-center gap-2 font-bold">
-                <span aria-hidden className={`size-2.5 shrink-0 rounded-full ${GOAL_DOTS[goal]}`} />
-                {GOAL_LABELS[goal]}
+            <span className="flex items-center justify-between gap-3">
+              <span className="flex min-w-0 items-center gap-2 font-bold">
+                {goal && <span aria-hidden className={`size-2.5 shrink-0 rounded-full ${GOAL_DOTS[goal]}`} />}
+                {goal ? GOAL_LABELS[goal] : "목표 없음"}
               </span>
-            )}
+              <time dateTime={session.started_at} className="shrink-0 text-caption text-ink-muted tabular-nums">
+                {TIME.format(new Date(session.started_at))}
+              </time>
+            </span>
+            {!session.ended_at && <span className="mt-0.5 block text-caption text-ink-muted">마치지 않음</span>}
           </span>
           <svg
             viewBox="0 0 24 24"
@@ -201,7 +231,8 @@ function SessionCard({ session }: { session: SessionHistory }) {
   );
 }
 
-function startedAt(iso: string): string {
-  const date = new Date(iso);
-  return (date.getFullYear() === new Date().getFullYear() ? THIS_YEAR : OTHER_YEAR).format(date);
+/** 고른 날의 제목 — 11월 2일 (월), 다른 해는 2025년 12월 24일 (수). */
+function dayTitle(day: string, today: string): string {
+  const title = DAY.format(keyDate(day));
+  return day.slice(0, 4) === today.slice(0, 4) ? title : `${day.slice(0, 4)}년 ${title}`;
 }

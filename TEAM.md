@@ -64,7 +64,7 @@
   CONFIRM    confirm-screen.tsx           전후 비교 · 다음 단계(종료 · 활동 변경 · 추가 세션)      → POST decision (SSE)
   END        end-screen.tsx               세션 요약. SAFETY면 intake/safety-screen.tsx(A)의 도움 안내
   STALLED    session-flow.tsx             "이어서 하기"                                         → POST retry (SSE)
-/records     회원 활동 기록 — 세션별 활동 · 시간 · 끝까지 했는지 · 나아졌는지                → GET /me/sessions
+/records     회원 활동 기록 — 달력에서 고른 날의 세션별 활동 · 시간 · 끝까지 했는지 · 나아졌는지  → GET /me/sessions
 /settings    화면 색 · 로그아웃 · 탈퇴
 /dev         목업 세션 · 화면 미리보기(/dev/screens) · 플레이어 미리보기(/dev/players) — 개발용, 운영 배포는 404
 ```

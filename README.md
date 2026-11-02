@@ -60,7 +60,7 @@ src/app/
 ├─ session/          세션 화면 — step(ASK · MEASURE · RUN · CONFIRM · END)에 따라 화면을 바꾼다
 ├─ consent/          회원 기록 동의
 ├─ auth/callback/    소셜 로그인에서 돌아오는 곳
-├─ records/          회원 활동 기록 (GET /me/sessions). 게스트에게는 로그인을 권한다
+├─ records/          회원 활동 기록 — 달력과 고른 날의 세션 카드 (GET /me/sessions). 게스트에게는 로그인을 권한다
 ├─ settings/         화면 색 · 로그아웃 · 탈퇴
 ├─ dev/              개발용 — 목업 세션 · 화면 · 플레이어 미리보기 (운영 배포에서는 404)
 ├─ light-sync.tsx    화면을 옮길 때 · 앱으로 돌아올 때 · 1분마다 빛을 다시 정하고 브라우저 상단 색을 맞춤
@@ -163,8 +163,9 @@ Supabase DB 접속 정보와 secret key, LLM 키, 콘텐츠 공급자 키(Pixaba
 - 로그인하지 않은 사용자는 게스트(Supabase 익명 로그인)로 시작하고 기록을 남기지 않습니다. 게스트 로그인 세션은
   sessionStorage에 둬서 탭을 닫으면 체험이 끝납니다. Supabase 대시보드에서 Anonymous Sign-Ins를 켭니다.
 - 회원은 Google · 카카오로 로그인하고 처음 한 번 기록 동의(`/consent`, `PUT /me/consent`)를 거칩니다.
-- 회원은 기록 탭(`/records`)에서 지난 세션의 활동을 봅니다(`GET /me/sessions` — 활동을 한 세션을 최근 것부터
-  20개, 라운드마다 활동 이름이 붙어 옵니다). 게스트는 기록이 없어 로그인을 권합니다.
+- 회원은 기록 탭(`/records`)의 달력에서 날짜를 골라 그날 세션의 활동을 봅니다(`GET /me/sessions?limit=100` —
+  활동을 한 세션을 최근 것부터 100개(BE 최대), 라운드마다 활동 이름이 붙어 옵니다). 날은 기기 시간대로 나눕니다.
+  게스트는 기록이 없어 로그인을 권합니다.
 - 소셜 로그인은 `/auth/callback`으로 돌아옵니다. Supabase 대시보드 Authentication → URL Configuration의 Redirect
   URLs에 로컬(`http://localhost:3000/auth/callback`) · 운영 · 프리뷰 배포 주소를 등록합니다.
 

@@ -1,5 +1,7 @@
 # lumi-wellness-agent-fe
 
+**한국어** · [English](README.en.md)
+
 LUMI(Light + Mind)의 프론트엔드입니다. LUMI는 심리학 이론·임상/실험 연구 Reference 기반 AI 웰니스 에이전트입니다.
 React·Next.js App Router·TypeScript·Tailwind CSS v4를 사용하고 Vercel에 배포합니다.
 백엔드는 [lumi-wellness-agent-be](https://github.com/lumi-wellness-agent/lumi-wellness-agent-be)에서 개발합니다.

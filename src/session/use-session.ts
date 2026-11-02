@@ -11,6 +11,7 @@
 import { useCallback, useRef, useState } from "react";
 import { ApiError, sessionApi, type SessionApi, type StreamHandlers } from "@/lib/api/client";
 import { mockApi, mockEnabled } from "@/lib/api/mock";
+import { forgetRecords } from "@/lib/api/records";
 import type {
   CareRequest,
   IntakeAnswer,
@@ -42,6 +43,7 @@ export function useSession() {
 
   const perform = useCallback(async (request: SessionRequest) => {
     const api = mockEnabled() ? mockApi : sessionApi;
+    forgetRecords(); // 세션을 진행하면 활동 기록이 늘어난다 — 앱을 열 때 받아 둔 기록은 옛것이 된다
     last.current = request;
     setStatus((s) => ({ ...s, busy: true, progress: null, error: null }));
     const handlers: StreamHandlers = {

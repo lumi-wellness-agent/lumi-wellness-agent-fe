@@ -63,6 +63,7 @@ src/app/
 ├─ records/          회원 활동 기록 — 달력과 고른 날의 세션 카드 (GET /me/sessions). 게스트에게는 로그인을 권한다
 ├─ settings/         화면 색 · 로그아웃 · 탈퇴
 ├─ dev/              개발용 — 목업 세션 · 화면 · 플레이어 미리보기 (운영 배포에서는 404)
+├─ backend-warmup.tsx 앱을 열 때 BE를 미리 깨움 — 회원은 이번 달 활동 기록을 미리 받는다 (「백엔드 연동」)
 ├─ light-sync.tsx    화면을 옮길 때 · 앱으로 돌아올 때 · 1분마다 빛을 다시 정하고 브라우저 상단 색을 맞춤
 └─ globals.css       Tailwind v4와 디자인 토큰 (하루의 빛)
 src/session/         세션 상태 기계(use-session.ts)와 화면들 · Reference 카드 · 진행 표시 · 문구(labels.ts)
@@ -73,8 +74,10 @@ src/ui/controls.tsx  공통 버튼 · 칩 · 화면 틀 · 도는 표시(진행 
 src/ui/tab-bar.tsx   아래 탭 바 — 메인 · 기록 · 설정 (탭 화면만, 세션 · 동의 · 로그인 화면에는 없다)
 src/fixtures/        BE 응답 견본 — scripts/fixtures.py가 BE 코드로 만든다
 src/lib/
-├─ api/              BE 세션 API — 계약 타입 · JSON/SSE 클라이언트 · SSE 파서(테스트 sse.test.mjs) · 목업 BE
+├─ api/              BE 세션 API — 계약 타입 · JSON/SSE 클라이언트 · SSE 파서(테스트 sse.test.mjs) · 목업 BE · 달마다 받는 활동 기록(records.ts)
 ├─ auth.ts           Supabase 로그인 — 게스트(익명) · Google · 카카오
+├─ days.ts           기록 달력의 날짜 계산 — 기기 시간대의 날 · 달 · 달의 시각 범위 (테스트 days.test.mjs)
+├─ keyed-cache.ts    키(사용자 · 달)마다 두는 메모리 캐시 — 가는 요청을 같이 기다리고, 버린 뒤 끝난 요청은 두지 않는다 (테스트 keyed-cache.test.mjs)
 ├─ light.ts          시간대·세션·설정에 따라 빛을 정하는 규칙 (테스트 light.test.mjs)
 ├─ speech.ts         안내 음성 — 대본을 speechSynthesis로 읽고 음성을 고르는 규칙 (테스트 speech.test.mjs)
 └─ tone.ts           종료 알림음 — Web Audio
@@ -155,6 +158,13 @@ FE는 브라우저에서 BE를 바로 부릅니다. BE가 FE 오리진을 CORS�
 허용하므로 `127.0.0.1:3000`이 아니라 `localhost:3000`으로 엽니다. BE 주소는 `NEXT_PUBLIC_BACKEND_URL`이고,
 비어 있으면 로컬 BE(`http://127.0.0.1:8000`)를 씁니다. Vercel에는 운영 BE 주소를 넣습니다.
 
+운영 BE는 Vercel 함수라 10분쯤 요청이 없으면 잠들고, 그 뒤 첫 요청은 6초쯤 걸립니다(콜드 스타트 — 2026-11-02
+운영 로그). 그래서 앱을 열 때(`src/app/backend-warmup.tsx`) 회원이면 이번 달 활동 기록을 미리 받아 그 요청으로 BE를
+깨우고, 아니면 `GET /health`를 부릅니다(인증 헤더가 없어 CORS 사전 요청 없이 갑니다). 받은 기록은 달마다 탭 메모리에만
+두며(`src/lib/api/records.ts` — 새로고침하면 비고 기기에 남지 않습니다), 기록 탭은 이것을 바로 보인 뒤 이번 달을 새로
+받아 바꿉니다. 세션을 진행하거나 로그아웃 · 탈퇴하면 버립니다. 앱을 열자마자 기록 탭으로 가거나 기록 탭에서
+새로고침하면 깨어나는 시간을 다 기다립니다.
+
 `NEXT_PUBLIC_SUPABASE_URL`과 `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`는 브라우저에서 Supabase 로그인(익명 체험 · Google · Kakao)에 씁니다
 (`src/lib/auth.ts`). 로그인으로 받은 access token을 BE 요청의 `Authorization: Bearer`에 붙이면 BE가 Supabase 공개 키(JWKS)로 검증합니다.
 둘 다 브라우저에 공개되는 것을 전제로 한 값이라 FE에 둡니다.
@@ -163,9 +173,10 @@ Supabase DB 접속 정보와 secret key, LLM 키, 콘텐츠 공급자 키(Pixaba
 - 로그인하지 않은 사용자는 게스트(Supabase 익명 로그인)로 시작하고 기록을 남기지 않습니다. 게스트 로그인 세션은
   sessionStorage에 둬서 탭을 닫으면 체험이 끝납니다. Supabase 대시보드에서 Anonymous Sign-Ins를 켭니다.
 - 회원은 Google · 카카오로 로그인하고 처음 한 번 기록 동의(`/consent`, `PUT /me/consent`)를 거칩니다.
-- 회원은 기록 탭(`/records`)의 달력에서 날짜를 골라 그날 세션의 활동을 봅니다(`GET /me/sessions?limit=100` —
-  활동을 한 세션을 최근 것부터 100개(BE 최대), 라운드마다 활동 이름이 붙어 옵니다). 날은 기기 시간대로 나눕니다.
-  게스트는 기록이 없어 로그인을 권합니다.
+- 회원은 기록 탭(`/records`)의 달력에서 날짜를 골라 그날 세션의 활동을 봅니다. 처음에는 이번 달에서 오늘을 고릅니다.
+  기록은 기기 시간대의 한 달씩 받습니다(`GET /me/sessions?since=&until=&limit=100` — 그 달에 시작한 세션을 최근 것부터
+  100개(BE 최대), 라운드마다 활동 이름이 붙어 옵니다). 응답의 `first_started_at`(가장 이른 기록)까지만 앞 달로 넘기고,
+  `null`이면 기록이 없다는 안내를 보입니다. 게스트는 기록이 없어 로그인을 권합니다.
 - 소셜 로그인은 `/auth/callback`으로 돌아옵니다. Supabase 대시보드 Authentication → URL Configuration의 Redirect
   URLs에 로컬(`http://localhost:3000/auth/callback`) · 운영 · 프리뷰 배포 주소를 등록합니다.
 

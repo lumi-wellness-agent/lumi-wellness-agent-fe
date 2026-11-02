@@ -25,6 +25,11 @@ export function monthStart(index: number): Date {
   return new Date(Math.floor(index / 12), index % 12, 1);
 }
 
+/** monthIndex 달의 시작 시각 범위 — 기기 시간대의 1일 0시 이상 · 다음 달 1일 0시 미만(GET /me/sessions의 since · until). */
+export function monthRange(index: number): { since: string; until: string } {
+  return { since: monthStart(index).toISOString(), until: monthStart(index + 1).toISOString() };
+}
+
 /** 한 달의 칸 — 일요일부터 7칸씩 줄이 되게 1일 앞을 빈칸(null)으로 채우고, 나머지는 그날의 dayKey다. */
 export function monthCells(index: number): (string | null)[] {
   const first = monthStart(index);

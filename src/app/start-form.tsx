@@ -9,22 +9,28 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { errorText } from "@/i18n/errors";
+import { useLocale, useMessages } from "@/i18n/use-locale";
 import { mockEnabled } from "@/lib/api/mock";
 import type { CareRequest } from "@/lib/api/types";
 import { authConfigured, ensureViewer, signIn, viewer, type Provider, type Viewer } from "@/lib/auth";
 import { useBrowserValue } from "@/lib/use-browser-value";
+import { localizedExample } from "@/session/intake/labels";
 import { StartInput } from "@/session/intake/start-input";
 import { saveDraft } from "@/session/use-session";
 import { Button } from "@/ui/controls";
 import { SocialLoginButton } from "@/ui/social-login";
+import { APP } from "./messages";
 
 export function StartForm() {
   const router = useRouter();
   const [request, setRequest] = useState<CareRequest>({ text: "" });
   const [who, setWho] = useState<Viewer | null>(null);
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<unknown>(null);
   const mock = useBrowserValue(mockEnabled, false);
+  const locale = useLocale();
+  const t = useMessages(APP).start;
 
   useEffect(() => {
     void viewer().then(setWho);
@@ -33,17 +39,18 @@ export function StartForm() {
   const begin = async () => {
     setBusy(true);
     setError(null);
-    saveDraft({ ...request, text: request.text.trim() });
+    // 예시 문장을 누른 뒤 언어를 바꿨으면 입력 칸처럼 지금 언어의 예시를 보낸다(intake/labels.localizedExample)
+    saveDraft({ ...request, text: localizedExample(request.text, locale).trim() });
     try {
       if (!mock) await ensureViewer();
       router.push("/session");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "시작하지 못했어요.");
+      setError(e);
       setBusy(false);
     }
   };
 
-  const login = (provider: Provider) => signIn(provider).catch((e: Error) => setError(e.message));
+  const login = (provider: Provider) => signIn(provider).catch((e: unknown) => setError(e));
   const member = who && !who.anonymous;
 
   return (
@@ -51,26 +58,24 @@ export function StartForm() {
       <StartInput value={request} onChange={setRequest} />
 
       <Button className="mt-6 w-full" disabled={busy || !request.text.trim()} onClick={begin}>
-        시작하기
+        {t.button}
       </Button>
-      {error && <p className="mt-2 text-caption break-keep text-ink">{error}</p>}
+      {error !== null && <p className="mt-2 text-caption break-keep text-ink">{errorText(error, locale, t.failed)}</p>}
 
       <div className="mt-4 text-caption text-ink-muted">
         {mock ? (
           <p>
-            목업 세션이 켜져 있어요(BE · 로그인 없이 견본으로 돕니다). <Link href="/dev" className="underline">/dev</Link>
+            {t.mock} <Link href="/dev" className="underline">/dev</Link>
           </p>
         ) : member ? (
-          <p>{who.provider === "kakao" ? "카카오" : "Google"} 계정으로 로그인했어요</p>
+          <p>{t.signedIn(t.providers[who.provider === "kakao" ? "kakao" : "google"])}</p>
         ) : (
           <>
-            <p className="break-keep">
-              로그인하지 않으면 체험 내용은 기록으로 남기지 않으며, 진행에 쓴 데이터는 1~2일 안에 지워집니다.
-            </p>
+            <p className="break-keep">{t.guest}</p>
             {authConfigured && (
               // 버튼에 글자가 없어 무엇을 하는 버튼인지 위에 적는다.
               <div className="mt-4 flex flex-col items-center gap-2">
-                <p>간편 로그인</p>
+                <p>{t.quickLogin}</p>
                 <div className="flex gap-5">
                   <SocialLoginButton provider="google" onClick={() => login("google")} />
                   <SocialLoginButton provider="kakao" onClick={() => login("kakao")} />

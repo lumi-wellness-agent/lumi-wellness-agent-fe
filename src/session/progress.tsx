@@ -4,9 +4,12 @@
  * 길이를 모르는 기다림이라 도는 표시(Spinner)를 쓴다.
  */
 
+import { useMessages } from "@/i18n/use-locale";
 import { Spinner } from "@/ui/controls";
+import { LABELS } from "./labels";
 
 export function Progress({ text, overlay = false }: { text: string | null; overlay?: boolean }) {
+  const labels = useMessages(LABELS);
   return (
     <div
       role="status"
@@ -19,7 +22,7 @@ export function Progress({ text, overlay = false }: { text: string | null; overl
     >
       <div className="flex w-full max-w-[320px] flex-col items-center gap-4 text-center">
         <Spinner />
-        <p className="break-keep text-ink-muted">{text ?? "잠시만 기다려 주세요"}</p>
+        <p className="break-keep text-ink-muted">{text ?? labels.waiting}</p>
       </div>
     </div>
   );

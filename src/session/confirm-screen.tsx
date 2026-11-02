@@ -7,9 +7,12 @@
  * — S1 쾌↑ · S2 각성↓ · S3 피로 10점 이상↓.
  */
 
+import { nameOf } from "@/i18n/locale";
+import { useMessages } from "@/i18n/use-locale";
 import type { ConfirmPayload, NextStep } from "@/lib/api/types";
 import { Button, Card, Heading, Screen } from "@/ui/controls";
-import { DELTA_LABELS, NEXT_STEP_LABELS } from "./labels";
+import { LABELS } from "./labels";
+import { SESSION } from "./messages";
 
 export function ConfirmScreen({
   payload,
@@ -21,36 +24,38 @@ export function ConfirmScreen({
   onDecide: (step: NextStep) => void;
 }) {
   const { evaluation, proposal, options } = payload;
+  const t = useMessages(SESSION).confirm;
+  const labels = useMessages(LABELS);
   const ordered = [...options].sort((a, b) => Number(b === proposal.recommended) - Number(a === proposal.recommended));
   const headline = !evaluation.completed
-    ? "이번 활동은 여기까지 했어요"
+    ? t.stopped
     : evaluation.improved
-      ? "활동 전보다 나아졌어요"
+      ? t.improved
       : evaluation.improved === false
-        ? "이번에는 큰 변화가 없었어요"
-        : "활동을 마쳤어요";
+        ? t.unchanged
+        : t.done;
 
   return (
     <Screen
       footer={ordered.map((step) => (
         <Button key={step} variant={step === proposal.recommended ? "primary" : "secondary"} disabled={busy} onClick={() => onDecide(step)}>
-          {NEXT_STEP_LABELS[step]}
+          {labels.nextSteps[step]}
         </Button>
       ))}
     >
-      <Heading eyebrow={`${evaluation.round}번째 활동`}>{headline}</Heading>
+      <Heading eyebrow={t.eyebrow(evaluation.round)}>{headline}</Heading>
       <Card>
-        <p className="mb-2 text-caption font-bold text-ink-muted">활동 전과 비교</p>
+        <p className="mb-2 text-caption font-bold text-ink-muted">{t.compare}</p>
         <ul className="flex flex-col gap-1">
           {Object.entries(evaluation.deltas).map(([key, delta]) => (
             <li key={key} className="flex justify-between">
-              <span>{DELTA_LABELS[key] ?? key}</span>
+              <span>{nameOf(labels.deltas, key)}</span>
               <strong className="tabular-nums">{delta > 0 ? `+${delta}` : delta}</strong>
             </li>
           ))}
         </ul>
       </Card>
-      <p className="mt-4 break-keep text-ink-muted">LUMI의 제안: {NEXT_STEP_LABELS[proposal.recommended]}</p>
+      <p className="mt-4 break-keep text-ink-muted">{t.suggestion(labels.nextSteps[proposal.recommended])}</p>
       {proposal.by_llm && <p className="mt-1 break-keep">{proposal.reason}</p>}
     </Screen>
   );

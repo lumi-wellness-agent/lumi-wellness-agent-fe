@@ -3,9 +3,10 @@
 [한국어](README.md) · **English**
 
 > **This file is a translation.** [README.md](README.md) (Korean) is the source of truth; where the two
-> disagree, the Korean one is right. LUMI currently runs in Korean only — screen copy, questions, measures and
-> activity guidance are Korean. Korean strings that are real values in the app (screen copy, voice names) are
-> kept as they are, with an English gloss next to them. Linked documents marked (Korean) have no English version
+> disagree, the Korean one is right. The screens can be switched to English (see “Screen language”), but the
+> activity players and everything the backend sends — questions, measures, activity guidance — are still Korean.
+> Korean strings that are real values in the app (screen copy, voice names) are kept as they are, with an English
+> gloss next to them. Linked documents marked (Korean) have no English version
 > yet.
 
 The frontend of LUMI (Light + Mind). LUMI is an AI wellness agent grounded in psychological theory and
@@ -84,6 +85,8 @@ src/session/         session state machine (use-session.ts) and screens · Refer
 src/players/         activity players — contract (types.ts) · activity → player table (catalog.ts) · host · 10 player folders (TEAM.md)
 src/ui/controls.tsx  shared buttons · chips · screen frame · spinners (progress display · photo loading) (48px touch targets · token colors)
 src/ui/tab-bar.tsx   bottom tab bar — home · records · settings (tab screens only; not on the session · consent · login screens)
+src/ui/locale-toggle.tsx screen-language toggle KO · EN (top right of the start screen)
+src/i18n/            screen language — message sets (defineMessages in locale.ts) · language store and hooks (use-locale.ts) · error text (errors.ts)
 src/fixtures/        sample BE responses — scripts/fixtures.py builds them from BE code
 src/lib/
 ├─ api/              BE session API — contract types · JSON/SSE client · SSE parser (test sse.test.mjs) · mock BE · activity history fetched per month (records.ts)
@@ -162,6 +165,24 @@ classes below. Color tokens work with any of `bg-` · `text-` · `border-`.
     instead of C even in the evening and at night.
 - To see another time of day, run `localStorage.setItem("lumi:light-pick", "moonlight")` in the browser devtools
   console and refresh. Undo it with `localStorage.removeItem("lumi:light-pick")`.
+
+## Screen language
+
+Screen copy can be switched between Korean (default) and English. Pick it with the KO · EN toggle at the top right of the
+start screen or under Settings → Language; the choice stays in this browser (`localStorage` `lumi:locale`). Without a
+choice, the browser language decides — Korean (`ko-*`) gives Korean, anything else English. The server always renders
+Korean and the page re-renders in the chosen language once it hydrates (`src/i18n/use-locale.ts`).
+
+- Copy lives next to where it is used, in `messages.ts` (names of code values in `labels.ts`), with Korean and English
+  side by side (`defineMessages`). Korean defines the shape, so a missing or extra English key fails
+  `npm run typecheck`. Don't hard-code copy in components.
+- Only copy the FE owns changes. What the BE sends — questions · measure items · activity names · scripts · rationales ·
+  Reference card sentences — is still Korean, and so are the activity players (`src/players/`).
+- Values sent to the BE (option values such as the stop reason '지금은 어려워요', "not right now") stay the same
+  whatever the screen language.
+- Errors: the Korean screen shows the received message as is; the English screen picks a sentence by error code
+  (`src/i18n/errors.ts`).
+- Session screens have no toggle — the language doesn't change during a session.
 
 ## Backend integration
 

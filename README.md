@@ -74,6 +74,8 @@ src/session/         세션 상태 기계(use-session.ts)와 화면들 · Refere
 src/players/         활동 플레이어 — 계약(types.ts) · 활동→플레이어 표(catalog.ts) · 호스트 · 플레이어 폴더 10개 (TEAM.md)
 src/ui/controls.tsx  공통 버튼 · 칩 · 화면 틀 · 도는 표시(진행 표시 · 사진 불러오기) (터치 48px · 토큰 색)
 src/ui/tab-bar.tsx   아래 탭 바 — 메인 · 기록 · 설정 (탭 화면만, 세션 · 동의 · 로그인 화면에는 없다)
+src/ui/locale-toggle.tsx 화면 언어 토글 KO · EN (시작 화면 오른쪽 위)
+src/i18n/            화면 언어 — 문구 묶음(locale.ts의 defineMessages) · 언어 저장소와 훅(use-locale.ts) · 오류 문장(errors.ts)
 src/fixtures/        BE 응답 견본 — scripts/fixtures.py가 BE 코드로 만든다
 src/lib/
 ├─ api/              BE 세션 API — 계약 타입 · JSON/SSE 클라이언트 · SSE 파서(테스트 sse.test.mjs) · 목업 BE · 달마다 받는 활동 기록(records.ts)
@@ -147,6 +149,20 @@ automation/                ship 하네스 (준비 문서 README.md + 하네스 �
     B를 씁니다.
 - 다른 시간대를 보려면 브라우저 개발자 도구 콘솔에서 `localStorage.setItem("lumi:light-pick", "moonlight")`를
   실행하고 새로고침합니다. `localStorage.removeItem("lumi:light-pick")`로 되돌립니다.
+
+## 화면 언어
+
+화면 문구는 한국어(기본)와 영어로 바꿀 수 있습니다. 시작 화면 오른쪽 위 KO · EN 토글이나 설정의 '언어'에서 고르고, 고른 값은
+이 브라우저에 남습니다(`localStorage` `lumi:locale`). 고른 적이 없으면 브라우저 언어로 정합니다 — 한국어(`ko-*`)면 한국어, 그 밖은
+영어입니다. 서버는 늘 한국어로 그리고 화면이 붙은 뒤 고른 언어로 다시 그립니다(`src/i18n/use-locale.ts`).
+
+- 문구는 쓰는 곳 옆의 `messages.ts`(코드 값의 이름은 `labels.ts`)에 한국어와 영어를 나란히 둡니다(`defineMessages`). 한국어가 기준
+  모양이라 영어에 키가 빠지거나 남으면 `npm run typecheck`가 실패합니다. 컴포넌트에 문구를 박지 않습니다.
+- 바뀌는 것은 FE가 정한 문구뿐입니다. BE가 보내는 질문 · 측정 문항 · 활동 이름 · 대본 · 추천 이유 · Reference 카드 문장은 아직
+  한국어이고, 활동 플레이어(`src/players/`)도 아직 한국어입니다.
+- BE로 보내는 값(멈춘 이유 '지금은 어려워요' 같은 선택지 값)은 화면 언어와 상관없이 같은 값을 보냅니다.
+- 오류는 한국어 화면이면 받은 문장을 그대로, 영어 화면이면 오류 코드로 고른 문장을 보입니다(`src/i18n/errors.ts`).
+- 세션 화면에는 토글이 없습니다 — 세션 중에는 언어를 바꾸지 않습니다.
 
 ## 백엔드 연동
 

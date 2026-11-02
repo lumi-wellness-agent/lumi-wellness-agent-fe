@@ -10,13 +10,19 @@
  */
 
 import { useEffect, useState } from "react";
+import { nameOf } from "@/i18n/locale";
+import { useMessages } from "@/i18n/use-locale";
 import type { RunPayload, SessionReport } from "@/lib/api/types";
 import { loadVoices, unlockSpeech } from "@/lib/speech";
 import { unlockTone } from "@/lib/tone";
 import { PlayerHost } from "@/players/player-host";
 import { Button, Card, Chip, Heading, Screen } from "@/ui/controls";
-import { GAP_NOTICES } from "./labels";
+import { LABELS } from "./labels";
+import { SESSION } from "./messages";
 import { ReferenceCardView } from "./reference-card";
+
+// 멈춘 이유는 BE가 그대로 읽어 다음 단계를 권한다(replan) — 화면 언어와 상관없이 같은 값을 보낸다
+const NOT_NOW = "지금은 어려워요";
 
 export function RunScreen({
   payload,
@@ -30,6 +36,8 @@ export function RunScreen({
   onReport: (report: SessionReport) => void;
 }) {
   const { plan, content } = payload;
+  const t = useMessages(SESSION).run;
+  const gaps = useMessages(LABELS).gaps;
   const isOutdoorWalk = plan.activity.protocol_id === "PR-11";
   const restoresActivityScreen = isOutdoorWalk || plan.activity.protocol_id === "PR-12";
   const playingKey = `lumi:run-playing:${sessionId ?? "current"}:${plan.activity.protocol_id}`;
@@ -39,11 +47,6 @@ export function RunScreen({
   });
   const [why, setWhy] = useState(false);
   const durationOptions = [20, 50, 90] as const;
-  const durationDescriptions: Record<(typeof durationOptions)[number], string> = {
-    20: "시간이 제한적일 때",
-    50: "기본 권장 시간",
-    90: "시간과 상태에 여유가 있을 때",
-  };
   const [selectedMinutes, setSelectedMinutes] = useState<number>(
     (() => {
       const fallback = isOutdoorWalk && durationOptions.includes(plan.activity.minutes as (typeof durationOptions)[number]) ? plan.activity.minutes : 50;
@@ -95,26 +98,26 @@ export function RunScreen({
       footer={
         <>
           <Button onClick={start} disabled={busy}>
-            시작하기
+            {t.start}
           </Button>
           <Button
             variant="quiet"
             disabled={busy}
-            onClick={() => onReport({ completed: false, stopped_reason: "지금은 어려워요" })}
+            onClick={() => onReport({ completed: false, stopped_reason: NOT_NOW })}
           >
-            지금은 어려워요
+            {t.notNow}
           </Button>
         </>
       }
     >
-      <Heading eyebrow={`추천 활동 · 약 ${isOutdoorWalk ? selectedMinutes : plan.activity.minutes}분`}>{content.name}</Heading>
+      <Heading eyebrow={t.eyebrow(isOutdoorWalk ? selectedMinutes : plan.activity.minutes)}>{content.name}</Heading>
       <p className="break-keep">{plan.rationale}</p>
 
       {plan.environment_gaps.length > 0 && (
         <ul className="mt-4 flex flex-col gap-2">
           {plan.environment_gaps.map((gap) => (
             <li key={gap} className="rounded-row bg-primary-soft p-3 text-on-primary-soft">
-              {GAP_NOTICES[gap] ?? gap}
+              {nameOf(gaps, gap)}
             </li>
           ))}
         </ul>
@@ -122,15 +125,15 @@ export function RunScreen({
 
       {displayGuideText && (
         <Card className="mt-5">
-          <p className="mb-1 text-caption font-bold text-ink-muted">시작 안내</p>
+          <p className="mb-1 text-caption font-bold text-ink-muted">{t.guide}</p>
           <p className="break-keep">{displayGuideText}</p>
         </Card>
       )}
 
       {isOutdoorWalk && (
         <Card className="mt-5">
-          <p className="mb-2 text-caption font-bold text-ink-muted">활동 시간 선택</p>
-          <div className="flex flex-col gap-2" role="group" aria-label="야외 자연 보행 활동 시간">
+          <p className="mb-2 text-caption font-bold text-ink-muted">{t.duration}</p>
+          <div className="flex flex-col gap-2" role="group" aria-label={t.durationGroup}>
             {durationOptions.map((minutes) => (
               <Chip
                 key={minutes}
@@ -141,8 +144,8 @@ export function RunScreen({
                   window.sessionStorage.setItem(`${playingKey}:minutes`, String(minutes));
                 }}
               >
-                <span className="font-bold">{minutes}분</span>
-                <span className="text-caption">{durationDescriptions[minutes]}</span>
+                <span className="font-bold">{t.minutes(minutes)}</span>
+                <span className="text-caption">{t.durations[minutes]}</span>
               </Chip>
             ))}
           </div>
@@ -152,7 +155,7 @@ export function RunScreen({
       {plan.reference_card && (
         <section className="mt-5">
           <Button variant="secondary" className="w-full" aria-expanded={why} onClick={() => setWhy((v) => !v)}>
-            왜 추천했나요?
+            {t.why}
           </Button>
           {why && (
             <Card className="mt-3">
@@ -162,9 +165,7 @@ export function RunScreen({
         </section>
       )}
 
-      <p className="mt-6 text-caption text-ink-muted">
-        LUMI는 의료적 진단이나 치료를 대신하지 않습니다. 불편하면 언제든 멈출 수 있어요.
-      </p>
+      <p className="mt-6 text-caption text-ink-muted">{t.stopAnytime}</p>
     </Screen>
   );
 }

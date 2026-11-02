@@ -11,23 +11,24 @@
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { errorText } from "@/i18n/errors";
+import { nameOf } from "@/i18n/locale";
+import { useLocale, useMessages } from "@/i18n/use-locale";
 import { ApiError } from "@/lib/api/client";
 import { mockEnabled } from "@/lib/api/mock";
 import { forgetRecords, loadMonth, MOCK_OWNER, MONTH_LIMIT, savedMonth, savedOwner } from "@/lib/api/records";
 import type { SessionHistory, SessionHistoryPage } from "@/lib/api/types";
 import { authConfigured, signIn, viewer, type Provider } from "@/lib/auth";
 import { byDay, dayKey, keyDate, monthIndex } from "@/lib/days";
-import { DELTA_LABELS, GOAL_DOTS, GOAL_LABELS, score } from "@/session/labels";
+import { GOAL_DOTS, LABELS, score } from "@/session/labels";
 import { Button, ButtonLink, Card, Heading, Screen } from "@/ui/controls";
 import { SocialLoginButton } from "@/ui/social-login";
+import { APP } from "../messages";
 import { RecordCalendar } from "./calendar";
+import { RECORDS } from "./messages";
 
 // 로그인 세션이 끝났다 — 다시 로그인하면 볼 수 있다(BE README 「오류」)
 const RELOGIN = ["UNAUTHENTICATED", "INVALID_TOKEN", "SESSION_REVOKED"];
-
-// year를 넣으면 요일 괄호가 빠져('2025년 12월 24일 수') 다른 해는 연도만 앞에 붙인다 — dayTitle
-const DAY = new Intl.DateTimeFormat("ko-KR", { month: "long", day: "numeric", weekday: "short" }); // 11월 2일 (월)
-const TIME = new Intl.DateTimeFormat("ko-KR", { hour: "numeric", minute: "2-digit" }); // 오후 2:12
 
 // 누구의 기록을 보이나 — 회원은 사용자 ID, 목업 세션은 MOCK_OWNER
 type Access = { kind: "checking" } | { kind: "login" } | { kind: "ready"; owner: string };
@@ -39,6 +40,8 @@ export default function RecordsPage() {
     return owner ? { kind: "ready", owner } : { kind: "checking" };
   });
   const toLogin = useCallback(() => setAccess({ kind: "login" }), []);
+  const t = useMessages(RECORDS);
+  const disclaimer = useMessages(APP).disclaimer;
 
   useEffect(() => {
     let current = true;
@@ -52,17 +55,17 @@ export default function RecordsPage() {
 
   return (
     <Screen tabBar>
-      <Heading>기록</Heading>
+      <Heading>{t.title}</Heading>
       {access.kind === "checking" && (
         <p role="status" className="text-ink-muted">
-          기록을 불러오고 있어요
+          {t.loading}
         </p>
       )}
       {access.kind === "login" && <LoginCard />}
       {access.kind === "ready" && (
         <>
           <RecordsByMonth key={access.owner} owner={access.owner} onLoggedOut={toLogin} />
-          <p className="mt-6 text-caption text-ink-muted">LUMI는 의료적 진단이나 치료를 대신하지 않습니다.</p>
+          <p className="mt-6 text-caption text-ink-muted">{disclaimer}</p>
         </>
       )}
     </Screen>
@@ -77,23 +80,25 @@ async function whose(): Promise<Access> {
 
 /** 로그인을 권한다. 로그인하면 이 화면으로 돌아온다(게스트 체험은 이어지지 않는다). */
 function LoginCard() {
-  const [error, setError] = useState<string | null>(null);
-  const login = (provider: Provider) => signIn(provider, "/records").catch((e: Error) => setError(e.message));
+  const [error, setError] = useState<unknown>(null);
+  const locale = useLocale();
+  const t = useMessages(RECORDS);
+  const login = (provider: Provider) => signIn(provider, "/records").catch((e: unknown) => setError(e));
   return (
     <Card>
-      <p className="font-bold">로그인하면 한 활동을 모아 볼 수 있어요</p>
-      <p className="mt-1 break-keep text-ink-muted">게스트 체험은 기록을 남기지 않아요.</p>
+      <p className="font-bold">{t.login.title}</p>
+      <p className="mt-1 break-keep text-ink-muted">{t.login.guest}</p>
       {authConfigured && (
         // 버튼에 글자가 없어 무엇을 하는 버튼인지 위에 적는다(시작 화면과 같다).
         <div className="mt-4 flex flex-col items-center gap-2 text-caption text-ink-muted">
-          <p>간편 로그인</p>
+          <p>{t.login.quick}</p>
           <div className="flex gap-5">
             <SocialLoginButton provider="google" onClick={() => login("google")} />
             <SocialLoginButton provider="kakao" onClick={() => login("kakao")} />
           </div>
         </div>
       )}
-      {error && <p className="mt-2 text-caption break-keep">{error}</p>}
+      {error !== null && <p className="mt-2 text-caption break-keep">{errorText(error, locale, t.loadFailed)}</p>}
     </Card>
   );
 }
@@ -111,7 +116,9 @@ function RecordsByMonth({ owner, onLoggedOut }: { owner: string; onLoggedOut: ()
   const [selected, setSelected] = useState(today);
   const selectedMonth = monthIndex(keyDate(selected));
   const [pages, setPages] = useState<ReadonlyMap<number, SessionHistoryPage>>(() => new Map());
-  const [failures, setFailures] = useState<ReadonlyMap<number, string>>(() => new Map());
+  const [failures, setFailures] = useState<ReadonlyMap<number, unknown>>(() => new Map()); // 달 → 오류(문장은 그릴 때 고른다)
+  const locale = useLocale();
+  const t = useMessages(RECORDS);
   const [attempt, setAttempt] = useState(0);
   const asked = useRef(new Set<number>()); // 이 화면에서 받은(받는) 달 — 실패하면 빼서 다시 시도로 받는다
 
@@ -129,8 +136,7 @@ function RecordsByMonth({ owner, onLoggedOut }: { owner: string; onLoggedOut: ()
             onLoggedOut();
             return;
           }
-          const message = e instanceof Error ? e.message : "기록을 불러오지 못했어요.";
-          setFailures((old) => new Map(old).set(m, message));
+          setFailures((old) => new Map(old).set(m, e));
         },
       );
     }
@@ -169,37 +175,37 @@ function RecordsByMonth({ owner, onLoggedOut }: { owner: string; onLoggedOut: ()
       />
       {!visible && failures.has(month) && (
         <Card className="mt-3">
-          <p className="font-bold">이 달 기록을 불러오지 못했어요</p>
-          <p className="mt-1 break-keep text-ink-muted">{failures.get(month)}</p>
+          <p className="font-bold">{t.monthFailed}</p>
+          <p className="mt-1 break-keep text-ink-muted">{errorText(failures.get(month), locale, t.loadFailed)}</p>
           <Button variant="secondary" className="mt-4 w-full" onClick={retry}>
-            다시 시도
+            {t.retry}
           </Button>
         </Card>
       )}
       {visible && visible.sessions.length >= MONTH_LIMIT && (
-        <p className="mt-1 text-caption break-keep text-ink-muted">이 달은 최근 세션 {MONTH_LIMIT}개까지 보여요.</p>
+        <p className="mt-1 text-caption break-keep text-ink-muted">{t.monthLimit(MONTH_LIMIT)}</p>
       )}
       {firstStarted === null ? (
         <Card className="mt-6">
-          <p className="font-bold">아직 기록이 없어요</p>
-          <p className="mt-1 break-keep text-ink-muted">세션에서 활동을 하나 마치면 여기에 남아요.</p>
+          <p className="font-bold">{t.empty.title}</p>
+          <p className="mt-1 break-keep text-ink-muted">{t.empty.body}</p>
           <ButtonLink href="/" variant="secondary" className="mt-4 w-full">
-            활동 시작하기
+            {t.empty.start}
           </ButtonLink>
         </Card>
       ) : (
         <>
-          <h2 className="mt-6 mb-3 font-bold">{dayTitle(selected, today)}</h2>
+          <h2 className="mt-6 mb-3 font-bold">{t.dayTitle(keyDate(selected), selected.slice(0, 4) !== today.slice(0, 4))}</h2>
           {picked === null ? (
             failures.has(selectedMonth) ? (
-              <p className="text-ink-muted">기록을 불러오지 못했어요.</p>
+              <p className="text-ink-muted">{t.loadFailed}</p>
             ) : (
               <p role="status" className="text-ink-muted">
-                기록을 불러오고 있어요
+                {t.loading}
               </p>
             )
           ) : picked.length === 0 ? (
-            <p className="text-ink-muted">이 날은 기록이 없어요.</p>
+            <p className="text-ink-muted">{t.dayEmpty}</p>
           ) : (
             <ol className="flex flex-col gap-3">
               {picked.map((session) => (
@@ -223,6 +229,8 @@ function RecordsByMonth({ owner, onLoggedOut }: { owner: string; onLoggedOut: ()
  */
 function SessionCard({ session }: { session: SessionHistory }) {
   const { goal, goal_scale: scale } = session;
+  const t = useMessages(RECORDS);
+  const labels = useMessages(LABELS);
   return (
     <Card>
       <details className="group">
@@ -231,13 +239,13 @@ function SessionCard({ session }: { session: SessionHistory }) {
             <span className="flex items-center justify-between gap-3">
               <span className="flex min-w-0 items-center gap-2 font-bold">
                 {goal && <span aria-hidden className={`size-2.5 shrink-0 rounded-full ${GOAL_DOTS[goal]}`} />}
-                {goal ? GOAL_LABELS[goal] : "목표 없음"}
+                {goal ? labels.goals[goal] : t.noGoal}
               </span>
               <time dateTime={session.started_at} className="shrink-0 text-caption text-ink-muted tabular-nums">
-                {TIME.format(new Date(session.started_at))}
+                {t.time(new Date(session.started_at))}
               </time>
             </span>
-            {!session.ended_at && <span className="mt-0.5 block text-caption text-ink-muted">마치지 않음</span>}
+            {!session.ended_at && <span className="mt-0.5 block text-caption text-ink-muted">{t.unfinished}</span>}
           </span>
           <svg
             viewBox="0 0 24 24"
@@ -257,15 +265,13 @@ function SessionCard({ session }: { session: SessionHistory }) {
             <li key={round.round} className="flex items-center justify-between gap-3 py-2.5">
               <div className="min-w-0">
                 <p className="break-keep">{round.name ?? round.protocol_id}</p>
-                <p className="text-caption text-ink-muted">
-                  {round.minutes}분 · {round.completed ? "끝까지 함" : "중간에 멈춤"}
-                </p>
+                <p className="text-caption text-ink-muted">{t.round(round.minutes, round.completed)}</p>
               </div>
               {round.improved !== null && (
                 <span
                   className={`shrink-0 rounded-chip px-2.5 py-1 text-caption font-bold ${round.improved ? "bg-primary-soft text-on-primary-soft" : "bg-surface-muted text-ink-muted"}`}
                 >
-                  {round.improved ? "나아짐" : "그대로"}
+                  {round.improved ? t.improved : t.unchanged}
                 </span>
               )}
             </li>
@@ -273,11 +279,11 @@ function SessionCard({ session }: { session: SessionHistory }) {
         </ol>
         {scale && (
           <div className="mt-1 border-t border-line pt-2.5">
-            <p className="mb-1 text-caption font-bold text-ink-muted">시작할 때와 비교</p>
+            <p className="mb-1 text-caption font-bold text-ink-muted">{t.compare}</p>
             <ul className="flex flex-col gap-1">
               {Object.entries(scale.delta).map(([key, delta]) => (
                 <li key={key} className="flex justify-between gap-3">
-                  <span>{DELTA_LABELS[key] ?? key}</span>
+                  <span>{nameOf(labels.deltas, key)}</span>
                   <strong className="tabular-nums">
                     {score(scale.pre[key])} → {score(scale.end[key])} ({delta > 0 ? `+${score(delta)}` : score(delta)})
                   </strong>
@@ -291,8 +297,3 @@ function SessionCard({ session }: { session: SessionHistory }) {
   );
 }
 
-/** 고른 날의 제목 — 11월 2일 (월), 다른 해는 2025년 12월 24일 (수). */
-function dayTitle(day: string, today: string): string {
-  const title = DAY.format(keyDate(day));
-  return day.slice(0, 4) === today.slice(0, 4) ? title : `${day.slice(0, 4)}년 ${title}`;
-}

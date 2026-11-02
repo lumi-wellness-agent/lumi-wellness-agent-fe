@@ -4,9 +4,12 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { disableMock, enableMock } from "@/lib/api/mock";
 import type { Goal } from "@/lib/api/types";
-import { GOAL_LABELS } from "@/session/labels";
+import { LABELS } from "@/session/labels";
 import { forgetSession, saveDraft } from "@/session/use-session";
 import { Button, Chip } from "@/ui/controls";
+
+// 개발용 화면이라 한국어 이름을 쓴다
+const GOAL_LABELS = LABELS.ko.goals;
 
 /** 목업 세션 시작 — 목표와 첫 활동을 고른다. 첫 활동을 비우면 목표별 기본 순서(plan 실측)를 따른다. */
 export function MockStart({ protocols }: { protocols: { id: string; name: string; goal: string }[] }) {

@@ -16,11 +16,11 @@ import type {
   CareRequest,
   IntakeAnswer,
   MeasureAnswers,
+  ProgressEvent,
   ReplanDecision,
   SessionReport,
   SessionView,
 } from "@/lib/api/types";
-import { progressLabel } from "./labels";
 
 const SESSION_KEY = "lumi:session-id";
 const DRAFT_KEY = "lumi:start";
@@ -32,7 +32,7 @@ type SessionRequest = (api: SessionApi, handlers: StreamHandlers) => Promise<Ses
 export type SessionStatus = {
   view: SessionView | null;
   busy: boolean;
-  progress: string | null; // SSE 진행 문구
+  progress: ProgressEvent | null; // SSE 진행 — 문구는 화면이 지금 언어로 고른다(labels.progressLabel)
   error: ApiError | null;
 };
 
@@ -52,7 +52,7 @@ export function useSession() {
         write(SESSION_KEY, id);
         write(DRAFT_KEY, null); // 시작 입력을 썼다
       },
-      onProgress: (event) => setStatus((s) => ({ ...s, progress: progressLabel(event.node, event.step) })),
+      onProgress: (event) => setStatus((s) => ({ ...s, progress: event })),
     };
     const show = (view: SessionView) => {
       current.current = { id: view.session_id, view };

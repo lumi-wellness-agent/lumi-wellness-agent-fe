@@ -11,9 +11,11 @@
  */
 
 import { useState } from "react";
+import { useMessages } from "@/i18n/use-locale";
 import type { IntakeAnswer, IntakeQuestion, QuestionOption } from "@/lib/api/types";
 import { Button, Chip, Heading, Screen } from "@/ui/controls";
-import { FREE_TEXT_HINTS, GROUP_LABELS } from "./labels";
+import { groupLabel, INTAKE_LABELS } from "./labels";
+import { INTAKE } from "./messages";
 
 const isUnknown = (option: QuestionOption) => Object.keys(option.set).length === 0;
 /** 보기 문구가 모두 짧으면(이어폰 있어요/없어요 · 5분/10분) 한 줄에 나란히 — 환경 질문이 한 화면에 들어오게. */
@@ -31,6 +33,8 @@ export function AskScreen({
 }) {
   const [picked, setPicked] = useState<Record<string, number>>({}); // 묶음 key → 보기 번호
   const [text, setText] = useState("");
+  const labels = useMessages(INTAKE_LABELS);
+  const t = useMessages(INTAKE).ask;
   const typed = text.trim();
   const chosen = question.groups.filter((g) => picked[g.key] !== undefined);
   const textWins = typed.length > 0 && chosen.length > 0; // 글이 이긴다 — 화면에 알린다
@@ -52,13 +56,13 @@ export function AskScreen({
       return next;
     });
 
-  const hint = restate ? FREE_TEXT_HINTS.restate : question.groups.length ? FREE_TEXT_HINTS.withOptions : FREE_TEXT_HINTS.only;
+  const hint = restate ? labels.hints.restate : question.groups.length ? labels.hints.withOptions : labels.hints.only;
   return (
     <Screen
       footer={
         <>
           <Button onClick={send} disabled={busy || !canSend}>
-            다음
+            {t.next}
           </Button>
           {question.skip_label && (
             <Button variant="quiet" onClick={() => onAnswer({ question_id: id, skip: true })} disabled={busy}>
@@ -67,13 +71,13 @@ export function AskScreen({
           )}
           {question.slot === "context" && (
             <Button variant="quiet" onClick={() => onAnswer({ question_id: id, answer: {} })} disabled={busy}>
-              건너뛸게요
+              {t.skip}
             </Button>
           )}
         </>
       }
     >
-      <Heading eyebrow={question.turn > 0 ? `질문 ${question.turn} / ${question.max_turns}` : undefined}>{question.text}</Heading>
+      <Heading eyebrow={question.turn > 0 ? t.turn(question.turn, question.max_turns) : undefined}>{question.text}</Heading>
 
       {question.groups.map((group) => {
         const options = group.options.map((option, i) => ({ option, i }));
@@ -90,11 +94,10 @@ export function AskScreen({
             {option.label}
           </Chip>
         );
+        const legend = groupLabel(labels.groups, group.key);
         return (
           <fieldset key={group.key} className="mb-5">
-            {GROUP_LABELS[group.key] && (
-              <legend className="mb-2 text-caption font-bold text-ink-muted">{GROUP_LABELS[group.key]}</legend>
-            )}
+            {legend && <legend className="mb-2 text-caption font-bold text-ink-muted">{legend}</legend>}
             <div className={isShortGroup(group.options) ? "flex flex-wrap gap-2" : "flex flex-col gap-2"}>{main.map(chip)}</div>
             {unknown.length > 0 && <div className="mt-4 flex flex-col gap-2">{unknown.map(chip)}</div>}
           </fieldset>
@@ -118,7 +121,7 @@ export function AskScreen({
       )}
       {textWins && (
         <p role="status" className="mt-2 text-caption text-ink-muted break-keep">
-          직접 쓴 글로 답할게요. 고른 보기는 보내지 않아요.
+          {t.textWins}
         </p>
       )}
     </Screen>

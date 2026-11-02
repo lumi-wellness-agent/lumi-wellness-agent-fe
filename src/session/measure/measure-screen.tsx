@@ -12,14 +12,10 @@
  */
 
 import { useState } from "react";
+import { useMessages } from "@/i18n/use-locale";
 import type { Instrument, InstrumentItem, MeasureAnswers, MeasurePayload } from "@/lib/api/types";
 import { Button, Card, Heading, Screen } from "@/ui/controls";
-
-const TITLES: Record<MeasurePayload["measure"], string> = {
-  PRE: "시작하기 전에 지금 상태를 알려 주세요",
-  POST: "활동을 마친 지금은 어떤가요?",
-  FINAL: "마치기 전에 한 번 더 알려 주세요",
-};
+import { MEASURE } from "./messages";
 
 export function MeasureScreen({
   payload,
@@ -31,6 +27,7 @@ export function MeasureScreen({
   onSubmit: (answers: MeasureAnswers) => void;
 }) {
   const [answers, setAnswers] = useState<MeasureAnswers>({});
+  const t = useMessages(MEASURE);
   const total = payload.instruments.reduce((n, i) => n + i.items.length, 0);
   const answered = payload.instruments.reduce(
     (n, i) => n + i.items.filter((item) => answers[i.instrument_id]?.[item.id] !== undefined).length,
@@ -43,12 +40,12 @@ export function MeasureScreen({
     <Screen
       footer={
         <Button onClick={() => onSubmit(answers)} disabled={busy || answered < total}>
-          다음 ({answered}/{total})
+          {t.next(answered, total)}
         </Button>
       }
     >
-      <Heading eyebrow={payload.measure === "POST" ? `${payload.round}번째 활동 뒤` : undefined}>
-        {TITLES[payload.measure]}
+      <Heading eyebrow={payload.measure === "POST" ? t.afterRound(payload.round) : undefined}>
+        {t.titles[payload.measure]}
       </Heading>
       <div className="flex flex-col gap-4">
         {payload.instruments.map((instrument) => (
@@ -89,7 +86,8 @@ function ItemInput({
 }) {
   const { min, max, step, kind } = instrument.scale;
   const points = Array.from({ length: Math.round((max - min) / step) + 1 }, (_, i) => min + i * step);
-  const label = item.text ?? `문항 ${item.id} — 원문 준비 중`;
+  const t = useMessages(MEASURE);
+  const label = item.text ?? t.pendingItem(item.id);
 
   return (
     <div role="group" aria-label={label}>
@@ -154,6 +152,7 @@ function Slider({
 }) {
   const middle = min + Math.round((max - min) / step / 2) * step;
   const take = (target: HTMLInputElement) => onChange(Number(target.value));
+  const notChosen = useMessages(MEASURE).notChosen;
   return (
     <div className="flex items-center gap-3">
       <input
@@ -166,7 +165,7 @@ function Slider({
         onChange={(e) => take(e.currentTarget)}
         onPointerUp={(e) => take(e.currentTarget)}
         onKeyUp={(e) => take(e.currentTarget)}
-        aria-valuetext={value === undefined ? "아직 고르지 않음" : String(value)}
+        aria-valuetext={value === undefined ? notChosen : String(value)}
         className={`h-12 w-full accent-primary ${value === undefined ? "opacity-50" : ""}`}
       />
       {showValue && (

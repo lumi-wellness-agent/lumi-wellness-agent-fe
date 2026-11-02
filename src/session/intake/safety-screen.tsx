@@ -3,35 +3,36 @@
  * (END payload의 reason이 SAFETY). 측정 · 활동으로 가지 않고 상담 창구를 안내한다. 담당 A(TEAM.md).
  */
 
+import { useMessages } from "@/i18n/use-locale";
 import { ButtonLink, Heading, Screen } from "@/ui/controls";
+import { INTAKE } from "./messages";
 
-/** 2026-10 기준 국내 상담 전화. 문구와 번호는 발표 전에 다시 확인한다. */
+/** 2026-10 기준 국내 상담 전화. 이름은 messages.ts에 있고, 영어 화면도 같은 국내 번호다. 문구와 번호는 발표 전에 다시 확인한다. */
 const HELP_LINES = [
-  { name: "자살예방 상담전화", number: "109", note: "24시간" },
-  { name: "정신건강 위기상담 전화", number: "1577-0199", note: "24시간" },
-  { name: "긴급 구조 · 구급", number: "119", note: "" },
-  { name: "경찰", number: "112", note: "" },
-];
+  { key: "suicide", number: "109", allDay: true },
+  { key: "crisis", number: "1577-0199", allDay: true },
+  { key: "emergency", number: "119", allDay: false },
+  { key: "police", number: "112", allDay: false },
+] as const;
 
 export function SafetyScreen() {
+  const t = useMessages(INTAKE).safety;
   return (
-    <Screen footer={<ButtonLink href="/">처음으로</ButtonLink>}>
-      <Heading>지금은 혼자 감당하지 않으셨으면 해요</Heading>
-      <p className="break-keep">
-        들려주신 이야기가 걱정돼요. 지금 마음을 함께 나눌 수 있는 곳에 연락해 주세요. LUMI는 위기 상황을 돕기 어려워
-        활동을 추천하지 않았어요.
-      </p>
-      <ul className="mt-5 flex flex-col gap-2">
+    <Screen footer={<ButtonLink href="/">{t.home}</ButtonLink>}>
+      <Heading>{t.title}</Heading>
+      <p className="break-keep">{t.body}</p>
+      {t.region && <p className="mt-5 text-caption font-bold text-ink-muted">{t.region}</p>}
+      <ul className={`${t.region ? "mt-2" : "mt-5"} flex flex-col gap-2`}>
         {HELP_LINES.map((line) => (
-          <li key={line.name}>
+          <li key={line.key}>
             <a
               href={`tel:${line.number.replace(/[^0-9]/g, "")}`}
-              className="flex min-h-12 items-center justify-between rounded-row border border-line-control bg-control px-4"
+              className="flex min-h-12 items-center justify-between gap-3 rounded-row border border-line-control bg-control px-4"
             >
-              <span>{line.name}</span>
-              <strong>
+              <span>{t.lines[line.key]}</span>
+              <strong className="shrink-0 whitespace-nowrap">
                 {line.number}
-                {line.note && <span className="ml-1 text-caption font-normal text-ink-muted">{line.note}</span>}
+                {line.allDay && <span className="ml-1 text-caption font-normal text-ink-muted">{t.allDay}</span>}
               </strong>
             </a>
           </li>

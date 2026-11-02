@@ -1,8 +1,6 @@
+import { useMessages } from "@/i18n/use-locale";
 import { keyDate, monthCells, monthStart } from "@/lib/days";
-
-const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"];
-const MONTH = new Intl.DateTimeFormat("ko-KR", { year: "numeric", month: "long" }); // 2026년 11월
-const DAY_NAME = new Intl.DateTimeFormat("ko-KR", { month: "long", day: "numeric", weekday: "long" }); // 11월 2일 월요일
+import { RECORDS } from "./messages";
 
 type CalendarProps = {
   month: number; // 보이는 달(days.ts의 monthIndex) — 기록을 달마다 받으므로 페이지가 정한다
@@ -22,9 +20,10 @@ type CalendarProps = {
  * 날짜 칸은 화면 폭 / 7 × 48px인데, 360px에서는 약 47px라 그리드를 양옆 여백으로 4px씩 넓혀(-mx-1) 48px을 맞춘다.
  */
 export function RecordCalendar({ month, first, last, onMonth, loading, counts, selected, today, onSelect }: CalendarProps) {
-  const title = MONTH.format(monthStart(month));
+  const t = useMessages(RECORDS).calendar;
+  const title = t.month(monthStart(month));
   return (
-    <section aria-label="기록 달력">
+    <section aria-label={t.label}>
       <div className="flex items-center justify-between">
         <div className="flex items-baseline gap-2">
           <h2 aria-live="polite" className="font-bold">
@@ -32,19 +31,19 @@ export function RecordCalendar({ month, first, last, onMonth, loading, counts, s
           </h2>
           {loading && (
             <span role="status" className="text-caption text-ink-muted">
-              불러오는 중
+              {t.loading}
             </span>
           )}
         </div>
         {/* 화살표가 아래 카드의 오른쪽 끝과 맞게 버튼을 바깥 여백으로 조금 민다 */}
         <div className="-mr-3 flex">
-          <MonthButton label="이전 달" path="m14.5 6-6 6 6 6" disabled={month <= first} onClick={() => onMonth(month - 1)} />
-          <MonthButton label="다음 달" path="m9.5 6 6 6-6 6" disabled={month >= last} onClick={() => onMonth(month + 1)} />
+          <MonthButton label={t.previous} path="m14.5 6-6 6 6 6" disabled={month <= first} onClick={() => onMonth(month - 1)} />
+          <MonthButton label={t.next} path="m9.5 6 6 6-6 6" disabled={month >= last} onClick={() => onMonth(month + 1)} />
         </div>
       </div>
       <div role="group" aria-label={title} className="-mx-1 mt-1 grid grid-cols-7 text-center">
-        {WEEKDAYS.map((name) => (
-          <span key={name} aria-hidden className="pb-1 text-caption text-ink-muted">
+        {t.weekdays.map((name, i) => (
+          <span key={i} aria-hidden className="pb-1 text-caption text-ink-muted">
             {name}
           </span>
         ))}
@@ -108,6 +107,7 @@ function DayButton({
   future: boolean;
   onSelect: (day: string) => void;
 }) {
+  const t = useMessages(RECORDS).calendar;
   const circle = selected ? "bg-primary font-bold text-on-primary" : today ? "border border-line-strong font-bold" : "";
   return (
     <button
@@ -115,7 +115,7 @@ function DayButton({
       disabled={future}
       aria-pressed={selected}
       aria-current={today ? "date" : undefined}
-      aria-label={`${DAY_NAME.format(keyDate(day))}${count > 0 ? `, 기록 ${count}개` : ""}`}
+      aria-label={t.day(keyDate(day), count)}
       onClick={() => onSelect(day)}
       className="flex min-h-12 flex-col items-center justify-center gap-0.5 disabled:opacity-40"
     >

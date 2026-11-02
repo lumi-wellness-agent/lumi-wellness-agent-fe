@@ -1,4 +1,6 @@
 import { useId } from "react";
+import { useMessages } from "@/i18n/use-locale";
+import { REST } from "./messages";
 import { clock } from "./spec";
 
 const SEGMENT_POINTS = [
@@ -44,6 +46,7 @@ function DigitalClock({ value }: { value: string }) {
 
 
 export function NatureTimer({ remaining, total, speaking }: { remaining: number; total: number; speaking: boolean }) {
+  const t = useMessages(REST);
   const gradient = useId();
   const circumference = 2 * Math.PI * 84;
   const progress = total > 0 ? Math.max(0, Math.min(1, remaining / total)) : 0;
@@ -69,7 +72,7 @@ export function NatureTimer({ remaining, total, speaking }: { remaining: number;
           </svg>
         )}
         <div className="relative flex h-48 w-48 items-center justify-center rounded-full border border-line bg-primary-soft shadow-card"
-          role="timer" aria-label={"남은 시간 " + clock(remaining)}>
+          role="timer" aria-label={t.remaining(clock(remaining))}>
           <svg aria-hidden="true" viewBox="0 0 192 192" className="pointer-events-none absolute inset-0 h-full w-full" fill="none">
             <defs>
               <linearGradient id={gradient} x1="0%" y1="0%" x2="100%" y2="100%">
@@ -90,7 +93,7 @@ export function NatureTimer({ remaining, total, speaking }: { remaining: number;
         </div>
       </div>
       <p className="px-4 text-center text-caption break-keep text-ink-muted">
-        화면을 계속 보지 않아도 괜찮아요. 주변의 자연을 편안하게 살펴보세요.
+        {t.lookAround}
       </p>
     </div>
   );
@@ -98,9 +101,10 @@ export function NatureTimer({ remaining, total, speaking }: { remaining: number;
 
 /** PR-22와 같은 크기·투명도의 영상 위 타이머. */
 export function VideoTimer({ remaining }: { remaining: number }) {
+  const t = useMessages(REST);
   const seconds = Math.max(0, Math.ceil(remaining));
   return (
-    <div role="timer" aria-label={"남은 시간 " + clock(seconds)}
+    <div role="timer" aria-label={t.remaining(clock(seconds))}
       className="pointer-events-none absolute top-3 right-3 flex h-16 w-16 items-center justify-center rounded-full border border-indicator/50 bg-page/80 opacity-70">
       <time className="absolute inline-flex scale-[0.45] items-center" dateTime={"PT" + seconds + "S"}>
         <span className="sr-only">{clock(seconds)}</span>

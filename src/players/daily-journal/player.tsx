@@ -1,8 +1,10 @@
 "use client";
 /* eslint-disable react-hooks/set-state-in-effect */
 import { useEffect, useRef, useState } from "react";
+import { useMessages } from "@/i18n/use-locale";
 import { Button, Card, Heading, Screen } from "@/ui/controls";
 import type { PlayerProps } from "../types";
+import { JOURNAL } from "./messages";
 
 type State = { status: "DAILY_OVERVIEW" | "DAY_ENTRY" | "DAY_COMPLETED" | "STOPPED"; entries: string[]; startedAt: string | null; elapsedSeconds: number; submittedAt: string | null };
 const KEY = "lumi.pr19.journal.v1";
@@ -10,6 +12,7 @@ const SAVED_TTL_MS = 3 * 60 * 60 * 1000; // 이보다 오래된 기록은 지난
 const EMPTY = ["", "", ""];
 
 export default function DailyJournalPlayer({ step, onFinish }: PlayerProps) {
+  const t = useMessages(JOURNAL);
   const [state, setState] = useState<State>({ status: "DAILY_OVERVIEW", entries: EMPTY, startedAt: null, elapsedSeconds: 0, submittedAt: null });
   const [now, setNow] = useState(() => Date.now());
   const leaving = useRef<number | null>(null);
@@ -26,10 +29,10 @@ export default function DailyJournalPlayer({ step, onFinish }: PlayerProps) {
   const submit = () => { if (validCount < 1) return; const submittedAt = new Date().toISOString(); setState((current) => ({ ...current, status: "DAY_COMPLETED", submittedAt })); window.setTimeout(() => { localStorage.removeItem(KEY); onFinish({ completed: true }); }, 0); };
   const stop = () => { localStorage.removeItem(KEY); setState((current) => ({ ...current, status: "STOPPED" })); onFinish({ completed: false, stoppedReason: "JOURNAL_STOPPED" }); };
 
-  return <Screen footer={<div className="flex gap-2"><Button variant="quiet" onClick={stop}>그만하기</Button><Button onClick={submit} disabled={validCount < 1 || state.status === "DAY_COMPLETED"}>제출하기</Button></div>}>
-    <Heading>오늘의 좋은 일 기록</Heading>
-    <p className="text-ink-muted">오늘 어떤 좋은 일이 있었나요? 그 일이 왜 좋았는지도 함께 적어 보세요.</p>
-    <Card className="mt-6"><h2 className="font-semibold">오늘의 기록</h2>{state.entries.map((value, index) => <textarea key={index} className="mt-3 min-h-28 w-full resize-y rounded-button border border-line bg-page p-3" value={value} maxLength={1000} placeholder={`${index + 1}번째 좋은 일`} onChange={(event) => updateEntry(index, event.target.value)} />)}<p className="mt-3 text-caption text-ink-muted">공백만 입력한 칸은 기록으로 인정하지 않습니다. {validCount}/3개 입력</p></Card>
-    <p className="mt-5 text-caption text-ink-muted">권장 시간은 약 {Math.round(step.minutes)}분이며, 완료 조건은 아닙니다.</p>
+  return <Screen footer={<div className="flex gap-2"><Button variant="quiet" onClick={stop}>{t.stop}</Button><Button onClick={submit} disabled={validCount < 1 || state.status === "DAY_COMPLETED"}>{t.submit}</Button></div>}>
+    <Heading>{t.title}</Heading>
+    <p className="text-ink-muted">{t.intro}</p>
+    <Card className="mt-6"><h2 className="font-semibold">{t.entries}</h2>{state.entries.map((value, index) => <textarea key={index} className="mt-3 min-h-28 w-full resize-y rounded-button border border-line bg-page p-3" value={value} maxLength={1000} placeholder={t.placeholder(index + 1)} onChange={(event) => updateEntry(index, event.target.value)} />)}<p className="mt-3 text-caption text-ink-muted">{t.count(validCount)}</p></Card>
+    <p className="mt-5 text-caption text-ink-muted">{t.recommended(Math.round(step.minutes))}</p>
   </Screen>;
 }

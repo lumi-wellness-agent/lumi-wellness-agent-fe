@@ -7,11 +7,14 @@
  */
 
 import { useEffect, useState } from "react";
+import { useMessages } from "@/i18n/use-locale";
 import { Button } from "@/ui/controls";
 import { PLAYERS, playerKeyFor } from "./catalog";
+import { PLAYER } from "./messages";
 import type { PlayerProps } from "./types";
 
 export function Placeholder({ content, step, onFinish }: PlayerProps) {
+  const t = useMessages(PLAYER).placeholder;
   const [seconds, setSeconds] = useState(0);
   useEffect(() => {
     const timer = setInterval(() => setSeconds((s) => s + 1), 1000);
@@ -23,15 +26,13 @@ export function Placeholder({ content, step, onFinish }: PlayerProps) {
     <div className="mx-auto flex w-full max-w-[480px] flex-1 flex-col px-4 py-6">
       <p className="text-caption font-bold text-ink-muted">{step.label}</p>
       <p className="mt-2 font-display text-title tabular-nums">{clock}</p>
-      <p className="text-caption text-ink-muted">약 {step.minutes}분</p>
+      <p className="text-caption text-ink-muted">{t.minutes(step.minutes)}</p>
       {content.guide_text && <p className="mt-6 break-keep">{content.guide_text}</p>}
-      <p className="mt-4 text-caption break-keep text-ink-muted">
-        이 활동 화면은 준비 중이에요. 안내에 따라 진행한 뒤 &lsquo;다 했어요&rsquo;를 눌러 주세요.
-      </p>
+      <p className="mt-4 text-caption break-keep text-ink-muted">{t.notReady}</p>
       {process.env.NODE_ENV !== "production" && <DevNotes {...{ content }} />}
       <div className="mt-auto pt-6 pb-[env(safe-area-inset-bottom)]">
         <Button className="w-full" onClick={() => onFinish({ completed: true })}>
-          다 했어요
+          {t.done}
         </Button>
       </div>
     </div>

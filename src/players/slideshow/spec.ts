@@ -7,6 +7,7 @@
 
 import type { ActivityAsset, ActivityContent, ContentSlot } from "@/lib/api/types";
 import { assetUrl } from "@/lib/api/client";
+import type { SlideshowText } from "./messages";
 
 export function findSlot(content: ActivityContent, ...names: string[]): ContentSlot | undefined {
   return content.content_spec.slots?.find((s) => names.includes(s.slot));
@@ -58,60 +59,52 @@ export type Slide = {
   reason?: string;
 };
 
-/** BE 자산 metadata.preferred_scenery(app/content/resolver.SCENERY_QUERIES의 키) → 화면 문구. */
-const SCENERY_NAMES: Record<string, string> = {
-  forest: "숲",
-  "lake river": "호수·강",
-  sea: "바다",
-  mountain: "산",
-  flowers: "꽃",
-  sky: "하늘",
-};
-
-/** LLM이 고른 Factor의 화면 이름 — 사진 · 영상은 풍경, PR-20은 작품. */
-const FACTOR_NOUNS: Record<string, string> = { scenery: "풍경", art_subject: "작품" };
-
-function reasonOf(asset: ActivityAsset): string | undefined {
+/**
+ * 고른 이유 — 사용자 칩 풍경(metadata.preferred_scenery) > 선호 색 사진(BE mix_color_photos — 4장에 1장꼴) > LLM이 고른
+ * Factor. 문장은 지금 언어의 SLIDESHOW가 값(키)으로 만든다(messages.ts).
+ */
+function reasonOf(asset: ActivityAsset, t: SlideshowText): string | undefined {
   const scenery = str(asset.metadata.preferred_scenery);
-  const name = scenery ? SCENERY_NAMES[scenery] : undefined;
-  if (name) return `좋아하는 ${name} 풍경으로 골랐어요`;
-  // 선호 색 사진(BE mix_color_photos — 4장에 1장꼴)
+  const liked = scenery ? t.likedScenery(scenery) : undefined;
+  if (liked) return liked;
   const color = asset.metadata.preferred_color;
-  const colorName = color && typeof color === "object" ? str((color as Record<string, unknown>).label_ko) : undefined;
-  if (colorName) return `좋아하는 ${colorName} 색감으로 골랐어요`;
+  if (color && typeof color === "object") {
+    const tag = color as Record<string, unknown>;
+    const likedColor = t.likedColor(str(tag.value) ?? "", str(tag.label_ko));
+    if (likedColor) return likedColor;
+  }
   // 사용자가 좋아한다고 한 것이 아니므로 "좋아하는"을 쓰지 않는다
   const factor = factorOf(asset);
-  const noun = factor?.source === "LLM" ? FACTOR_NOUNS[factor.axis] : undefined;
-  return factor && noun ? `LUMI가 고른 ${factor.label} ${noun}이에요` : undefined;
+  return factor?.source === "LLM" ? t.picked(factor.axis, factor.value, factor.label) : undefined;
 }
 
-export function slidesFrom(content: ActivityContent, ...slots: string[]): Slide[] {
+export function slidesFrom(content: ActivityContent, t: SlideshowText, ...slots: string[]): Slide[] {
   const fromAssets = assetsOf(content, ...slots).map((a) => ({
     url: assetUrl(a.url),
-    alt: a.title ?? "자연 풍경 사진",
-    credit: creditOf(a),
+    alt: a.title ?? t.photoAlt,
+    credit: creditOf(a, t),
     sourceUrl: a.source_url ?? undefined,
-    reason: reasonOf(a),
+    reason: reasonOf(a, t),
   }));
   if (fromAssets.length) return fromAssets;
   // 옛 응답 호환 — 자산 대신 주소만 온 경우
-  return content.image_urls.map((url) => ({ url: assetUrl(url), alt: "자연 풍경 사진" }));
+  return content.image_urls.map((url) => ({ url: assetUrl(url), alt: t.photoAlt }));
 }
 
 /**
  * 사진 아래 오른쪽 출처. 사진은 작가 · 공급자다. 작품(PR-20)은 작가를 작품 정보에 따로 보이므로 소장처만 둔다 —
  * 고른 이유와 한 줄에 들어가야 해서 이용 조건(공개 도메인)은 쓰지 않는다(사진도 Pixabay 이용 조건은 쓰지 않는다).
  */
-function creditOf(asset: ActivityAsset): string | undefined {
-  const parts = asset.slot === "ARTWORK" ? [providerName(asset.provider)] : [asset.creator, providerName(asset.provider)];
+function creditOf(asset: ActivityAsset, t: SlideshowText): string | undefined {
+  const parts = asset.slot === "ARTWORK" ? [providerName(asset.provider, t)] : [asset.creator, providerName(asset.provider, t)];
   return parts.filter(Boolean).join(" · ") || undefined;
 }
 
-function providerName(provider: string): string | undefined {
+function providerName(provider: string, t: SlideshowText): string | undefined {
   const names: Record<string, string> = {
     PIXABAY: "Pixabay",
     ART_INSTITUTE_OF_CHICAGO: "Art Institute of Chicago",
-    AI_HORDE: "AI 생성 이미지",
+    AI_HORDE: t.aiImage,
   };
   return names[provider] ?? undefined;
 }

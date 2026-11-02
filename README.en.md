@@ -3,8 +3,8 @@
 [한국어](README.md) · **English**
 
 > **This file is a translation.** [README.md](README.md) (Korean) is the source of truth; where the two
-> disagree, the Korean one is right. The screens can be switched to English (see “Screen language”), but the
-> activity players and everything the backend sends — questions, measures, activity guidance — are still Korean.
+> disagree, the Korean one is right. The screens can be switched to English (see “Screen language”), but
+> everything the backend sends — questions, measures, activity names and guidance — is still Korean.
 > Korean strings that are real values in the app (screen copy, voice names) are kept as they are, with an English
 > gloss next to them. Linked documents marked (Korean) have no English version
 > yet.
@@ -177,7 +177,7 @@ Korean and the page re-renders in the chosen language once it hydrates (`src/i18
   side by side (`defineMessages`). Korean defines the shape, so a missing or extra English key fails
   `npm run typecheck`. Don't hard-code copy in components.
 - Only copy the FE owns changes. What the BE sends — questions · measure items · activity names · scripts · rationales ·
-  Reference card sentences — is still Korean, and so are the activity players (`src/players/`).
+  Reference card sentences — is still Korean. Activity player copy lives in each player folder's `messages.ts`.
 - Values sent to the BE (option values such as the stop reason '지금은 어려워요', "not right now") stay the same
   whatever the screen language.
 - Errors: the Korean screen shows the received message as is; the English screen picks a sentence by error code

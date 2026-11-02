@@ -1,8 +1,10 @@
 "use client";
 /* eslint-disable react-hooks/set-state-in-effect */
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useMessages } from "@/i18n/use-locale";
 import { Button, Card, Heading, Screen } from "@/ui/controls";
 import type { PlayerProps } from "../types";
+import { WRITING } from "./messages";
 
 type Status = "READY" | "WRITING" | "PAUSED" | "COMPLETED" | "STOPPED";
 type Draft = { status: Status; text: string; elapsedSeconds: number; startedAt: string | null; activityCompleted: boolean; refreshCount: number };
@@ -14,6 +16,7 @@ const MAXIMUM = 5000;
 function normalizedLength(text: string) { return text.replace(/\s+/g, " ").trim().length; }
 
 export default function WritingPlayer({ step, onFinish }: PlayerProps) {
+  const t = useMessages(WRITING);
   const [draft, setDraft] = useState<Draft>({ status: "READY", text: "", elapsedSeconds: 0, startedAt: null, activityCompleted: false, refreshCount: 0 });
   const [now, setNow] = useState(() => Date.now());
   const [restored, setRestored] = useState(false);
@@ -71,11 +74,11 @@ export default function WritingPlayer({ step, onFinish }: PlayerProps) {
 
   const stop = () => { localStorage.removeItem(KEY); setDraft((current) => ({ ...current, status: "STOPPED" })); onFinish({ completed: false, stoppedReason: "WRITING_STOPPED" }); };
 
-  return <Screen footer={<div className="flex gap-2"><Button variant="quiet" onClick={stop}>그만하기</Button><Button onClick={complete} disabled={!canComplete}>완료</Button></div>}>
-    <Heading>강렬한 긍정 경험 글쓰기</Heading>
-    <p className="text-ink-muted">살면서 가장 멋졌던 경험이나 가장 행복했던 순간을 하나 골라 보세요. 그 순간의 느낌과 생각, 감정을 떠올리며 경험을 되도록 자세히 적어 보세요.</p>
-    {restored && <p className="mt-4 text-caption text-ink-muted">이전에 작성하던 내용을 복구했습니다. 글을 다시 입력하면 활동을 이어갑니다.</p>}
-    <Card className="mt-6"><label htmlFor="writing-text" className="font-semibold">경험 기록</label><textarea id="writing-text" className="mt-3 min-h-64 w-full resize-y rounded-button border border-line bg-page p-3" value={draft.text} maxLength={MAXIMUM} onChange={(event) => updateText(event.target.value)} placeholder="그때 들었던 느낌과 생각, 감정을 담아 자세히 적어 보세요." /><div className="mt-2 flex justify-between text-caption text-ink-muted"><span>현재 {length}자</span><span>최대 {MAXIMUM}자</span></div><p className="mt-2 text-caption text-ink-muted">{length >= MINIMUM ? "최소 300자 충족 · 완료할 수 있어요." : "최소 300자 이상 작성하면 완료할 수 있어요."}</p></Card>
-    <p className="mt-5 text-caption text-ink-muted">권장 시간은 약 {Math.round(step.minutes)}분이며, 시간은 완료 조건이 아닙니다.</p>
+  return <Screen footer={<div className="flex gap-2"><Button variant="quiet" onClick={stop}>{t.stop}</Button><Button onClick={complete} disabled={!canComplete}>{t.done}</Button></div>}>
+    <Heading>{t.title}</Heading>
+    <p className="text-ink-muted">{t.intro}</p>
+    {restored && <p className="mt-4 text-caption text-ink-muted">{t.restored}</p>}
+    <Card className="mt-6"><label htmlFor="writing-text" className="font-semibold">{t.label}</label><textarea id="writing-text" className="mt-3 min-h-64 w-full resize-y rounded-button border border-line bg-page p-3" value={draft.text} maxLength={MAXIMUM} onChange={(event) => updateText(event.target.value)} placeholder={t.placeholder} /><div className="mt-2 flex justify-between text-caption text-ink-muted"><span>{t.length(length)}</span><span>{t.maximum(MAXIMUM)}</span></div><p className="mt-2 text-caption text-ink-muted">{length >= MINIMUM ? t.minimumMet(MINIMUM) : t.minimumNeeded(MINIMUM)}</p></Card>
+    <p className="mt-5 text-caption text-ink-muted">{t.recommended(Math.round(step.minutes))}</p>
   </Screen>;
 }

@@ -6,12 +6,14 @@
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useMessages } from "@/i18n/use-locale";
 import { assetUrl } from "@/lib/api/client";
 import { canSpeak, cancelSpeech, speakScript } from "@/lib/speech";
 import { playTone } from "@/lib/tone";
 import { useBrowserValue } from "@/lib/use-browser-value";
 import { Button } from "@/ui/controls";
 import { normalizeCues } from "./schedule";
+import { GUIDED_TIMER } from "./messages";
 import { PhotoStage } from "./photo-stage";
 import type { ContentSlot } from "@/lib/api/types";
 import type { ActivityResult, PlayerProps } from "../types";
@@ -78,6 +80,7 @@ function DigitalClock({ value }: { value: string }) {
 }
 
 export default function GuidedTimerPlayer({ content, step, onFinish }: PlayerProps) {
+  const t = useMessages(GUIDED_TIMER);
   const [remaining, setRemaining] = useState(0);
   const [started, setStarted] = useState(false);
   const [preparing, setPreparing] = useState(false);
@@ -259,7 +262,7 @@ export default function GuidedTimerPlayer({ content, step, onFinish }: PlayerPro
         <PhotoStage urls={visualUrls} index={visualIndex} transitionMs={visualTransitionMs}>
           <div
             role="timer"
-            aria-label={"남은 시간 " + formatTime(timerLabel)}
+            aria-label={t.remaining(formatTime(timerLabel))}
             className="absolute top-3 right-3 flex h-16 w-16 items-center justify-center rounded-full border border-indicator/50 bg-page/80 opacity-70"
           >
             <time className="absolute inline-flex scale-[0.45] items-center" dateTime={"PT" + timerLabel + "S"}>
@@ -308,7 +311,7 @@ export default function GuidedTimerPlayer({ content, step, onFinish }: PlayerPro
           <div
             className="relative flex h-48 w-48 items-center justify-center rounded-full border border-line bg-primary-soft shadow-card"
             role="timer"
-            aria-label={"남은 시간 " + formatTime(timerLabel)}
+            aria-label={t.remaining(formatTime(timerLabel))}
           >
             <svg
               aria-hidden="true"
@@ -356,26 +359,18 @@ export default function GuidedTimerPlayer({ content, step, onFinish }: PlayerPro
         </p>
       )}
       <p aria-live="polite" className="mt-4 text-caption text-ink-muted">
-        {preparing
-          ? "안내를 준비하고 있어요."
-          : speaking
-            ? "안내 음성을 재생하고 있어요."
-            : started
-              ? "편안한 속도로 이어가세요. 불편하면 언제든 멈출 수 있어요."
-              : "준비되면 시작을 눌러 주세요."}
+        {preparing ? t.preparing : speaking ? t.speaking : started ? t.started : t.ready}
       </p>
       {!speechAvailable && ttsAllowed && (
-        <p className="mt-2 text-caption text-ink-muted">
-          이 브라우저에서 안내 음성을 재생할 수 없어 화면 안내만 표시합니다.
-        </p>
+        <p className="mt-2 text-caption text-ink-muted">{t.noSpeech}</p>
       )}
       <div className="mt-auto w-full pt-8 pb-[env(safe-area-inset-bottom)]">
         {!started ? (
           <Button className="w-full" disabled={preparing} onClick={() => void start()}>
-            {preparing ? "준비 중" : "시작"}
+            {preparing ? t.preparingButton : t.start}
           </Button>
         ) : (
-          <p className="text-caption text-ink-muted">활동이 끝나면 다음 단계로 이동합니다.</p>
+          <p className="text-caption text-ink-muted">{t.afterEnd}</p>
         )}
       </div>
     </main>

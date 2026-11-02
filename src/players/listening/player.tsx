@@ -18,6 +18,7 @@
  */
 
 import { useEffect, useRef, useState, type RefObject } from "react";
+import { useMessages } from "@/i18n/use-locale";
 import type { ActivityAsset } from "@/lib/api/types";
 import { assetUrl } from "@/lib/api/client";
 import { Button, Spinner } from "@/ui/controls";
@@ -25,6 +26,7 @@ import { assetsOf, factorOf, findSlot, num, renderOf, str } from "../slideshow/s
 import { formatClock, useActivityTimer } from "../slideshow/use-activity-timer";
 import type { PlayerProps } from "../types";
 import { DEFAULT_VOLUME, MAX_VOLUME, canSetVolume, creditOf, durationOf, fadeVolume } from "./media";
+import { LISTENING } from "./messages";
 
 export default function ListeningPlayer({ content, step, onFinish }: PlayerProps) {
   const music = assetsOf(content, "MUSIC");
@@ -49,14 +51,15 @@ export default function ListeningPlayer({ content, step, onFinish }: PlayerProps
 
 /** PR-05 — 검수된 음악 후보에서 한 곡을 고른다. */
 function MusicChoice({ tracks, onPick }: { tracks: ActivityAsset[]; onPick: (track: ActivityAsset) => void }) {
+  const t = useMessages(LISTENING);
   return (
     <div className="mx-auto flex w-full max-w-[480px] flex-1 flex-col px-4 py-4">
-      <h2 className="font-display text-title break-keep">들을 곡을 하나 골라 주세요</h2>
-      <p className="mt-1 text-caption break-keep text-ink-muted">모두 10분 길이로 맞춘 곡이에요. 듣다가 불편하면 언제든 멈출 수 있어요.</p>
+      <h2 className="font-display text-title break-keep">{t.pickTitle}</h2>
+      <p className="mt-1 text-caption break-keep text-ink-muted">{t.pickHint}</p>
       <ul className="mt-4 flex flex-col gap-2">
         {tracks.map((track) => {
           const year = track.metadata.recording_year;
-          const sub = [str(track.metadata.composer), typeof year === "number" ? `${year}년 녹음` : null].filter(Boolean).join(" · ");
+          const sub = [str(track.metadata.composer), typeof year === "number" ? t.recorded(year) : null].filter(Boolean).join(" · ");
           const recommended = track.metadata.recommended === true;
           const why = recommended ? factorOf(track)?.reason : undefined;
           return (
@@ -70,7 +73,7 @@ function MusicChoice({ tracks, onPick }: { tracks: ActivityAsset[]; onPick: (tra
               >
                 {recommended && (
                   <span className="mb-1 rounded-chip bg-primary-soft px-2 py-0.5 text-caption font-bold text-on-primary-soft">
-                    LUMI 추천
+                    {t.recommended}
                   </span>
                 )}
                 <span className="text-body break-keep text-ink">{track.title}</span>
@@ -95,6 +98,7 @@ type ListeningProps = {
 };
 
 function Listening({ sound, video, totalSeconds, fadeIn, fadeOut, onFinish }: ListeningProps) {
+  const t = useMessages(LISTENING);
   const audioRef = useRef<HTMLAudioElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [started, setStarted] = useState(false);
@@ -102,7 +106,7 @@ function Listening({ sound, video, totalSeconds, fadeIn, fadeOut, onFinish }: Li
   const [soundOn, setSoundOn] = useState(!sound);
   const [videoOn, setVideoOn] = useState(!video);
   const [volume, setVolume] = useState(DEFAULT_VOLUME);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<"playFailed" | "loadFailed" | null>(null); // 문장은 그릴 때 지금 언어로 고른다
   const soundLoops = (sound ? (durationOf(sound) ?? Infinity) : Infinity) < totalSeconds;
 
   // 누른 순간에 바로 play()를 불러야 iOS가 소리를 열어 준다 — 상태를 바꾸기 전에 부른다
@@ -113,7 +117,7 @@ function Listening({ sound, video, totalSeconds, fadeIn, fadeOut, onFinish }: Li
       audio.play().then(
         () => fadeVolume(audio, volume, fadeIn),
         // 불러오기 실패(onError)가 먼저 왔으면 그 안내를 남긴다 — 더 정확하다
-        () => setError((prev) => prev ?? "소리를 재생하지 못했어요. 기기 소리가 켜져 있는지 확인해 주세요."),
+        () => setError((prev) => prev ?? "playFailed"),
       );
     }
     void videoRef.current?.play().catch(() => {});
@@ -133,14 +137,14 @@ function Listening({ sound, video, totalSeconds, fadeIn, fadeOut, onFinish }: Li
             preload="auto"
             onPlaying={() => setVideoOn(true)}
             onError={() => setVideoOn(true)}
-            aria-label={video.title ?? "자연 영상"}
+            aria-label={video.title ?? t.videoAlt}
             className="absolute inset-0 h-full w-full object-cover"
           />
         ) : (
           <div className="bg-progress absolute inset-0 flex flex-col items-center justify-center gap-2 p-6 text-center">
             {/* 자연음 제목은 Freesound 파일 이름이라 화면에는 쓰지 않고 출처에만 둔다 */}
-            <p className="font-display text-title break-keep text-ink">{sound?.slot === "MUSIC" ? sound.title : "자연의 소리"}</p>
-            <p className="text-caption break-keep text-ink-muted">눈을 감고 들어도 좋아요</p>
+            <p className="font-display text-title break-keep text-ink">{sound?.slot === "MUSIC" ? sound.title : t.natureSound}</p>
+            <p className="text-caption break-keep text-ink-muted">{t.eyesClosed}</p>
           </div>
         )}
       </div>
@@ -155,14 +159,14 @@ function Listening({ sound, video, totalSeconds, fadeIn, fadeOut, onFinish }: Li
           onPlaying={() => setSoundOn(true)}
           onError={() => {
             setSoundOn(true);
-            setError("소리를 불러오지 못했어요. 화면을 바라보며 쉬거나, '그만하기'로 다른 활동을 고를 수 있어요.");
+            setError("loadFailed");
           }}
         />
       )}
-      {!sound && <p className="mt-3 text-caption break-keep text-ink-muted">준비된 소리가 없어요. 화면을 바라보며 천천히 쉬어 가세요.</p>}
+      {!sound && <p className="mt-3 text-caption break-keep text-ink-muted">{t.noSound}</p>}
       {error && (
         <p role="alert" className="mt-3 text-caption break-keep text-ink">
-          {error}
+          {t[error]}
         </p>
       )}
 
@@ -176,12 +180,12 @@ function Listening({ sound, video, totalSeconds, fadeIn, fadeOut, onFinish }: Li
           fadeOut={fadeOut}
           onFinish={onFinish}
           waiting={!soundOn || !videoOn}
-          loadingText={!videoOn ? "영상을 불러오고 있어요" : sound?.slot === "MUSIC" ? "음악을 불러오고 있어요" : "소리를 불러오고 있어요"}
+          loadingText={!videoOn ? t.loadingVideo : sound?.slot === "MUSIC" ? t.loadingMusic : t.loadingSound}
         />
       ) : (
         <div className="mt-auto flex flex-col gap-2 pt-4 pb-[env(safe-area-inset-bottom)]">
-          <p className="text-caption break-keep text-ink-muted">약 {Math.round(totalSeconds / 60)}분 · 소리를 편안한 크기로 맞춰 주세요</p>
-          <Button onClick={start}>재생하기</Button>
+          <p className="text-caption break-keep text-ink-muted">{t.ready(Math.round(totalSeconds / 60))}</p>
+          <Button onClick={start}>{t.play}</Button>
         </div>
       )}
     </div>
@@ -204,7 +208,8 @@ type RunningProps = {
 const MEDIA_WAIT_MS = 15_000; // 이만큼 지나도 소리 · 영상이 나오지 않으면 시간부터 센다 — 활동이 멈춰 있지 않게
 
 /** 재생 중 — 시간 · 멈춤 · 음량. 끝나면 소리를 줄이고 멈춘다. 이미지 + 명상(PR-21)도 쓴다. */
-export function Running({ audioRef, videoRef, totalSeconds, volume, setVolume, fadeOut, onFinish, waiting = false, loadingText = "소리를 불러오고 있어요" }: RunningProps) {
+export function Running({ audioRef, videoRef, totalSeconds, volume, setVolume, fadeOut, onFinish, waiting = false, loadingText }: RunningProps) {
+  const t = useMessages(LISTENING);
   const [adjustable] = useState(canSetVolume);
   const [gaveUp, setGaveUp] = useState(false);
   useEffect(() => {
@@ -251,12 +256,12 @@ export function Running({ audioRef, videoRef, totalSeconds, volume, setVolume, f
       {holding && (
         <div role="status" className="mb-3 flex items-center gap-3">
           <Spinner />
-          <p className="break-keep text-ink-muted">{loadingText}</p>
+          <p className="break-keep text-ink-muted">{loadingText ?? t.loadingSound}</p>
         </div>
       )}
       <div
         role="progressbar"
-        aria-label="남은 시간"
+        aria-label={t.remainingLabel}
         aria-valuemin={0}
         aria-valuemax={totalSeconds}
         aria-valuenow={timer.elapsed}
@@ -264,11 +269,11 @@ export function Running({ audioRef, videoRef, totalSeconds, volume, setVolume, f
       >
         <div className="h-full rounded-full bg-primary transition-[width] duration-1000 ease-linear" style={{ width: `${timer.progress * 100}%` }} />
       </div>
-      <p className="mt-2 text-caption text-ink-muted tabular-nums">{timer.done ? "다 들었어요" : `남은 시간 ${formatClock(timer.remaining)}`}</p>
+      <p className="mt-2 text-caption text-ink-muted tabular-nums">{timer.done ? t.done : t.remaining(formatClock(timer.remaining))}</p>
 
       {!timer.done && (
         <label className="mt-3 flex min-h-12 items-center gap-3">
-          <span className="shrink-0 text-caption font-bold text-ink-muted">음량</span>
+          <span className="shrink-0 text-caption font-bold text-ink-muted">{t.volume}</span>
           {adjustable ? (
             <input
               type="range"
@@ -280,17 +285,17 @@ export function Running({ audioRef, videoRef, totalSeconds, volume, setVolume, f
               className="h-12 w-full accent-primary"
             />
           ) : (
-            <span className="text-caption break-keep text-ink-muted">기기 옆 음량 버튼으로 맞춰 주세요</span>
+            <span className="text-caption break-keep text-ink-muted">{t.deviceVolume}</span>
           )}
         </label>
       )}
 
       <div className="mt-auto flex flex-col gap-2 pt-4 pb-[env(safe-area-inset-bottom)]">
         {timer.done ? (
-          <Button onClick={onFinish}>다음으로</Button>
+          <Button onClick={onFinish}>{t.next}</Button>
         ) : (
           <Button variant="secondary" onClick={timer.togglePause}>
-            {timer.paused ? "이어서 듣기" : "잠깐 멈추기"}
+            {timer.paused ? t.resume : t.pause}
           </Button>
         )}
       </div>
@@ -303,13 +308,14 @@ export function Running({ audioRef, videoRef, totalSeconds, volume, setVolume, f
  * CC BY 계열은 표기가 조건이라 사진 출처처럼 말줄임하지 않고 줄바꿈한다.
  */
 export function Credits({ assets }: { assets: ActivityAsset[] }) {
+  const t = useMessages(LISTENING);
   const credits = assets.flatMap((asset) => {
-    const credit = creditOf(asset);
+    const credit = creditOf(asset, t.curated);
     return credit ? [{ key: asset.url, ...credit }] : [];
   });
   if (!credits.length) return null;
   return (
-    <ul aria-label="출처" className="mt-2 flex flex-col gap-0.5 text-right text-fine wrap-break-word text-ink-muted">
+    <ul aria-label={t.sources} className="mt-2 flex flex-col gap-0.5 text-right text-fine wrap-break-word text-ink-muted">
       {credits.map((credit) => (
         <li key={credit.key}>
           {credit.href ? (

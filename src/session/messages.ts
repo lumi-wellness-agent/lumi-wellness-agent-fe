@@ -7,6 +7,8 @@ import { defineMessages } from "@/i18n/locale";
 
 export const SESSION = defineMessages({
   ko: {
+    /** 브라우저 탭 제목 — 서버는 page.tsx의 metadata(한국어)로 그리고, 화면이 붙으면 지금 언어로 바꾼다. */
+    pageTitle: "세션 · LUMI",
     disclaimer: "LUMI는 의료적 진단이나 치료를 대신하지 않습니다.",
     home: "처음으로",
     tryAgain: "다시 시도",
@@ -71,6 +73,7 @@ export const SESSION = defineMessages({
     },
   },
   en: {
+    pageTitle: "Session · LUMI",
     disclaimer: "LUMI does not replace medical diagnosis or treatment.",
     home: "Back to start",
     tryAgain: "Try again",

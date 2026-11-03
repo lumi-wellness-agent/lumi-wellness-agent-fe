@@ -32,8 +32,13 @@ export function SessionFlow() {
   const session = useSession();
   const { view, busy, progress, error } = session.status;
   const labels = useMessages(LABELS);
+  const pageTitle = useMessages(SESSION).pageTitle;
   const progressText = progress ? progressLabel(labels, progress) : null;
   const entered = useRef(false);
+
+  useEffect(() => {
+    document.title = pageTitle; // metadata(page.tsx)는 한국어로 고정이라 화면 언어에 맞춘다
+  }, [pageTitle]);
 
   useEffect(() => {
     if (entered.current) return; // 개발 모드 StrictMode의 두 번째 실행

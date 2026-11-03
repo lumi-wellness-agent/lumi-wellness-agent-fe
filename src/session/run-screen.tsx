@@ -20,6 +20,7 @@ import { Button, Card, Chip, Heading, Screen } from "@/ui/controls";
 import { LABELS } from "./labels";
 import { SESSION } from "./messages";
 import { ReferenceCardView } from "./reference-card";
+import { withWalkMinutes } from "./walk-minutes";
 
 // 멈춘 이유는 BE가 그대로 읽어 다음 단계를 권한다(replan) — 화면 언어와 상관없이 같은 값을 보낸다
 const NOT_NOW = "지금은 어려워요";
@@ -72,16 +73,14 @@ export function RunScreen({
     const runtimeContent = isOutdoorWalk
       ? {
           ...content,
-          guide_text: content.guide_text?.replace(/약 50분/g, `약 ${selectedMinutes}분`),
+          guide_text: withWalkMinutes(content.guide_text, selectedMinutes),
           steps: content.steps.map((step) => (step.type === "ACTIVITY" ? { ...step, minutes: selectedMinutes } : step)),
         }
       : content;
     return <PlayerHost content={runtimeContent} onReport={handleReport} />;
   }
 
-  const displayGuideText = isOutdoorWalk
-    ? content.guide_text?.replace(/약\s*50분/g, `약 ${selectedMinutes}분`)
-    : content.guide_text;
+  const displayGuideText = isOutdoorWalk ? withWalkMinutes(content.guide_text, selectedMinutes) : content.guide_text;
 
   const start = () => {
     unlockSpeech();

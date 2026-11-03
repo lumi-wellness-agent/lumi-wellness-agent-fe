@@ -39,8 +39,9 @@ export function StartForm() {
   const begin = async () => {
     setBusy(true);
     setError(null);
-    // 예시 문장을 누른 뒤 언어를 바꿨으면 입력 칸처럼 지금 언어의 예시를 보낸다(intake/labels.localizedExample)
-    saveDraft({ ...request, text: localizedExample(request.text, locale).trim() });
+    // 예시 문장을 누른 뒤 언어를 바꿨으면 입력 칸처럼 지금 언어의 예시를 보낸다(intake/labels.localizedExample).
+    // 세션 언어는 지금 화면 언어다 — BE가 그 언어로 질문 · 대본 · 추천 이유를 보낸다
+    saveDraft({ ...request, text: localizedExample(request.text, locale).trim(), lang: locale });
     try {
       if (!mock) await ensureViewer();
       router.push("/session");

@@ -107,7 +107,8 @@ function LoginCard() {
  * 달력과 고른 날의 세션 카드. 처음에는 이번 달에서 오늘을 고른다. 달을 넘기면 그 달을 받아 점을 찍고, 고른 날은
  * 그대로 둔다(제목이 그날을 보인다). 카드는 그날 받은 순서(최근 것부터)다.
  * 받을 달 — 보이는 달과 고른 날의 달. 이번 달은 이 화면을 열 때 한 번 새로 받고, 지난 달은 받아 둔 것이 있으면
- * 다시 받지 않는다(지난 달 기록은 늘지 않는다). 받는 중에도 받아 둔 달은 바로 보인다.
+ * 다시 받지 않는다(지난 달 기록은 늘지 않는다). 받는 중에도 받아 둔 달은 바로 보인다. 활동 이름은 BE가 화면 언어로
+ * 붙여 주므로(?lang=) 받은 달은 언어마다 따로 둔다 — 다른 탭에서 언어를 바꾸면 그 언어로 다시 받는다.
  */
 function RecordsByMonth({ owner, onLoggedOut }: { owner: string; onLoggedOut: () => void }) {
   const [today] = useState(() => dayKey(new Date()));
@@ -115,22 +116,24 @@ function RecordsByMonth({ owner, onLoggedOut }: { owner: string; onLoggedOut: ()
   const [month, setMonth] = useState(thisMonth);
   const [selected, setSelected] = useState(today);
   const selectedMonth = monthIndex(keyDate(selected));
-  const [pages, setPages] = useState<ReadonlyMap<number, SessionHistoryPage>>(() => new Map());
+  const [pages, setPages] = useState<ReadonlyMap<string, SessionHistoryPage>>(() => new Map()); // 언어|달 → 기록
   const [failures, setFailures] = useState<ReadonlyMap<number, unknown>>(() => new Map()); // 달 → 오류(문장은 그릴 때 고른다)
   const locale = useLocale();
   const t = useMessages(RECORDS);
   const [attempt, setAttempt] = useState(0);
-  const asked = useRef(new Set<number>()); // 이 화면에서 받은(받는) 달 — 실패하면 빼서 다시 시도로 받는다
+  const asked = useRef(new Set<string>()); // 이 화면에서 받은(받는) 언어|달 — 실패하면 빼서 다시 시도로 받는다
+  const keyOf = useCallback((m: number) => `${locale}|${m}`, [locale]);
 
   useEffect(() => {
     for (const m of new Set([month, selectedMonth])) {
-      if (asked.current.has(m) || (m !== thisMonth && savedMonth(owner, m))) continue;
-      asked.current.add(m);
+      const key = keyOf(m);
+      if (asked.current.has(key) || (m !== thisMonth && savedMonth(owner, m, locale))) continue;
+      asked.current.add(key);
       // 결과는 화면을 떠난 뒤에 와도 버리지 않는다 — 받아 둔 달에도 남아 다음에 바로 보인다
-      loadMonth(owner, m).then(
-        (page) => setPages((old) => new Map(old).set(m, page)),
+      loadMonth(owner, m, locale).then(
+        (page) => setPages((old) => new Map(old).set(key, page)),
         (e: unknown) => {
-          asked.current.delete(m);
+          asked.current.delete(key);
           if (e instanceof ApiError && RELOGIN.includes(e.code)) {
             forgetRecords();
             onLoggedOut();
@@ -140,10 +143,10 @@ function RecordsByMonth({ owner, onLoggedOut }: { owner: string; onLoggedOut: ()
         },
       );
     }
-  }, [owner, month, selectedMonth, thisMonth, attempt, onLoggedOut]);
+  }, [owner, month, selectedMonth, thisMonth, attempt, onLoggedOut, locale, keyOf]);
 
   // 새로 받은 달이 먼저, 없으면 받아 둔 달(앱을 열 때 미리 받았거나 전에 이 탭을 열었다)
-  const pageOf = (m: number) => pages.get(m) ?? savedMonth(owner, m);
+  const pageOf = (m: number) => pages.get(keyOf(m)) ?? savedMonth(owner, m, locale);
   const visible = pageOf(month);
   const selectedPage = pageOf(selectedMonth);
   // 기간과 상관없는 값이라 받은 달 어디에서 읽어도 같다. undefined = 아직 모른다, null = 기록이 하나도 없다

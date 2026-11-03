@@ -9,6 +9,8 @@
  * 응답 견본은 src/fixtures에 있다(scripts/fixtures.py가 BE 코드로 만든다).
  */
 
+import type { Locale } from "@/i18n/locale";
+
 export type Goal = "S1" | "S2" | "S3";
 export type Setting = "HOME" | "OFFICE_CAFE" | "TRANSIT" | "OUTDOOR";
 
@@ -32,6 +34,8 @@ export type CareRequest = {
   earphones?: boolean | null;
   minutes_available?: number | null;
   profile?: UserProfile;
+  /** 세션 언어 — 시작할 때의 화면 언어. BE가 질문 · 측정 문항 · 대본 · 추천 이유를 이 언어로 보낸다. 빠지면 한국어 */
+  lang?: Locale;
 };
 
 // ── 응답 {session_id, step, node, payload} ───────────────────────────────────────────────
@@ -334,7 +338,8 @@ export type SessionHistoryPage = {
 };
 
 /** GET /me/sessions 쿼리. since · until은 시간대를 붙인 ISO 8601(Date.toISOString)이다. */
-export type SessionHistoryQuery = { limit?: number; since?: string; until?: string };
+/** lang은 활동 이름의 언어 — 그 세션의 언어가 아니라 지금 화면 언어로 받는다. */
+export type SessionHistoryQuery = { limit?: number; since?: string; until?: string; lang?: Locale };
 
 // ── 기록 동의 (GET · PUT /me/consent) ───────────────────────────────────────────────────
 

@@ -2,7 +2,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { PARAGRAPH_PAUSE_MS, SENTENCE_PAUSE_MS, rankKoreanVoices, speakScript, splitScript } from "./speech.ts";
+import { PARAGRAPH_PAUSE_MS, SENTENCE_PAUSE_MS, rankVoices, scriptLanguage, speakScript, splitScript } from "./speech.ts";
 
 const voice = (name, lang = "ko-KR") => ({ name, lang });
 const names = (voices) => voices.map((v) => v.name);
@@ -14,7 +14,7 @@ test("크롬에서는 Google 한국의를 고르고 기계음 계열과 다른 �
     voice("Samantha", "en-US"),
     voice("Google 한국의"),
   ];
-  assert.deepEqual(names(rankKoreanVoices(macChrome)), ["Google 한국의", "Yuna"]);
+  assert.deepEqual(names(rankVoices(macChrome, "ko")), ["Google 한국의", "Yuna"]);
 });
 
 test("Google 한국의가 없으면 엣지 신경망 음성, 그다음 Yuna 순이다", () => {
@@ -22,13 +22,38 @@ test("Google 한국의가 없으면 엣지 신경망 음성, 그다음 Yuna 순�
     voice("Microsoft Heami - Korean (Korean)"),
     voice("Microsoft SunHi Online (Natural) - Korean (Korea)"),
   ];
-  assert.deepEqual(names(rankKoreanVoices(edge)), [
+  assert.deepEqual(names(rankVoices(edge, "ko")), [
     "Microsoft SunHi Online (Natural) - Korean (Korea)",
     "Microsoft Heami - Korean (Korean)",
   ]);
-  assert.deepEqual(names(rankKoreanVoices([voice("Grandma"), voice("Yuna")])), ["Yuna"]);
+  assert.deepEqual(names(rankVoices([voice("Grandma"), voice("Yuna")], "ko")), ["Yuna"]);
   // 안드로이드는 lang을 ko_KR로 주기도 한다
-  assert.deepEqual(names(rankKoreanVoices([voice("한국어 대한민국", "ko_KR")])), ["한국어 대한민국"]);
+  assert.deepEqual(names(rankVoices([voice("한국어 대한민국", "ko_KR")], "ko")), ["한국어 대한민국"]);
+});
+
+test("영어는 Google US English → 엣지 신경망 음성 → Samantha 순이고 효과음 계열은 뺀다", () => {
+  const voices = [
+    voice("Zarvox", "en-US"),
+    voice("Samantha", "en-US"),
+    voice("Microsoft Aria Online (Natural) - English (United States)", "en-US"),
+    voice("Google US English", "en-US"),
+    voice("Yuna"),
+    voice("Daniel", "en-GB"),
+  ];
+  assert.deepEqual(names(rankVoices(voices, "en")), [
+    "Google US English",
+    "Microsoft Aria Online (Natural) - English (United States)",
+    "Samantha",
+    "Daniel",
+  ]);
+  // 안드로이드는 lang을 en_US로 주기도 한다
+  assert.deepEqual(names(rankVoices([voice("English United States", "en_US")], "en")), ["English United States"]);
+});
+
+test("대본의 언어는 한글로 가른다 — 영어판에 빠진 문구는 한국어 원문이 온다", () => {
+  assert.equal(scriptLanguage("Breathe in slowly."), "en");
+  assert.equal(scriptLanguage("천천히 들이쉬세요."), "ko");
+  assert.equal(scriptLanguage("Now 들이쉬세요"), "ko");
 });
 
 test("대본은 문장 단위로 자르고 문단 사이를 더 오래 쉰다", () => {

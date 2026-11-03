@@ -5,7 +5,7 @@
  */
 
 import { defineMessages } from "@/i18n/locale";
-import type { CardBadge, EnvironmentGap, Goal, NextStep, ProgressEvent } from "@/lib/api/types";
+import type { CardBadge, EnvironmentGap, Goal, InterventionOrder, NextStep, ProgressEvent } from "@/lib/api/types";
 
 export const GOAL_DOTS: Record<Goal, string> = { S1: "bg-goal-s1", S2: "bg-goal-s2", S3: "bg-goal-s3" };
 
@@ -63,11 +63,13 @@ export const LABELS = defineMessages({
       NEGATIVE: "반대 방향",
       UNCLEAR: "판단 어려움",
     },
+    /** 근거 연구가 수행된 사용자 상태(Reference 카드 근거의 조건 줄). 값을 빠뜨리면 코드가 그대로 보인다. */
     orders: {
       PRE_STRESS: "스트레스 전",
       POST_STRESS: "스트레스 뒤",
       POST_FATIGUE: "피로 뒤",
-    },
+      NO_INDUCTION: "특별한 계기 없음",
+    } satisfies Record<InterventionOrder, string>,
     /** 원문 구간의 논문 섹션. 원문은 영어 그대로 두고 섹션 이름만 옮긴다. */
     sections: {
       ABSTRACT: "초록",
@@ -159,6 +161,7 @@ export const LABELS = defineMessages({
       PRE_STRESS: "Before stress",
       POST_STRESS: "After stress",
       POST_FATIGUE: "After fatigue",
+      NO_INDUCTION: "No particular trigger",
     },
     sections: {
       ABSTRACT: "Abstract",

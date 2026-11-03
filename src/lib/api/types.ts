@@ -184,6 +184,9 @@ export type SessionReport = {
 
 // ── Reference 카드 ──────────────────────────────────────────────────────────────────────
 
+/** 근거 연구가 수행된 사용자 상태(BE schemas/evidence.InterventionOrder). NO_INDUCTION = 스트레스 · 피로 유도 없이. */
+export type InterventionOrder = "PRE_STRESS" | "POST_STRESS" | "POST_FATIGUE" | "NO_INDUCTION";
+
 export type CardBadge =
   | "EXPERIMENTAL"
   | "LIMITED_EVIDENCE"
@@ -246,7 +249,7 @@ export type CardEvidence = {
   n_detail: string | null;
   exposure_minutes: number | null;
   regimen: string | null;
-  studied_orders: string[];
+  studied_orders: InterventionOrder[];
   results: OutcomeResult[];
   supports_goal: boolean;
   supported_outcomes: string[];

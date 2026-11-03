@@ -3,8 +3,8 @@
 [한국어](README.md) · **English**
 
 > **This file is a translation.** [README.md](README.md) (Korean) is the source of truth; where the two
-> disagree, the Korean one is right. The screens can be switched to English (see “Screen language”), but
-> everything the backend sends — questions, measures, activity names and guidance — is still Korean.
+> disagree, the Korean one is right. The screens can be switched to English (see “Screen language”); a session
+> started on the English screen gets English questions, measures, activity names and guidance from the backend.
 > Korean strings that are real values in the app (screen copy, voice names) are kept as they are, with an English
 > gloss next to them. Linked documents marked (Korean) have no English version
 > yet.
@@ -176,8 +176,18 @@ Korean and the page re-renders in the chosen language once it hydrates (`src/i18
 - Copy lives next to where it is used, in `messages.ts` (names of code values in `labels.ts`), with Korean and English
   side by side (`defineMessages`). Korean defines the shape, so a missing or extra English key fails
   `npm run typecheck`. Don't hard-code copy in components.
-- Only copy the FE owns changes. What the BE sends — questions · measure items · activity names · scripts · rationales ·
-  Reference card sentences — is still Korean. Activity player copy lives in each player folder's `messages.ts`.
+- A session opens in the screen language at the time it starts — the start request carries `lang`
+  (`src/app/start-form.tsx`), and the BE sends questions · measure items · activity names · scripts · rationales ·
+  Reference card sentences in that language (BE README “Session language”). The FE doesn't translate BE sentences.
+  Activity player copy lives in each player folder's `messages.ts`.
+- Voice guidance picks its language from the script — Korean voices if it has Hangul, English voices otherwise
+  (`scriptLanguage` · `rankVoices` in `src/lib/speech.ts`). For English: Google US English → Edge neural voices →
+  Samantha.
+- The records tab gets activity names in the current screen language (`GET /me/sessions?lang=`), and keeps loaded
+  months per language.
+- The outdoor walk's start guidance replaces its default duration (Korean '약 50분' · English 'about 50 minutes') with
+  the chosen time (`src/session/walk-minutes.ts`). Question options sit side by side on one line when their display
+  width (Hangul counts as two) is 14 or less (`src/session/intake/label-width.ts`).
 - Values sent to the BE (option values such as the stop reason '지금은 어려워요', "not right now") stay the same
   whatever the screen language.
 - Errors: the Korean screen shows the received message as is; the English screen picks a sentence by error code
@@ -257,10 +267,11 @@ Requests where an LLM runs before the response are received over SSE, with progr
 Activity scripts are read with the browser's `speechSynthesis`, without recorded audio (BE README “RUN payload”).
 Only PR-21 has a recorded track. The rules are kept by functions in `src/lib/speech.ts`.
 
-- Voices are picked best first — desktop Chrome's `Google 한국의` (online) → Edge's
-  `Microsoft … Online (Natural)` → Safari · iOS · Mac's `Yuna`. macOS novelty voices (Eddy · Flo etc.) are not
-  used. On an error (e.g. a network error of an online voice), reading resumes from that sentence with the next
-  voice.
+- Voices are picked best first within the script's language (Korean if it has Hangul) — for Korean, desktop Chrome's
+  `Google 한국의` (online) → Edge's `Microsoft … Online (Natural)` → Safari · iOS · Mac's `Yuna`; for English,
+  `Google US English` → Edge neural voices → `Samantha` → `Google UK English`. macOS novelty and effect voices
+  (Eddy · Flo · Zarvox etc.) are not used. On an error (e.g. a network error of an online voice), reading resumes
+  from that sentence with the next voice.
 - Scripts are read sentence by sentence (0.4 s between sentences, 1.5 s at a blank line). Chrome's online voices cut
   off when they read for more than about 15 seconds at once.
 - Call `loadVoices()` when the activity screen opens, `unlockSpeech()` in the start button's `onClick` (on iOS,

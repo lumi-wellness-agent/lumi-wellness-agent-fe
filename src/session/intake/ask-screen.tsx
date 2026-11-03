@@ -14,13 +14,13 @@ import { useState } from "react";
 import { useMessages } from "@/i18n/use-locale";
 import type { IntakeAnswer, IntakeQuestion, QuestionOption } from "@/lib/api/types";
 import { Button, Chip, Heading, Screen } from "@/ui/controls";
+import { isShortLabel } from "./label-width";
 import { groupLabel, INTAKE_LABELS } from "./labels";
 import { INTAKE } from "./messages";
 
 const isUnknown = (option: QuestionOption) => Object.keys(option.set).length === 0;
-/** 보기 문구가 모두 짧으면(이어폰 있어요/없어요 · 5분/10분) 한 줄에 나란히 — 환경 질문이 한 화면에 들어오게. */
-const SHORT_LABEL = 7;
-const isShortGroup = (options: QuestionOption[]) => options.every((o) => o.label.length <= SHORT_LABEL);
+/** 보기 문구가 모두 짧으면(화면 폭 — label-width.ts) 한 줄에 나란히 — 환경 질문이 한 화면에 들어오게. */
+const isShortGroup = (options: QuestionOption[]) => options.every((o) => isShortLabel(o.label));
 
 export function AskScreen({
   question,

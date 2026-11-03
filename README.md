@@ -158,8 +158,15 @@ automation/                ship 하네스 (준비 문서 README.md + 하네스 �
 
 - 문구는 쓰는 곳 옆의 `messages.ts`(코드 값의 이름은 `labels.ts`)에 한국어와 영어를 나란히 둡니다(`defineMessages`). 한국어가 기준
   모양이라 영어에 키가 빠지거나 남으면 `npm run typecheck`가 실패합니다. 컴포넌트에 문구를 박지 않습니다.
-- 바뀌는 것은 FE가 정한 문구뿐입니다. BE가 보내는 질문 · 측정 문항 · 활동 이름 · 대본 · 추천 이유 · Reference 카드 문장은 아직
-  한국어입니다. 활동 플레이어의 문구는 플레이어 폴더마다 `messages.ts`에 있습니다.
+- 세션은 시작할 때의 화면 언어로 엽니다 — 시작 요청에 `lang`을 실으면(`src/app/start-form.tsx`) BE가 질문 · 측정 문항 · 활동
+  이름 · 대본 · 추천 이유 · Reference 카드 문장을 그 언어로 보냅니다(BE README 「세션 언어」). FE는 BE 문장을 옮기지 않습니다.
+  활동 플레이어의 문구는 플레이어 폴더마다 `messages.ts`에 있습니다.
+- 안내 음성은 대본으로 언어를 고릅니다 — 한글이 있으면 한국어 음성, 없으면 영어 음성(`src/lib/speech.ts`의 `scriptLanguage` ·
+  `rankVoices`). 영어는 Google US English → 엣지 신경망 음성 → Samantha 순입니다.
+- 기록 탭의 활동 이름은 지금 화면 언어로 받습니다(`GET /me/sessions?lang=`). 받아 둔 달은 언어마다 따로 둡니다.
+- 야외 보행 시작 안내의 기본 시간(한국어 '약 50분' · 영어 'about 50 minutes')은 고른 시간으로 바꿔 보입니다
+  (`src/session/walk-minutes.ts`). 질문 보기는 화면 폭(한글 두 칸)이 14칸 이하면 한 줄에 나란히 놓습니다
+  (`src/session/intake/label-width.ts`).
 - BE로 보내는 값(멈춘 이유 '지금은 어려워요' 같은 선택지 값)은 화면 언어와 상관없이 같은 값을 보냅니다.
 - 오류는 한국어 화면이면 받은 문장을 그대로, 영어 화면이면 오류 코드로 고른 문장을 보입니다(`src/i18n/errors.ts`).
 - 세션 화면에는 토글이 없습니다 — 세션 중에는 언어를 바꾸지 않습니다.
@@ -225,9 +232,10 @@ Supabase DB 접속 정보와 secret key, LLM 키, 콘텐츠 공급자 키(Pixaba
 활동 대본은 녹음 음원 없이 브라우저 `speechSynthesis`로 읽습니다(BE README 「RUN 페이로드」). 녹음 음원은 PR-21만
 있습니다. 규칙은 `src/lib/speech.ts`의 함수로 지킵니다.
 
-- 음성은 좋은 순서로 고릅니다 — 데스크톱 크롬의 `Google 한국의`(온라인) → 엣지의 `Microsoft … Online (Natural)`
-  → 사파리 · iOS · 맥의 `Yuna`. macOS의 기계음 계열(Eddy · Flo 등)은 쓰지 않습니다. 오류가 나면(온라인 음성의
-  네트워크 오류 등) 다음 음성으로 그 문장부터 다시 읽습니다.
+- 음성은 대본의 언어(한글이 있으면 한국어)에서 좋은 순서로 고릅니다 — 한국어는 데스크톱 크롬의 `Google 한국의`(온라인)
+  → 엣지의 `Microsoft … Online (Natural)` → 사파리 · iOS · 맥의 `Yuna`, 영어는 `Google US English` → 엣지 신경망 음성
+  → `Samantha` → `Google UK English`. macOS의 기계음 · 효과음 계열(Eddy · Flo · Zarvox 등)은 쓰지 않습니다. 오류가
+  나면(온라인 음성의 네트워크 오류 등) 다음 음성으로 그 문장부터 다시 읽습니다.
 - 대본은 문장 단위로 나눠 읽습니다(문장 사이 0.4초, 빈 줄 사이 1.5초). 크롬 온라인 음성은 한 번에 15초쯤 넘게
   읽으면 끊깁니다.
 - 활동 화면을 열 때 `loadVoices()`, 시작 버튼 `onClick`에서 `unlockSpeech()`(iOS는 사용자가 누른 순간에 처음

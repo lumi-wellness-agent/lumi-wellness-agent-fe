@@ -66,6 +66,14 @@ export function useLocale(): Locale {
   return useSyncExternalStore(subscribe, snapshot, serverSnapshot);
 }
 
+/**
+ * 지금 화면 언어를 React 밖에서 읽는다(브라우저에서만). 첫 hydration은 늘 한국어로 그리므로, 마운트 직후 effect에서
+ * 요청에 언어를 실어야 하면 훅 값 대신 이것을 쓴다(src/app/backend-warmup.tsx).
+ */
+export function currentLocale(): Locale {
+  return snapshot();
+}
+
 /** 쓰는 곳의 문구 묶음에서 지금 언어의 것. */
 export function useMessages<T>(messages: Messages<T>): T {
   return messages[useLocale()];

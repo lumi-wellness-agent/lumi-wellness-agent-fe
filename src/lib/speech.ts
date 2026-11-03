@@ -1,8 +1,11 @@
 /**
  * 안내 음성: 활동 대본을 브라우저 speechSynthesis로 읽는다. 녹음 음원은 없다(BE README 「RUN 페이로드」).
  *
- * - 음성은 PREFERRED 순서로 고른다. 데스크톱 크롬의 Google 한국의(온라인)가 가장 낫고, 없으면 엣지의
- *   신경망 음성, 사파리·iOS·맥의 Yuna 순이다. macOS의 기계음 계열(Eddy 등)은 쓰지 않는다.
+ * - 음성의 언어는 대본으로 정한다 — 한글이 있으면 한국어, 없으면 영어(scriptLanguage). BE는 세션 언어로 대본을
+ *   보내고(영어판 대본에는 한글이 없다), 세션 화면에는 언어 토글이 없어 한 활동의 대본은 한 언어다.
+ * - 음성은 언어마다 PREFERRED 순서로 고른다. 한국어는 데스크톱 크롬의 Google 한국의(온라인)가 가장 낫고, 없으면
+ *   엣지의 신경망 음성, 사파리·iOS·맥의 Yuna 순이다. 영어는 Google US English → 엣지 신경망 음성 → Samantha →
+ *   Google UK English 순이다. macOS의 기계음 · 효과음 계열(Eddy · Zarvox 등)은 쓰지 않는다.
  * - 대본은 문장 단위로 나눠 읽는다. 크롬 온라인 음성은 한 번에 15초쯤 넘게 읽으면 끊긴다.
  *   문장 사이는 0.4초, 문단(빈 줄) 사이는 1.5초 쉰다.
  * - 음성에서 오류가 나면(온라인 음성의 네트워크 오류 등) 다음 음성으로 그 문장부터 다시 읽는다.
@@ -10,29 +13,46 @@
  * - iOS는 사용자가 누른 순간에 처음 읽어야 이후에도 소리가 난다. 시작 버튼에서 unlockSpeech()를 부른다.
  */
 
-/** 좋은 음성부터. 음성 이름은 브라우저와 OS가 정한다. */
-const PREFERRED = [
-  /^Google 한국의$/, // 데스크톱 크롬 — 온라인
-  /^Microsoft .* Online \(Natural\)/, // 엣지 — 신경망 음성
-  /^Yuna/, // 사파리 · iOS · 맥 — 기기 내장
-];
-/** macOS의 기계음 계열 한국어 음성. 목록에서 뺀다. */
-const NOVELTY = /^(Eddy|Flo|Grandma|Grandpa|Reed|Rocko|Sandy|Shelley)\b/;
+/** 언어마다 좋은 음성부터. 음성 이름은 브라우저와 OS가 정한다. */
+const PREFERRED: Record<VoiceLanguage, RegExp[]> = {
+  ko: [
+    /^Google 한국의$/, // 데스크톱 크롬 — 온라인
+    /^Microsoft .* Online \(Natural\)/, // 엣지 — 신경망 음성
+    /^Yuna/, // 사파리 · iOS · 맥 — 기기 내장
+  ],
+  en: [
+    /^Google US English$/, // 데스크톱 크롬 — 온라인
+    /^Microsoft .* Online \(Natural\)/, // 엣지 — 신경망 음성
+    /^Samantha/, // 사파리 · iOS · 맥 — 기기 내장
+    /^Google UK English/,
+  ],
+};
+/** macOS의 기계음 · 효과음 계열 음성(한국어 · 영어). 목록에서 뺀다. */
+const NOVELTY =
+  /^(Albert|Bad News|Bahh|Bells|Boing|Bubbles|Cellos|Eddy|Flo|Good News|Grandma|Grandpa|Jester|Organ|Reed|Rocko|Sandy|Shelley|Superstar|Trinoids|Whisper|Wobble|Zarvox)\b/;
 
 export const SENTENCE_PAUSE_MS = 400;
 export const PARAGRAPH_PAUSE_MS = 1500;
 
 type Voice = Pick<SpeechSynthesisVoice, "name" | "lang">;
 export type Chunk = { text: string; pauseMs: number };
+/** 안내 음성의 언어 — 화면 언어(src/i18n/locale.ts)와 같은 둘이다. */
+export type VoiceLanguage = "ko" | "en";
 
-/** 한국어 음성을 좋은 순서로 돌려준다. 맨 앞을 쓰고, 오류가 나면 다음 음성으로 넘어간다. */
-export function rankKoreanVoices<V extends Voice>(voices: readonly V[]): V[] {
+/** 대본의 언어. 한글이 한 글자라도 있으면 한국어 — 영어판에 빠진 문구는 BE가 한국어 원문으로 보낸다. */
+export function scriptLanguage(script: string): VoiceLanguage {
+  return /[가-힣]/.test(script) ? "ko" : "en";
+}
+
+/** 그 언어의 음성을 좋은 순서로 돌려준다. 맨 앞을 쓰고, 오류가 나면 다음 음성으로 넘어간다. */
+export function rankVoices<V extends Voice>(voices: readonly V[], language: VoiceLanguage): V[] {
+  const preferred = PREFERRED[language];
   const rank = (voice: V) => {
-    const i = PREFERRED.findIndex((re) => re.test(voice.name));
-    return i === -1 ? PREFERRED.length : i;
+    const i = preferred.findIndex((re) => re.test(voice.name));
+    return i === -1 ? preferred.length : i;
   };
   return voices
-    .filter((v) => v.lang.toLowerCase().startsWith("ko") && !NOVELTY.test(v.name))
+    .filter((v) => v.lang.toLowerCase().startsWith(language) && !NOVELTY.test(v.name))
     .sort((a, b) => rank(a) - rank(b));
 }
 
@@ -120,7 +140,7 @@ export async function speakScript(
   cancelSpeech();
   const mine = generation;
   if (busy) await wait(100); // 사파리·크롬은 cancel() 바로 뒤의 speak()를 흘리는 경우가 있다
-  const voices = rankKoreanVoices(await loadVoices());
+  const voices = rankVoices(await loadVoices(), scriptLanguage(script));
   let v = 0;
   for (const chunk of splitScript(script)) {
     for (;;) {
@@ -163,7 +183,7 @@ function speakChunk(
       onSpeakingChange(false);
       resolve(result);
     };
-    // onend가 오지 않는 브라우저 버그에 대비한 상한. 한국어는 1초에 6~7자쯤 읽는다
+    // onend가 오지 않는 브라우저 버그에 대비한 상한. 한국어는 1초에 6~7자, 영어는 12~15자쯤 읽어 넉넉하다
     const watchdog = setTimeout(() => finish("end"), 5000 + (text.length * 300) / rate);
     utterance.onstart = () => onSpeakingChange(true);
     utterance.onend = () => finish("end");
